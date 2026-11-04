@@ -13,7 +13,7 @@ El proyecto está dividido en tres capas principales:
 
 1. **Capa de Campo (Adquisición de datos móvil):**
    - **Microcontrolador:** ESP32-S3 XIAO.
-   - **Sensores:** Módulo GPS (ej. NEO-8M) para obtener latitud, longitud y altitud.
+   - **Sensores:** Módulo GPS NEO-6M para obtener latitud, longitud y altitud.
    - **Actuadores:** LED/Buzzer con **etapa de potencia** (Transistor NPN/MOSFET) para notificaciones de estado (Flujo inverso).
    - **Energía:** Sistema portátil con batería LiPo y módulo de carga.
    - **Comunicación:** Envío de datos vía WiFi utilizando el protocolo **MQTT**.
@@ -37,8 +37,9 @@ El proyecto está dividido en tres capas principales:
 Se sugiere mantener la siguiente estructura para organizar los archivos del proyecto:
 
 ```text
-├── esp32_firmware/         # Código C++/Arduino para la ESP32-S3 XIAO
-│   └── main/               # Lógica de GPS, MQTT y control de actuadores
+├── esp32_firmware/         # Proyecto ESP-IDF para la ESP32-S3 XIAO
+│   ├── main/               # Punto de entrada y selector de fuentes
+│   └── source/             # Código de cada fuente de la ESP32
 ├── orange_pi/              # Scripts y configuraciones para la Capa de Borde
 │   ├── python_ili9341/     # Script de Python para controlar la pantalla táctil
 │   └── docker/             # Archivo docker-compose.yml (Mosquitto, Node-RED, InfluxDB)
@@ -51,7 +52,7 @@ Se sugiere mantener la siguiente estructura para organizar los archivos del proy
 
 ## Tecnologías y Herramientas
 
-* **Lenguajes:** C++ (ESP32), Python (Orange Pi).
+* **Lenguajes:** C con ESP-IDF (ESP32), Python (Orange Pi).
 * **Bases de Datos:** InfluxDB, MariaDB.
 * **Visualización e Integración:** Node-RED, Grafana, Open Maps.
 * **Infraestructura:** Docker, Docker Compose.

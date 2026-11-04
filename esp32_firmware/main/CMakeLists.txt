@@ -1,0 +1,11 @@
+idf_component_register(
+    SRCS
+        "main.c"
+        "../source/1_gps_neo6m/gps_neo6m.c"
+    INCLUDE_DIRS
+        "."
+        "../source/1_gps_neo6m"
+    REQUIRES
+        esp_driver_gpio
+        esp_driver_uart
+)

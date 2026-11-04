@@ -1,0 +1,17 @@
+XIAO ESP32-S3 PINOUT CONNECTIONS
+
+1. POWER (Shared)
+- 3.3V Pin ---> OLED VCC  +  GPS VCC
+- GND Pin  ---> OLED GND  +  GPS GND
+
+2. OLED DISPLAY
+- Pin D7   ---> OLED SDA
+- Pin D8   ---> OLED SCL
+
+3. NEO-6M GPS
+- Pin D1   ---> GPS TX
+- Pin D2   ---> GPS RX
+
+4. OTHER (Do not use)
+- Pin D4   ---> Occupied by green wire
+- Pin D5   ---> Occupied by green wire
