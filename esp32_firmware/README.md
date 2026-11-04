@@ -88,3 +88,97 @@ Configura SSID, contraseña, broker y tópico con `idf.py menuconfig`, en
 
 La Orange Pi debe ejecutar un broker MQTT en el puerto 1883 y puede validar
 los mensajes con [`orange_pi/mqtt_receiver/receiver.py`](../orange_pi/mqtt_receiver/receiver.py).
+
+## Configuración completa con la Orange Pi
+
+ESP32 y Orange Pi deben estar conectadas a la misma red local. El ESP32-S3
+solo utiliza WiFi de 2.4 GHz; en un router TP-Link desactiva `Smart Connect`,
+activa la red 2.4 GHz y configura seguridad `WPA2-PSK/AES`. No uses una red de
+invitados, porque puede impedir la comunicación entre dispositivos.
+
+### 1. Preparar Mosquitto en la Orange Pi
+
+En la Orange Pi instala y habilita el broker:
+
+```bash
+sudo apt update
+sudo apt install mosquitto mosquitto-clients python3-venv
+sudo systemctl enable --now mosquitto
+```
+
+Para permitir conexiones del ESP32 en la red local, crea una configuración
+para Mosquitto:
+
+```bash
+sudo tee /etc/mosquitto/conf.d/gps.conf >/dev/null <<'EOF'
+listener 1883 0.0.0.0
+allow_anonymous true
+EOF
+sudo systemctl restart mosquitto
+```
+
+Obtén la IP de la Orange Pi:
+
+```bash
+hostname -I
+```
+
+Usa la dirección de la misma red que utilizará el ESP32, por ejemplo
+`192.168.0.50`. Si la IP cambia, actualiza la URI MQTT en `menuconfig`.
+
+### 2. Iniciar el receptor
+
+Desde la computadora, despliega el receptor:
+
+```bash
+./orange_pi/mqtt_receiver/deploy.sh
+```
+
+Después déjalo ejecutándose en la Orange Pi:
+
+```bash
+cd ~/proyecto/orange_pi/mqtt_receiver
+.venv/bin/python receiver.py
+```
+
+Debe mostrar:
+
+```text
+Connected. Listening on proyecto/gps/telemetry and proyecto/gps/telemetry/status
+```
+
+### 3. Configurar y flashear el ESP32
+
+Desde `esp32_firmware`, abre la configuración:
+
+```bash
+./run.sh menuconfig
+```
+
+En `GPS telemetry` configura:
+
+```text
+WiFi SSID:             SSID de la red 2.4 GHz
+WiFi password:        contraseña de esa red
+MQTT broker URI:      mqtt://IP_DE_LA_ORANGE_PI:1883
+MQTT telemetry topic: proyecto/gps/telemetry
+```
+
+Guarda, sal de `menuconfig` y carga el firmware:
+
+```bash
+./run.sh flash
+./run.sh monitor
+```
+
+### 4. Probar la carga
+
+1. Deja el GPS al aire libre hasta obtener coordenadas válidas.
+2. En modo `GPS MONITOR`, confirma que la pantalla muestra las coordenadas.
+3. Presiona una vez el botón conectado entre D0/GPIO1 y GND.
+4. El ESP32 debe mostrar `CARGA WIFI`.
+5. El monitor serial debe mostrar `WiFi conectado`, `Conectado al broker
+   MQTT` y `Mediciones publicadas`.
+6. El receptor debe mostrar los estados `uploading` y `complete`, además de
+   cada medición recibida.
+7. Presiona nuevamente el botón para volver a `GPS MONITOR`.

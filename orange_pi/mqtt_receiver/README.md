@@ -8,9 +8,50 @@ integrarlo con Node-RED.
 Instala el cliente en la Orange Pi con:
 
 ```bash
-python3 -m pip install paho-mqtt
-python3 receiver.py
+sudo apt update
+sudo apt install mosquitto mosquitto-clients python3-venv
+python3 -m venv .venv
+.venv/bin/python -m pip install paho-mqtt
+.venv/bin/python receiver.py
 ```
+
+## Configuración completa
+
+Conecta la Orange Pi y la ESP32 a la misma red WiFi de 2.4 GHz. Obtén la IP
+de la Orange Pi:
+
+```bash
+hostname -I
+```
+
+Configura Mosquitto para aceptar al ESP32 desde la red local:
+
+```bash
+sudo tee /etc/mosquitto/conf.d/gps.conf >/dev/null <<'EOF'
+listener 1883 0.0.0.0
+allow_anonymous true
+EOF
+sudo systemctl enable --now mosquitto
+sudo systemctl restart mosquitto
+```
+
+Inicia el receptor:
+
+```bash
+cd ~/proyecto/orange_pi/mqtt_receiver
+.venv/bin/python receiver.py
+```
+
+En el ESP32, ejecuta `./run.sh menuconfig` dentro de `esp32_firmware` y usa:
+
+```text
+MQTT broker URI: mqtt://IP_DE_LA_ORANGE_PI:1883
+MQTT telemetry topic: proyecto/gps/telemetry
+```
+
+El SSID y la contraseña deben corresponder a la red 2.4 GHz. Cuando el ESP32
+publique, este receptor mostrará los estados `uploading` y `complete`, además
+de las coordenadas recibidas.
 
 ## Despliegue desde la computadora
 
