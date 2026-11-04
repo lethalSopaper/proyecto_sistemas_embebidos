@@ -13,10 +13,10 @@ echo "        Automatizacion de ESP-IDF          "
 echo "==========================================="
 
 case "$ACTION" in
-    build|flash|monitor)
+    build|flash|monitor|menuconfig)
         ;;
     *)
-        echo "Uso: $0 [build|flash|monitor] [puerto]"
+        echo "Uso: $0 [build|flash|monitor|menuconfig] [puerto]"
         echo
         echo "Variables opcionales:"
         echo "  ESP_IDF_PATH=/ruta/a/esp-idf"
@@ -76,5 +76,9 @@ case "$ACTION" in
     monitor)
         echo "[3/3] Abriendo monitor en $PORT..."
         idf.py -p "$PORT" monitor
+        ;;
+    menuconfig)
+        echo "[3/3] Abriendo menuconfig..."
+        idf.py menuconfig
         ;;
 esac

@@ -15,7 +15,7 @@
 
 #include "driver/gpio.h"
 
-#if ((defined CONFIG_I2C_ENABLE_SLAVE_DRIVER_VERSION_2 && ESP_IDF_VERSION >= ESP_IDF_VERSION_VAL(5, 2, 0)))
+#if ESP_IDF_VERSION >= ESP_IDF_VERSION_VAL(5, 2, 0)
 #define U8G2_ESP32_HAL_USE_V2_I2C_API
 #include "driver/i2c_master.h"
 #else
@@ -26,11 +26,7 @@
 
 #define U8G2_ESP32_HAL_UNDEFINED GPIO_NUM_NC
 
-#if SOC_I2C_NUM > 1
-#define I2C_MASTER_NUM I2C_NUM_1     //  I2C port number for master dev
-#else
-#define I2C_MASTER_NUM I2C_NUM_0     //  I2C port number for master dev
-#endif
+#define I2C_MASTER_NUM I2C_NUM_0     // I2C port used by the OLED
 
 #define I2C_MASTER_TX_BUF_DISABLE 0  //  I2C master do not need buffer
 #define I2C_MASTER_RX_BUF_DISABLE 0  //  I2C master do not need buffer

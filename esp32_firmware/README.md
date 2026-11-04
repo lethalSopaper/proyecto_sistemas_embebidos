@@ -43,6 +43,7 @@ módulo antes de conectarlo. La conexión del OLED es:
 
 La fuente utiliza la dirección I2C `0x3C` del OLED (formato U8g2 `0x78`).
 D4/GPIO5 y D5/GPIO6 no se utilizan.
+El proyecto usa la API I2C nueva de ESP-IDF 6 mediante el HAL local de U8g2.
 
 ## Compilar y flashear
 
@@ -52,7 +53,11 @@ Desde este directorio, con el entorno de ESP-IDF habilitado:
 ./run.sh build
 ./run.sh flash
 ./run.sh monitor
+./run.sh menuconfig
 ```
+
+Usa `./run.sh menuconfig` para configurar el SSID, la contraseña WiFi, el
+broker MQTT y el tópico sin cargar manualmente el entorno de ESP-IDF.
 
 `run.sh` usa `/dev/ttyACM0` por defecto. Si la placa aparece en otro puerto,
 indícalo como segundo parámetro:
@@ -69,3 +74,17 @@ Para cambiar de fuente, modifica [`main/source.h`](./main/source.h):
 descomenta el encabezado y la macro `SOURCE` correspondientes, y comenta los
 de la fuente anterior. CMake compila las fuentes disponibles, pero solo se
 ejecuta la función seleccionada por `SOURCE`.
+
+## Fuente GPS + botón + MQTT
+
+La fuente `3_gps_neo6m_oled_mqtt` usa el botón en D0/GPIO1 conectado a GND
+(pull-up interno). Al presionarlo alterna entre monitoreo GPS y carga MQTT.
+Cada pulsación cambia el modo una sola vez; no es necesario mantener el botón
+presionado. En modo de carga, la pantalla conserva el estado de la conexión y
+una segunda pulsación regresa al monitoreo GPS.
+Configura SSID, contraseña, broker y tópico con `idf.py menuconfig`, en
+`GPS telemetry`. El valor predeterminado del broker es
+`mqtt://equipo12.local:1883` y el tópico es `proyecto/gps/telemetry`.
+
+La Orange Pi debe ejecutar un broker MQTT en el puerto 1883 y puede validar
+los mensajes con [`orange_pi/mqtt_receiver/receiver.py`](../orange_pi/mqtt_receiver/receiver.py).

@@ -1,0 +1,19 @@
+menu "GPS telemetry"
+
+config GPS_WIFI_SSID
+    string "WiFi SSID"
+    default "equipo12"
+
+config GPS_WIFI_PASSWORD
+    string "WiFi password"
+    default ""
+
+config GPS_MQTT_URI
+    string "MQTT broker URI"
+    default "mqtt://equipo12.local:1883"
+
+config GPS_MQTT_TOPIC
+    string "MQTT telemetry topic"
+    default "proyecto/gps/telemetry"
+
+endmenu
