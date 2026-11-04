@@ -1,9 +1,12 @@
 #ifndef SOURCE_H
 #define SOURCE_H
 
-#include "gps_neo6m.h"
+// Deja incluido solo el encabezado de la fuente que quieras ejecutar.
+#include "gps_neo6m_oled.h"
+// #include "gps_neo6m.h"
 
-// Selecciona una sola fuente para compilar y ejecutar.
-#define SOURCE gps_neo6m_app_main
+// Define SOURCE con la función de la fuente cuyo encabezado está incluido.
+#define SOURCE gps_neo6m_oled_app_main
+// #define SOURCE gps_neo6m_app_main
 
 #endif

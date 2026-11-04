@@ -1,0 +1,68 @@
+Command: /home/lethalsopaper/.espressif/python_env/idf6.0_py3.14_env/bin/python /home/lethalsopaper/.espressif/v6.0.2/esp-idf/tools/idf_monitor.py -p /dev/ttyACM0 -b 115200 --toolchain-prefix xtensa-esp32s3-elf- --target esp32s3 --revision 0 /home/lethalsopaper/Documents/9_UNAM_semestre_9/3_fundamentos_de_sistemas_embebidos/proyecto/esp32_firmware/build/esp32_firmware.elf /home/lethalsopaper/Documents/9_UNAM_semestre_9/3_fundamentos_de_sistemas_embebidos/proyecto/esp32_firmware/build/bootloader/bootloader.elf -m '/home/lethalsopaper/.espressif/python_env/idf6.0_py3.14_env/bin/python' '/home/lethalsopaper/.espressif/v6.0.2/esp-idf/tools/idf.py' '-p' '/dev/ttyACM0'
+[0;32mI (102) esp_image: segment 3: paddr=00020020 vaddr=42000020 sizeESP-ROM:esp32s3-20210327[0m
+Build:Mar 27 2021
+rst:0x15 (USB_UART_CHIP_RESET),boot:0x29 (SPI_FAST_FLASH_BOOT)
+Saved PC:0x40379232
+SPIWP:0xee
+mode:DIO, clock div:1
+load:0x3fce2820,len:0x14f0
+load:0x403c8700,len:0xda0
+load:0x403cb700,len:0x2f54
+entry 0x403c8908
+[0;32mI (24) boot: ESP-IDF v6.0.2 2nd stage bootloader[0m
+[0;32mI (24) boot: compile time Nov  3 2026 20:15:30[0m
+[0;32mI (25) boot: Multicore bootloader[0m
+[0;32mI (25) boot: chip revision: v0.2[0m
+[0;32mI (28) boot: efuse block revision: v1.4[0m
+[0;32mI (31) boot.esp32s3: Boot SPI Speed : 80MHz[0m
+[0;32mI (35) boot.esp32s3: SPI Mode       : DIO[0m
+[0;32mI (39) boot.esp32s3: SPI Flash Size : 2MB[0m
+[0;32mI (43) boot: Enabling RNG early entropy source...[0m
+[0;32mI (47) boot: Partition Table:[0m
+[0;32mI (50) boot: ## Label            Usage          Type ST Offset   Length[0m
+[0;32mI (56) boot:  0 nvs              WiFi data        01 02 00009000 00006000[0m
+[0;32mI (62) boot:  1 phy_init         RF data          01 01 0000f000 00001000[0m
+[0;32mI (69) boot:  2 factory          factory app      00 00 00010000 00100000[0m
+[0;32mI (76) boot: End of partition table[0m
+[0;32mI (79) esp_image: segment 0: paddr=00010020 vaddr=3c020020 size=0c414h ( 50196) map[0m
+[0;32mI (95) esp_image: segment 1: paddr=0001c43c vaddr=3fc91400 size=030f8h ( 12536) load[0m
+[0;32mI (99) esp_image: segment 2: paddr=0001f53c vaddr=40374000 size=00adch (  2780) load[0m
+[0;32mI (102) esp_image: segment 3: paddr=00020020 vaddr=42000020 size=197cch (104396) map[0m
+[0;32mI (128) esp_image: segment 4: paddr=000397f4 vaddr=40374adc size=0c8ech ( 51436) load[0m
+[0;32mI (140) esp_image: segment 5: paddr=000460e8 vaddr=50000000 size=00024h (    36) load[0m
+[0;32mI (146) boot: Loaded app from partition at offset 0x10000[0m
+[0;32mI (146) boot: Disabling RNG early entropy source...[0m
+[0;32mI (158) cpu_start: Multicore app[0m
+[0;32mI (166) cpu_start: GPIO 44 and 43 are used as console UART I/O pins[0m
+[0;32mI (167) cpu_start: Pro cpu start user code[0m
+[0;32mI (167) cpu_start: cpu freq: 160000000 Hz[0m
+[0;32mI (168) app_init: Application information:[0m
+[0;32mI (172) app_init: Project name:     esp32_firmware[0m
+[0;32mI (177) app_init: App version:      2db0405-dirty[0m
+[0;32mI (181) app_init: Compile time:     Nov  3 2026 20:15:26[0m
+[0;32mI (186) app_init: ELF file SHA256:  0f1770ec0...[0m
+[0;32mI (190) app_init: ESP-IDF:          v6.0.2[0m
+[0;32mI (194) efuse_init: Min chip rev:     v0.0[0m
+[0;32mI (198) efuse_init: Max chip rev:     v0.99 [0m
+[0;32mI (202) efuse_init: Chip rev:         v0.2[0m
+[0;32mI (206) heap_init: Initializing. RAM available for dynamic allocation:[0m
+[0;32mI (212) heap_init: At 3FC95390 len 00054380 (336 KiB): RAM[0m
+[0;32mI (217) heap_init: At 3FCE9710 len 00005724 (21 KiB): RAM[0m
+[0;32mI (222) heap_init: At 3FCF0000 len 00008000 (32 KiB): DRAM[0m
+[0;32mI (228) heap_init: At 600FE000 len 00001FE8 (7 KiB): RTCRAM[0m
+[0;32mI (234) spi_flash: detected chip: gd[0m
+[0;32mI (236) spi_flash: flash io: dio[0m
+[0;33mW (239) spi_flash: Detected size(8192k) larger than the size in the binary image header(2048k). Using the size in the binary image header.[0m
+[0;33mW (251) i2c: This driver is an old driver, please migrate your application code to adapt `driver/i2c_master.h`[0m
+[0;32mI (261) sleep_gpio: Configure to isolate all GPIO pins in sleep state[0m
+[0;32mI (268) sleep_gpio: Enable automatic switching of GPIO sleep configuration[0m
+[0;32mI (275) main_task: Started on CPU0[0m
+[0;32mI (275) main_task: Calling app_main()[0m
+[0;32mI (285) u8g2_hal: sda_io_num 7[0m
+[0;32mI (285) u8g2_hal: scl_io_num 44[0m
+[0;32mI (285) u8g2_hal: clk_speed 1000000[0m
+[0;32mI (285) u8g2_hal: i2c_param_config 1[0m
+[0;32mI (295) u8g2_hal: i2c_driver_install 1[0m
+[0;32mI (635) gps_neo6m_oled: GPS + OLED iniciados[0m
+[0;32mI (635) gps_neo6m_oled: GPS TX GPIO2, RX GPIO3[0m
+[0;32mI (635) gps_neo6m_oled: OLED SDA GPIO7, SCL GPIO44[0m

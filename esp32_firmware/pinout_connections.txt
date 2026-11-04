@@ -5,8 +5,8 @@ XIAO ESP32-S3 PINOUT CONNECTIONS
 - GND Pin  ---> OLED GND  +  GPS GND
 
 2. OLED DISPLAY
-- Pin D7   ---> OLED SDA
-- Pin D8   ---> OLED SCL
+- Pin D8   ---> OLED SDA
+- Pin D7   ---> OLED SCL
 
 3. NEO-6M GPS
 - Pin D1   ---> GPS TX

@@ -2,10 +2,14 @@ idf_component_register(
     SRCS
         "main.c"
         "../source/1_gps_neo6m/gps_neo6m.c"
+        "../source/2_gps_neo6m_oled/gps_neo6m_oled.c"
     INCLUDE_DIRS
         "."
         "../source/1_gps_neo6m"
+        "../source/2_gps_neo6m_oled"
     REQUIRES
         esp_driver_gpio
         esp_driver_uart
+        u8g2
+        u8g2-hal-esp-idf
 )

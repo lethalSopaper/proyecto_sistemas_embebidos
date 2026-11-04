@@ -13,11 +13,12 @@ fuente seleccionada en [`main/source.h`](./main/source.h).
 La lógica principal se organiza en [`main/`](./main/), mientras que cada fuente
 se guarda dentro de [`source/`](./source/), al mismo nivel.
 
-## Práctica actual: GPS NEO-6M
+## Fuente actual: GPS NEO-6M + OLED SSD1306
 
-La fuente [`1_gps_neo6m/`](./source/1_gps_neo6m/) lee tramas NMEA
+La fuente [`2_gps_neo6m_oled/`](./source/2_gps_neo6m_oled/) lee tramas NMEA
 `GGA` mediante UART a 9600 baudios y muestra por el monitor serial la latitud,
 longitud, altitud, número de satélites y HDOP cuando existe un fix válido.
+Los mismos datos se muestran en el OLED SSD1306 de 128x64.
 La lectura se sincroniza con el carácter inicial `$` de cada trama NMEA para
 descartar fragmentos recibidos durante el arranque.
 
@@ -31,8 +32,17 @@ Conexión inicial usando los GPIO configurados en el código:
 | VCC | 3.3V |
 
 El GPS debe compartir GND con la ESP32. Verifica el voltaje de alimentación del
-módulo antes de conectarlo. Los pines D7/GPIO44 y D8/GPIO7 quedan reservados
-para el OLED; D4/GPIO5 y D5/GPIO6 no se utilizan.
+módulo antes de conectarlo. La conexión del OLED es:
+
+| OLED | ESP32-S3 XIAO |
+|---|---|
+| SDA | D8 / GPIO7 |
+| SCL | D7 / GPIO44 |
+| VCC | 3.3V |
+| GND | GND |
+
+La fuente utiliza la dirección I2C `0x3C` del OLED (formato U8g2 `0x78`).
+D4/GPIO5 y D5/GPIO6 no se utilizan.
 
 ## Compilar y flashear
 
@@ -55,6 +65,7 @@ indícalo como segundo parámetro:
 El script busca ESP-IDF en `~/.espressif/v6.0.2/esp-idf`. Si la instalación
 está en otra ubicación, usa `ESP_IDF_PATH=/ruta/a/esp-idf ./run.sh build`.
 
-Para cambiar de fuente, modifica únicamente la macro `SOURCE` en
-[`main/source.h`](./main/source.h), dejando seleccionada una sola
-función de entrada.
+Para cambiar de fuente, modifica [`main/source.h`](./main/source.h):
+descomenta el encabezado y la macro `SOURCE` correspondientes, y comenta los
+de la fuente anterior. CMake compila las fuentes disponibles, pero solo se
+ejecuta la función seleccionada por `SOURCE`.
