@@ -1,9 +1,9 @@
-# Receptor MQTT de telemetría
+# Receptor MQTT de telemetría y ruta
 
 La ESP32 publica mediciones JSON en `proyecto/gps/telemetry` usando el broker
 MQTT de la Orange Pi (`equipo12.local:1883`). Este directorio contiene un
-receptor mínimo para validar la conexión y el estado de carga antes de
-integrarlo con Node-RED.
+receptor mínimo para validar la conexión y el estado de carga antes de integrarlo con Node-RED. También dibuja la ruta recibida en el
+ILI9341 conectado por SPI.
 
 Instala el cliente en la Orange Pi con:
 
@@ -11,8 +11,100 @@ Instala el cliente en la Orange Pi con:
 sudo apt update
 sudo apt install mosquitto mosquitto-clients python3-venv
 python3 -m venv .venv
-.venv/bin/python -m pip install paho-mqtt
+.venv/bin/python -m pip install paho-mqtt Pillow numpy python-periphery
 .venv/bin/python receiver.py
+```
+
+`numpy` es necesario porque el controlador `ili9341_opi.py` lo utiliza. Si el
+entorno ya existe, instala las dependencias sin recrearlo:
+
+```bash
+.venv/bin/python -m pip install numpy python-periphery
+```
+
+El receptor usa la misma configuración de pantalla que los scripts de prueba:
+SPI1 (`/dev/spidev1.0`), DC `261`, CS `229` y RESET `227`. El inicio de un
+upload limpia la ruta; cada coordenada recibida se agrega sobre mosaicos de
+OpenStreetMap y la línea azul representa la ruta. El punto verde es el inicio
+y el rojo el último punto. La vista usa un radio de 1 km alrededor de la ruta
+por defecto, muestra el número de puntos recibidos y evita que una ruta corta
+se estire hasta ocupar toda la pantalla. Los mosaicos se guardan en
+`osm_tiles/` para reutilizarlos sin descargarlos otra vez.
+
+Si el panel táctil está conectado, los botones `-` y `+` de la parte superior
+cambian el radio entre `50 m`, `250 m`, `1 km`, `5 km` y `10 km`. El controlador
+`xpt2046_opi.py` debe estar junto a `ili9341_opi.py`; el panel usa SPI1,
+`/dev/spidev1.1`, IRQ `226` y 4 MHz, igual que el script de calibración.
+
+Puedes cambiar el radio sin modificar el código:
+
+```bash
+OSM_VIEW_RADIUS_M=250 .venv/bin/python receiver.py
+```
+
+El valor máximo es 10000 metros. Para volver a la vista recomendada:
+
+```bash
+OSM_VIEW_RADIUS_M=1000 .venv/bin/python receiver.py
+```
+
+El archivo `ili9341_opi.py` debe estar en este mismo directorio (o instalado
+en el entorno Python). El error `No module named 'ili9341_opi'` significa que
+el controlador usado por los scripts de prueba no fue copiado a la Orange Pi.
+Desde la computadora puedes desplegarlo junto con el receptor:
+
+```bash
+ILI9341_DRIVER_DIR=/ruta/a/la/carpeta/del/controlador \
+  ./orange_pi/mqtt_receiver/deploy.sh
+```
+
+La carpeta indicada debe contener `ili9341_opi.py`. Si el controlador está en
+otra ubicación de la Orange Pi, cópialo al directorio del receptor:
+
+```bash
+cp /ruta/al/controlador/ili9341_opi.py \
+  ~/proyecto/orange_pi/mqtt_receiver/
+```
+
+El receptor seguirá funcionando sin pantalla si el controlador no está
+presente. Para desactivar explícitamente la pantalla:
+
+```bash
+ILI9341_ENABLED=0 .venv/bin/python receiver.py
+```
+
+Para comprobar las coordenadas que entrega el panel táctil, ejecuta:
+
+```bash
+TOUCH_DEBUG=1 .venv/bin/python receiver.py
+```
+
+Al tocar con la pluma, el receptor imprimirá las coordenadas crudas y las
+coordenadas convertidas. El receptor usa por defecto un rango ADC de
+`300..3800` para ambos ejes. Puedes corregir orientación sin editar código:
+
+```bash
+TOUCH_SWAP_AXES=1 TOUCH_INVERT_X=1 TOUCH_DEBUG=1 \
+  .venv/bin/python receiver.py
+```
+
+También puedes ajustar los límites con `TOUCH_X_MIN`, `TOUCH_X_MAX`,
+`TOUCH_Y_MIN` y `TOUCH_Y_MAX`. Las coordenadas convertidas deben quedar dentro
+de `0..240` y `0..320`; al tocar el botón debe aparecer `Touch: zoom in` o
+`Touch: zoom out`.
+Las zonas táctiles incluyen un margen alrededor de cada botón para facilitar el
+uso con una pluma.
+
+La Orange Pi necesita Internet para descargar una zona que no esté en caché.
+El programa usa `tile.openstreetmap.org`, envía un User-Agent identificable y
+muestra la atribución requerida en la pantalla. Respeta el uso moderado del
+servicio; para recorridos frecuentes conviene configurar un servidor de
+mosaicos propio o precargar el área.
+
+Para probar solo MQTT sin inicializar la pantalla:
+
+```bash
+ILI9341_ENABLED=0 .venv/bin/python receiver.py
 ```
 
 ## Configuración completa

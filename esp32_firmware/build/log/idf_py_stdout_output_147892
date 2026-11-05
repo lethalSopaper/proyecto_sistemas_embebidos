@@ -38,26 +38,3 @@ entry 0x403c8900
 [0;32mI (631) wifi_init: WiFi RX IRAM OP enabled[0m
 [0;32mI (631) gps_oled_mqtt: Boton de modo: D0/GPIO1 a GND[0m
 [0;32mI (631) gps_oled_mqtt: Mediciones pendientes: 0[0m
-[0;32mI (2581) gps_oled_mqtt: Modo cambiado a UPLOAD[0m
-[0;32mI (2611) gps_oled_mqtt: Conectando a WiFi SSID=TP-Link_F271_2G (con contraseña)[0m
-[0;33mW (2611) wifi:Password length matches WPA2 standards, authmode threshold changes from OPEN to WPA2[0m
-[0;32mI (2631) phy_init: phy_version 712,87e8c20e,Apr 13 2026,18:51:10[0m
-[0;32mI (2671) wifi:mode : sta (a4:cb:8f:d1:4d:50)[0m
-[0;32mI (2671) wifi:enable tsf[0m
-[0;32mI (3061) wifi:new:<2,0>, old:<1,0>, ap:<255,255>, sta:<2,0>, prof:1, snd_ch_cfg:0x0[0m
-[0;32mI (3061) wifi:state: init -> auth (0xb0)[0m
-[0;32mI (3071) wifi:state: auth -> assoc (0x0)[0m
-[0;32mI (3081) wifi:state: assoc -> run (0x10)[0m
-[0;32mI (3121) wifi:connected with TP-Link_F271_2G, aid = 1, channel 2, BW20, bssid = 1c:3b:f3:3f:f2:71[0m
-[0;32mI (3121) wifi:security: WPA2-PSK, phy: bgn, rssi: -56, cipher(pairwise:0x3, group:0x3), pmf:0[0m
-[0;32mI (3131) wifi:pm start, type: 1[0m
-
-[0;32mI (3131) wifi:dp: 1, bi: 102400, li: 3, scale listen interval from 307200 us to 307200 us[0m
-[0;32mI (3131) wifi:set rx beacon pti, rx_bcn_pti: 0, bcn_timeout: 25000, mt_pti: 0, mt_time: 10000[0m
-[0;32mI (3141) wifi:<ba-add>idx:0 (ifx:0, 1c:3b:f3:3f:f2:71), tid:0, ssn:0, winSize:64[0m
-[0;32mI (3191) wifi:AP's beacon interval = 102400 us, DTIM period = 1[0m
-[0;32mI (4151) esp_netif_handlers: sta ip: 192.168.0.192, mask: 255.255.255.0, gw: 192.168.0.1[0m
-[0;32mI (4151) gps_oled_mqtt: WiFi conectado; IP=192.168.0.192[0m
-[0;32mI (4301) gps_oled_mqtt: Conectado al broker MQTT[0m
-[0;32mI (4301) gps_oled_mqtt: Publicando 0 mediciones en proyecto/gps/telemetry[0m
-[0;32mI (4301) gps_oled_mqtt: Mediciones publicadas: 0[0m

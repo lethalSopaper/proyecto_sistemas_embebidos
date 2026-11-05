@@ -5,5 +5,5 @@ Command: /home/lethalsopaper/.espressif/python_env/idf6.0_py3.14_env/bin/python 
 --- 0x403c8700: _stext at ??:?
 --- 0x403c8900: call_start_cpu0 at /home/lethalsopaper/.espressif/v6.0.2/esp-idf/components/bootloader/subproject/main/bootloader_start.c:27
 --- ERROR: device reports readiness to read but returned no data (device disconnected or multiple access on port?)
---- Waiting for the device to reconnect.........
+--- Waiting for the device to reconnect........................................................................................
 

@@ -32,6 +32,7 @@
 #define MAX_MEASUREMENTS 64
 #define WIFI_CONNECTED BIT0
 #define MQTT_CONNECTED BIT1
+#define MQTT_PUBLISHED BIT2
 
 static const char *TAG = "gps_oled_mqtt";
 static EventGroupHandle_t wifi_events;
@@ -131,6 +132,11 @@ static void wifi_event_handler(
 
 static bool wifi_connect(void)
 {
+    if ((xEventGroupGetBits(wifi_events) & WIFI_CONNECTED) != 0) {
+        ESP_LOGI(TAG, "WiFi ya conectado; se reutilizara la conexion existente");
+        return true;
+    }
+
     wifi_config_t config = {0};
     snprintf((char *)config.sta.ssid, sizeof(config.sta.ssid), "%s", CONFIG_GPS_WIFI_SSID);
     snprintf((char *)config.sta.password, sizeof(config.sta.password), "%s", CONFIG_GPS_WIFI_PASSWORD);
@@ -168,9 +174,28 @@ static void mqtt_event_handler(void *handler_args, esp_event_base_t base, int32_
     if (event_id == MQTT_EVENT_CONNECTED) {
         ESP_LOGI(TAG, "Conectado al broker MQTT");
         xEventGroupSetBits(wifi_events, MQTT_CONNECTED);
+    } else if (event_id == MQTT_EVENT_PUBLISHED) {
+        xEventGroupSetBits(wifi_events, MQTT_PUBLISHED);
     } else if (event_id == MQTT_EVENT_DISCONNECTED) {
         xEventGroupClearBits(wifi_events, MQTT_CONNECTED);
     }
+}
+
+static bool publish_and_wait(const char *topic, const char *payload)
+{
+    xEventGroupClearBits(wifi_events, MQTT_PUBLISHED);
+    if (esp_mqtt_client_publish(mqtt_client, topic, payload, 0, 1, 0) < 0) {
+        ESP_LOGE(TAG, "No se pudo encolar el mensaje MQTT en %s", topic);
+        return false;
+    }
+    EventBits_t bits = xEventGroupWaitBits(
+        wifi_events, MQTT_PUBLISHED, pdTRUE, pdFALSE, pdMS_TO_TICKS(5000)
+    );
+    if ((bits & MQTT_PUBLISHED) == 0) {
+        ESP_LOGE(TAG, "Tiempo agotado esperando confirmacion MQTT en %s", topic);
+        return false;
+    }
+    return true;
 }
 
 static bool upload_measurements(void)
@@ -209,7 +234,9 @@ static bool upload_measurements(void)
 
     ESP_LOGI(TAG, "Publicando %d mediciones en %s", (int)measurement_count,
              CONFIG_GPS_MQTT_TOPIC);
-    esp_mqtt_client_publish(mqtt_client, mqtt_status_topic, "uploading", 0, 1, 0);
+    if (!publish_and_wait(mqtt_status_topic, "uploading")) {
+        goto upload_failed;
+    }
 
     for (size_t i = 0; i < measurement_count; i++) {
         gps_measurement_t *m = &measurements[i];
@@ -218,13 +245,14 @@ static bool upload_measurements(void)
             "{\"latitude\":%.6f,\"longitude\":%.6f,\"altitude\":%.2f,\"satellites\":%d,\"hdop\":%.2f}",
             m->latitude, m->longitude, m->altitude_m, m->satellites, m->hdop
         );
-        if (esp_mqtt_client_publish(
-                mqtt_client, CONFIG_GPS_MQTT_TOPIC, mqtt_payload, 0, 1, 0) < 0) {
-            return false;
+        if (!publish_and_wait(CONFIG_GPS_MQTT_TOPIC, mqtt_payload)) {
+            goto upload_failed;
         }
     }
     ESP_LOGI(TAG, "Mediciones publicadas: %d", (int)measurement_count);
-    esp_mqtt_client_publish(mqtt_client, mqtt_status_topic, "complete", 0, 1, 0);
+    if (!publish_and_wait(mqtt_status_topic, "complete")) {
+        goto upload_failed;
+    }
     measurement_count = 0;
     ESP_ERROR_CHECK(nvs_erase_key(storage, "measurements"));
     ESP_ERROR_CHECK(nvs_commit(storage));
@@ -232,6 +260,12 @@ static bool upload_measurements(void)
     esp_mqtt_client_destroy(mqtt_client);
     mqtt_client = NULL;
     return true;
+
+upload_failed:
+    esp_mqtt_client_stop(mqtt_client);
+    esp_mqtt_client_destroy(mqtt_client);
+    mqtt_client = NULL;
+    return false;
 }
 
 static void gps_uart_init(void)
@@ -274,6 +308,19 @@ static void oled_init(void)
     oled_message("GPS NEO-6M", "GPS MONITOR");
 }
 
+static bool nmea_coordinate_to_decimal(
+    const char *value, double *coordinate
+)
+{
+    if (value == NULL || value[0] == '\0') return false;
+    double nmea_value = atof(value);
+    int degrees = (int)(nmea_value / 100.0);
+    double minutes = nmea_value - (degrees * 100.0);
+    if (minutes < 0.0 || minutes >= 60.0) return false;
+    *coordinate = degrees + (minutes / 60.0);
+    return true;
+}
+
 static bool parse_gga(char *sentence, gps_measurement_t *m)
 {
     char *fields[15] = {0};
@@ -291,8 +338,11 @@ static bool parse_gga(char *sentence, gps_measurement_t *m)
         return true;
     }
     m->valid = true;
-    m->latitude = atof(fields[2]) / 100.0;
-    m->longitude = atof(fields[4]) / 100.0;
+    if (!nmea_coordinate_to_decimal(fields[2], &m->latitude) ||
+        !nmea_coordinate_to_decimal(fields[4], &m->longitude)) {
+        m->valid = false;
+        return false;
+    }
     if (fields[3][0] == 'S') m->latitude = -m->latitude;
     if (fields[5][0] == 'W') m->longitude = -m->longitude;
     m->satellites = atoi(fields[7]);
@@ -311,11 +361,10 @@ static void process_sentence(char *sentence)
     if (sscanf(checksum + 1, "%2x", &expected) != 1 || calculated != expected) return;
     gps_measurement_t m = {0};
     if (!parse_gga(sentence, &m) || !m.valid) return;
+    if (upload_mode) return;
     if (measurement_count < MAX_MEASUREMENTS) measurements[measurement_count++] = m;
     if (measurement_count % 10 == 0) persist_measurements();
-    if (!upload_mode) {
-        oled_measurement(&m);
-    }
+    oled_measurement(&m);
     ESP_LOGI(TAG, "Fix valido | lat=%.6f lon=%.6f", m.latitude, m.longitude);
 }
 

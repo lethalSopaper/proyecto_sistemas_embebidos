@@ -44,6 +44,8 @@ módulo antes de conectarlo. La conexión del OLED es:
 La fuente utiliza la dirección I2C `0x3C` del OLED (formato U8g2 `0x78`).
 D4/GPIO5 y D5/GPIO6 no se utilizan.
 El proyecto usa la API I2C nueva de ESP-IDF 6 mediante el HAL local de U8g2.
+Las coordenadas NMEA se convierten de `ddmm.mmmm`/`dddmm.mmmm` a grados
+decimales antes de mostrarse o publicarse.
 
 ## Compilar y flashear
 
