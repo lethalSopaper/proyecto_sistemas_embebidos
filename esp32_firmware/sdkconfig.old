@@ -996,6 +996,22 @@ CONFIG_GPS_WIFI_SSID="equipo12"
 # default:
 CONFIG_GPS_WIFI_PASSWORD=""
 # default:
+CONFIG_GPS_WIFI_SSID_2=""
+# default:
+CONFIG_GPS_WIFI_PASSWORD_2=""
+# default:
+CONFIG_GPS_WIFI_SSID_3=""
+# default:
+CONFIG_GPS_WIFI_PASSWORD_3=""
+# default:
+CONFIG_GPS_WIFI_SSID_4=""
+# default:
+CONFIG_GPS_WIFI_PASSWORD_4=""
+# default:
+CONFIG_GPS_WIFI_SSID_5=""
+# default:
+CONFIG_GPS_WIFI_PASSWORD_5=""
+# default:
 CONFIG_GPS_MQTT_URI="mqtt://equipo12.local:1883"
 # default:
 CONFIG_GPS_MQTT_TOPIC="proyecto/gps/telemetry"

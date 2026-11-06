@@ -28,8 +28,9 @@ upload limpia la ruta; cada coordenada recibida se agrega sobre mosaicos de
 OpenStreetMap y la línea azul representa la ruta. El punto verde es el inicio
 y el rojo el último punto. La vista usa un radio de 1 km alrededor de la ruta
 por defecto, muestra el número de puntos recibidos y evita que una ruta corta
-se estire hasta ocupar toda la pantalla. Los mosaicos se guardan en
-`osm_tiles/` para reutilizarlos sin descargarlos otra vez.
+se estire hasta ocupar toda la pantalla. Los mosaicos se guardan en `osm_tiles/` para reutilizarlos sin descargarlos
+otra vez. La ruta actual se limpia al iniciar una nueva carga; por ahora no se
+guarda un historial de rutas.
 
 Si el panel táctil está conectado, los botones `-` y `+` de la parte superior
 cambian el radio entre `50 m`, `250 m`, `1 km`, `5 km` y `10 km`. El controlador
@@ -127,11 +128,10 @@ sudo systemctl enable --now mosquitto
 sudo systemctl restart mosquitto
 ```
 
-Inicia el receptor:
+Configura e inicia Mosquitto:
 
 ```bash
-cd ~/proyecto/orange_pi/mqtt_receiver
-.venv/bin/python receiver.py
+sudo systemctl enable --now mosquitto
 ```
 
 En el ESP32, ejecuta `./run.sh menuconfig` dentro de `esp32_firmware` y usa:
@@ -159,15 +159,51 @@ El script usa por defecto:
 - Host: `equipo12.local`
 - Destino: `~/proyecto/orange_pi/mqtt_receiver`
 
-Después del despliegue, inicia el receptor con:
-
-```bash
-ssh orangepi@equipo12.local \
-  'cd ~/proyecto/orange_pi/mqtt_receiver && .venv/bin/python receiver.py'
-```
+Después del despliegue, el receptor queda iniciado automáticamente como
+servicio de usuario.
 
 Puedes cambiar los valores sin editar el script:
 
 ```bash
 ORANGE_HOST=192.168.1.50 ./orange_pi/mqtt_receiver/deploy.sh
+```
+
+## Inicio automático como servicio de usuario
+
+El despliegue instala y habilita `proyecto-gps-receiver.service` como servicio
+del usuario `orangepi`, no como servicio del sistema. También habilita el
+*linger* de ese usuario para que el receptor arranque aunque no haya una
+sesión gráfica iniciada. Desde la computadora ejecuta:
+
+```bash
+./orange_pi/mqtt_receiver/deploy.sh
+```
+
+El receptor se iniciará automáticamente después de que esté disponible la red
+y se reiniciará si termina inesperadamente. Para revisar el servicio:
+
+```bash
+ssh orangepi@equipo12.local \
+  'systemctl --user status proyecto-gps-receiver.service'
+```
+
+Para seguir los mensajes del receptor:
+
+```bash
+ssh orangepi@equipo12.local \
+  'journalctl --user -u proyecto-gps-receiver.service -f'
+```
+
+Para detenerlo temporalmente y ejecutarlo manualmente:
+
+```bash
+ssh orangepi@equipo12.local \
+  'systemctl --user stop proyecto-gps-receiver.service'
+```
+
+Después de detenerlo, puedes iniciarlo otra vez con:
+
+```bash
+ssh orangepi@equipo12.local \
+  'systemctl --user start proyecto-gps-receiver.service'
 ```

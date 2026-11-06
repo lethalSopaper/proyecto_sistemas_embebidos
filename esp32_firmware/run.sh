@@ -13,10 +13,10 @@ echo "        Automatizacion de ESP-IDF          "
 echo "==========================================="
 
 case "$ACTION" in
-    build|flash|monitor|menuconfig)
+    build|flash|monitor|menuconfig|erase-flash)
         ;;
     *)
-        echo "Uso: $0 [build|flash|monitor|menuconfig] [puerto]"
+        echo "Uso: $0 [build|flash|monitor|menuconfig|erase-flash] [puerto]"
         echo
         echo "Variables opcionales:"
         echo "  ESP_IDF_PATH=/ruta/a/esp-idf"
@@ -39,7 +39,8 @@ release_port() {
     fi
 }
 
-if [[ "$ACTION" == "flash" || "$ACTION" == "monitor" ]]; then
+if [[ "$ACTION" == "flash" || "$ACTION" == "monitor" ||
+      "$ACTION" == "erase-flash" ]]; then
     echo "[1/3] Verificando el puerto $PORT..."
     if [[ ! -e "$PORT" ]]; then
         echo "Error: no se detecta $PORT."
@@ -80,5 +81,10 @@ case "$ACTION" in
     menuconfig)
         echo "[3/3] Abriendo menuconfig..."
         idf.py menuconfig
+        ;;
+    erase-flash)
+        echo "[3/3] Borrando completamente la memoria flash en $PORT..."
+        echo "Advertencia: se eliminaran las mediciones y perfiles WiFi guardados."
+        idf.py -p "$PORT" erase-flash
         ;;
 esac

@@ -101,10 +101,10 @@ class RouteDisplay:
                     if now - self.last_touch >= 0.4:
                         if 0 <= x <= 70 and 0 <= y <= 70:
                             print("Touch: zoom out", flush=True)
-                            self._change_radius(-1)
+                            self._change_radius(1)
                         elif self.width - 70 <= x <= self.width and 0 <= y <= 70:
                             print("Touch: zoom in", flush=True)
-                            self._change_radius(1)
+                            self._change_radius(-1)
                         self.last_touch = now
             except (OSError, RuntimeError, TypeError, ValueError):
                 pass

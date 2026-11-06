@@ -1,0 +1,16 @@
+[Unit]
+Description=Receptor MQTT de telemetría GPS
+Wants=network-online.target
+After=network-online.target mosquitto.service
+
+[Service]
+Type=simple
+WorkingDirectory=%h/proyecto/orange_pi/mqtt_receiver
+ExecStart=%h/proyecto/orange_pi/mqtt_receiver/.venv/bin/python receiver.py
+Restart=on-failure
+RestartSec=5
+Environment=PYTHONUNBUFFERED=1
+Environment=OSM_CACHE_DIR=%h/proyecto/orange_pi/mqtt_receiver/osm_tiles
+
+[Install]
+WantedBy=default.target

@@ -6245,6 +6245,86 @@
                 "children": [],
                 "depends_on": null,
                 "help": null,
+                "id": "GPS_WIFI_SSID_2",
+                "name": "GPS_WIFI_SSID_2",
+                "range": null,
+                "title": "Additional WiFi SSID 2",
+                "type": "string"
+            },
+            {
+                "children": [],
+                "depends_on": null,
+                "help": null,
+                "id": "GPS_WIFI_PASSWORD_2",
+                "name": "GPS_WIFI_PASSWORD_2",
+                "range": null,
+                "title": "Additional WiFi password 2",
+                "type": "string"
+            },
+            {
+                "children": [],
+                "depends_on": null,
+                "help": null,
+                "id": "GPS_WIFI_SSID_3",
+                "name": "GPS_WIFI_SSID_3",
+                "range": null,
+                "title": "Additional WiFi SSID 3",
+                "type": "string"
+            },
+            {
+                "children": [],
+                "depends_on": null,
+                "help": null,
+                "id": "GPS_WIFI_PASSWORD_3",
+                "name": "GPS_WIFI_PASSWORD_3",
+                "range": null,
+                "title": "Additional WiFi password 3",
+                "type": "string"
+            },
+            {
+                "children": [],
+                "depends_on": null,
+                "help": null,
+                "id": "GPS_WIFI_SSID_4",
+                "name": "GPS_WIFI_SSID_4",
+                "range": null,
+                "title": "Additional WiFi SSID 4",
+                "type": "string"
+            },
+            {
+                "children": [],
+                "depends_on": null,
+                "help": null,
+                "id": "GPS_WIFI_PASSWORD_4",
+                "name": "GPS_WIFI_PASSWORD_4",
+                "range": null,
+                "title": "Additional WiFi password 4",
+                "type": "string"
+            },
+            {
+                "children": [],
+                "depends_on": null,
+                "help": null,
+                "id": "GPS_WIFI_SSID_5",
+                "name": "GPS_WIFI_SSID_5",
+                "range": null,
+                "title": "Additional WiFi SSID 5",
+                "type": "string"
+            },
+            {
+                "children": [],
+                "depends_on": null,
+                "help": null,
+                "id": "GPS_WIFI_PASSWORD_5",
+                "name": "GPS_WIFI_PASSWORD_5",
+                "range": null,
+                "title": "Additional WiFi password 5",
+                "type": "string"
+            },
+            {
+                "children": [],
+                "depends_on": null,
+                "help": null,
                 "id": "GPS_MQTT_URI",
                 "name": "GPS_MQTT_URI",
                 "range": null,

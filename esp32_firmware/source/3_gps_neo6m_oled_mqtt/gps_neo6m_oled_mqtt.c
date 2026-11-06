@@ -1,6 +1,7 @@
 #include "gps_neo6m_oled_mqtt.h"
 
 #include <stdbool.h>
+#include <stddef.h>
 #include <stdint.h>
 #include <stdio.h>
 #include <stdlib.h>
@@ -29,10 +30,14 @@
 #define OLED_SCL_PIN GPIO_NUM_44
 #define OLED_I2C_ADDRESS 0x78
 #define MODE_BUTTON_PIN GPIO_NUM_1
-#define MAX_MEASUREMENTS 64
+#define MAX_MEASUREMENTS 256
+#define MEASUREMENT_CHUNK_SIZE 8
 #define WIFI_CONNECTED BIT0
 #define MQTT_CONNECTED BIT1
 #define MQTT_PUBLISHED BIT2
+#define WIFI_PROFILE_COUNT 5
+#define WIFI_SSID_LENGTH 32
+#define WIFI_PASSWORD_LENGTH 64
 
 static const char *TAG = "gps_oled_mqtt";
 static EventGroupHandle_t wifi_events;
@@ -42,6 +47,8 @@ static bool upload_mode;
 static bool wifi_initialized;
 static bool wifi_started;
 static nvs_handle_t storage;
+static char active_wifi_ssid[WIFI_SSID_LENGTH];
+static size_t last_uploaded_count;
 
 typedef struct {
     bool valid;
@@ -61,27 +68,131 @@ typedef struct {
 } measurement_store_t;
 
 static measurement_store_t measurement_store;
+static char measurement_key[16];
 static char mqtt_status_topic[128];
 static char mqtt_payload[192];
 
+typedef struct {
+    char ssid[WIFI_SSID_LENGTH];
+    char password[WIFI_PASSWORD_LENGTH];
+} wifi_profile_t;
+
+typedef struct {
+    uint32_t count;
+    wifi_profile_t profiles[WIFI_PROFILE_COUNT];
+} wifi_profile_store_t;
+
+static wifi_profile_store_t wifi_profiles;
+
 static void persist_measurements(void)
 {
-    measurement_store.count = measurement_count;
-    memcpy(measurement_store.data, measurements, sizeof(measurements));
-    ESP_ERROR_CHECK(nvs_set_blob(
-        storage, "measurements", &measurement_store, sizeof(measurement_store)
-    ));
-    ESP_ERROR_CHECK(nvs_commit(storage));
+    uint32_t count = (uint32_t)measurement_count;
+    if (measurement_count == 0) return;
+    size_t chunk = (measurement_count - 1) / MEASUREMENT_CHUNK_SIZE;
+    size_t offset = chunk * MEASUREMENT_CHUNK_SIZE;
+    size_t items = measurement_count - offset;
+    snprintf(measurement_key, sizeof(measurement_key), "m%02u", (unsigned)chunk);
+    esp_err_t error = nvs_set_blob(storage, measurement_key, &measurements[offset],
+                                   items * sizeof(measurements[0]));
+    if (error == ESP_OK) {
+        error = nvs_set_u32(storage, "m_count", count);
+    }
+    if (error == ESP_OK) error = nvs_commit(storage);
+    if (error != ESP_OK) {
+        ESP_LOGE(TAG, "No se pudieron guardar %d mediciones en NVS: %s",
+                 (int)measurement_count, esp_err_to_name(error));
+    }
 }
 
 static void load_measurements(void)
 {
-    size_t size = sizeof(measurement_store);
-    esp_err_t error = nvs_get_blob(storage, "measurements", &measurement_store, &size);
-    if (error == ESP_OK && measurement_store.count <= MAX_MEASUREMENTS) {
-        measurement_count = measurement_store.count;
-        memcpy(measurements, measurement_store.data, sizeof(measurements));
+    uint32_t stored_count = 0;
+    esp_err_t error = nvs_get_u32(storage, "m_count", &stored_count);
+    if (error == ESP_OK && stored_count <= MAX_MEASUREMENTS) {
+        measurement_count = 0;
+        for (size_t chunk = 0; measurement_count < stored_count; chunk++) {
+            size_t items = stored_count - measurement_count;
+            if (items > MEASUREMENT_CHUNK_SIZE) items = MEASUREMENT_CHUNK_SIZE;
+            size_t size = items * sizeof(measurements[0]);
+            snprintf(measurement_key, sizeof(measurement_key), "m%02u",
+                     (unsigned)chunk);
+            error = nvs_get_blob(storage, measurement_key,
+                                 &measurements[measurement_count], &size);
+            if (error != ESP_OK || size != items * sizeof(measurements[0])) {
+                measurement_count = 0;
+                ESP_LOGW(TAG, "No se pudo cargar el bloque %u de mediciones: %s",
+                         (unsigned)chunk, esp_err_to_name(error));
+                return;
+            }
+            measurement_count += items;
+        }
+        return;
     }
+
+    /* Compatibility with the single-blob format used by older firmware. */
+    size_t size = sizeof(measurement_store);
+    error = nvs_get_blob(storage, "measurements", &measurement_store, &size);
+    size_t data_offset = offsetof(measurement_store_t, data);
+    size_t expected_size = data_offset +
+                           measurement_store.count * sizeof(measurements[0]);
+    if (error == ESP_OK && measurement_store.count <= MAX_MEASUREMENTS &&
+        size >= expected_size) {
+        measurement_count = measurement_store.count;
+        memcpy(measurements, measurement_store.data,
+               measurement_count * sizeof(measurements[0]));
+    } else if (error != ESP_ERR_NVS_NOT_FOUND) {
+        ESP_LOGW(TAG, "No se pudieron cargar las mediciones de NVS: %s",
+                 esp_err_to_name(error));
+    }
+}
+
+static void persist_wifi_profiles(void)
+{
+    ESP_ERROR_CHECK(nvs_set_blob(
+        storage, "wifi_profiles", &wifi_profiles, sizeof(wifi_profiles)
+    ));
+    ESP_ERROR_CHECK(nvs_commit(storage));
+}
+
+static void load_wifi_profiles(void)
+{
+    size_t size = sizeof(wifi_profiles);
+    esp_err_t error = nvs_get_blob(storage, "wifi_profiles", &wifi_profiles, &size);
+    if (error != ESP_OK || wifi_profiles.count > WIFI_PROFILE_COUNT) {
+        memset(&wifi_profiles, 0, sizeof(wifi_profiles));
+    }
+}
+
+static void add_configured_wifi_profile(const char *ssid, const char *password)
+{
+    if (ssid == NULL || ssid[0] == '\0') return;
+    for (uint32_t i = 0; i < wifi_profiles.count; i++) {
+        if (strcmp(wifi_profiles.profiles[i].ssid, ssid) == 0) {
+            snprintf(wifi_profiles.profiles[i].password, WIFI_PASSWORD_LENGTH,
+                     "%s", password != NULL ? password : "");
+            return;
+        }
+    }
+    if (wifi_profiles.count == WIFI_PROFILE_COUNT) {
+        ESP_LOGW(TAG, "Lista WiFi llena; no se agrego SSID=%s", ssid);
+        return;
+    }
+    snprintf(wifi_profiles.profiles[wifi_profiles.count].ssid,
+             WIFI_SSID_LENGTH, "%s", ssid);
+    snprintf(wifi_profiles.profiles[wifi_profiles.count].password,
+             WIFI_PASSWORD_LENGTH, "%s", password != NULL ? password : "");
+    wifi_profiles.count++;
+    ESP_LOGI(TAG, "Red WiFi agregada a NVS: %s", ssid);
+}
+
+static void sync_configured_wifi_profiles(void)
+{
+    add_configured_wifi_profile(CONFIG_GPS_WIFI_SSID, CONFIG_GPS_WIFI_PASSWORD);
+    add_configured_wifi_profile(CONFIG_GPS_WIFI_SSID_2, CONFIG_GPS_WIFI_PASSWORD_2);
+    add_configured_wifi_profile(CONFIG_GPS_WIFI_SSID_3, CONFIG_GPS_WIFI_PASSWORD_3);
+    add_configured_wifi_profile(CONFIG_GPS_WIFI_SSID_4, CONFIG_GPS_WIFI_PASSWORD_4);
+    add_configured_wifi_profile(CONFIG_GPS_WIFI_SSID_5, CONFIG_GPS_WIFI_PASSWORD_5);
+    persist_wifi_profiles();
 }
 
 static void oled_message(const char *title, const char *message)
@@ -98,6 +209,8 @@ static void oled_measurement(const gps_measurement_t *m)
     char line[32];
     u8g2_ClearBuffer(&display);
     u8g2_SetFont(&display, u8g2_font_5x7_tf);
+    snprintf(line, sizeof(line), "Mediciones: %d", (int)measurement_count);
+    u8g2_DrawStr(&display, 0, 8, line);
     snprintf(line, sizeof(line), "Lat: %.6f", m->latitude);
     u8g2_DrawStr(&display, 0, 24, line);
     snprintf(line, sizeof(line), "Lon: %.6f", m->longitude);
@@ -110,6 +223,20 @@ static void oled_measurement(const gps_measurement_t *m)
     u8g2_SendBuffer(&display);
 }
 
+static void oled_upload_complete(void)
+{
+    char line[32];
+    u8g2_ClearBuffer(&display);
+    u8g2_SetFont(&display, u8g2_font_5x7_tf);
+    u8g2_DrawStr(&display, 0, 10, "CARGA COMPLETA");
+    snprintf(line, sizeof(line), "WiFi: %.20s", active_wifi_ssid);
+    u8g2_DrawStr(&display, 0, 28, line);
+    snprintf(line, sizeof(line), "Enviadas: %d", (int)last_uploaded_count);
+    u8g2_DrawStr(&display, 0, 42, line);
+    u8g2_DrawStr(&display, 0, 60, "Pulsa: GPS MONITOR");
+    u8g2_SendBuffer(&display);
+}
+
 static void wifi_event_handler(
     void *arg,
     esp_event_base_t event_base,
@@ -117,9 +244,7 @@ static void wifi_event_handler(
     void *event_data
 )
 {
-    if (event_base == WIFI_EVENT && event_id == WIFI_EVENT_STA_START) {
-        esp_wifi_connect();
-    } else if (event_base == WIFI_EVENT && event_id == WIFI_EVENT_STA_DISCONNECTED) {
+    if (event_base == WIFI_EVENT && event_id == WIFI_EVENT_STA_DISCONNECTED) {
         xEventGroupClearBits(wifi_events, WIFI_CONNECTED);
         const wifi_event_sta_disconnected_t *disconnected = event_data;
         ESP_LOGW(TAG, "WiFi desconectado; razon=%d", disconnected->reason);
@@ -137,36 +262,49 @@ static bool wifi_connect(void)
         return true;
     }
 
-    wifi_config_t config = {0};
-    snprintf((char *)config.sta.ssid, sizeof(config.sta.ssid), "%s", CONFIG_GPS_WIFI_SSID);
-    snprintf((char *)config.sta.password, sizeof(config.sta.password), "%s", CONFIG_GPS_WIFI_PASSWORD);
-    ESP_LOGI(TAG, "Conectando a WiFi SSID=%s (%s)", CONFIG_GPS_WIFI_SSID,
-             CONFIG_GPS_WIFI_PASSWORD[0] == '\0' ? "sin contraseña" : "con contraseña");
-    xEventGroupClearBits(wifi_events, WIFI_CONNECTED);
-    esp_err_t error = esp_wifi_set_config(WIFI_IF_STA, &config);
-    if (error != ESP_OK) {
-        ESP_LOGE(TAG, "No se pudo configurar WiFi: %s", esp_err_to_name(error));
-        return false;
-    }
-    if (!wifi_started) {
-        error = esp_wifi_start();
+    for (uint32_t i = 0; i < wifi_profiles.count; i++) {
+        wifi_profile_t *profile = &wifi_profiles.profiles[i];
+        wifi_config_t config = {0};
+        snprintf((char *)config.sta.ssid, sizeof(config.sta.ssid), "%s", profile->ssid);
+        snprintf((char *)config.sta.password, sizeof(config.sta.password),
+                 "%s", profile->password);
+        snprintf(active_wifi_ssid, sizeof(active_wifi_ssid), "%s", profile->ssid);
+        oled_message("WiFi intentando", active_wifi_ssid);
+        ESP_LOGI(TAG, "Conectando a WiFi SSID=%s (%s)", profile->ssid,
+                 profile->password[0] == '\0' ? "sin contraseña" : "con contraseña");
+        xEventGroupClearBits(wifi_events, WIFI_CONNECTED);
+        esp_err_t error = esp_wifi_set_config(WIFI_IF_STA, &config);
         if (error != ESP_OK) {
-            ESP_LOGE(TAG, "No se pudo iniciar WiFi: %s", esp_err_to_name(error));
-            return false;
+            ESP_LOGE(TAG, "No se pudo configurar WiFi %s: %s",
+                     profile->ssid, esp_err_to_name(error));
+            continue;
         }
-        wifi_started = true;
-    } else {
+        if (!wifi_started) {
+            error = esp_wifi_start();
+            if (error != ESP_OK) {
+                ESP_LOGE(TAG, "No se pudo iniciar WiFi: %s", esp_err_to_name(error));
+                continue;
+            }
+            wifi_started = true;
+        } else {
+            esp_wifi_disconnect();
+        }
         error = esp_wifi_connect();
         if (error != ESP_OK && error != ESP_ERR_WIFI_CONN) {
-            ESP_LOGE(TAG, "No se pudo conectar a WiFi: %s", esp_err_to_name(error));
-            return false;
+            ESP_LOGE(TAG, "No se pudo conectar a WiFi %s: %s",
+                     profile->ssid, esp_err_to_name(error));
+            continue;
+        }
+        EventBits_t bits = xEventGroupWaitBits(
+            wifi_events, WIFI_CONNECTED, pdFALSE, pdFALSE, pdMS_TO_TICKS(8000)
+        );
+        if ((bits & WIFI_CONNECTED) != 0) {
+            oled_message("WiFi conectado", active_wifi_ssid);
+            return true;
         }
     }
-
-    EventBits_t bits = xEventGroupWaitBits(
-        wifi_events, WIFI_CONNECTED, pdFALSE, pdFALSE, pdMS_TO_TICKS(15000)
-    );
-    return (bits & WIFI_CONNECTED) != 0;
+    oled_message("WiFi sin conexion", "Revise perfiles");
+    return false;
 }
 
 static void mqtt_event_handler(void *handler_args, esp_event_base_t base, int32_t event_id, void *event_data)
@@ -249,12 +387,30 @@ static bool upload_measurements(void)
             goto upload_failed;
         }
     }
-    ESP_LOGI(TAG, "Mediciones publicadas: %d", (int)measurement_count);
+    last_uploaded_count = measurement_count;
+    ESP_LOGI(TAG, "Mediciones publicadas: %d", (int)last_uploaded_count);
     if (!publish_and_wait(mqtt_status_topic, "complete")) {
         goto upload_failed;
     }
     measurement_count = 0;
-    ESP_ERROR_CHECK(nvs_erase_key(storage, "measurements"));
+    esp_err_t erase_error = nvs_erase_key(storage, "m_count");
+    if (erase_error != ESP_OK && erase_error != ESP_ERR_NVS_NOT_FOUND) {
+        ESP_LOGW(TAG, "No se pudo borrar el contador NVS: %s",
+                 esp_err_to_name(erase_error));
+    }
+    erase_error = nvs_erase_key(storage, "measurements");
+    if (erase_error != ESP_OK && erase_error != ESP_ERR_NVS_NOT_FOUND) {
+        ESP_LOGW(TAG, "No se pudo borrar el registro anterior: %s",
+                 esp_err_to_name(erase_error));
+    }
+    for (size_t chunk = 0; chunk < MAX_MEASUREMENTS / MEASUREMENT_CHUNK_SIZE; chunk++) {
+        snprintf(measurement_key, sizeof(measurement_key), "m%02u", (unsigned)chunk);
+        erase_error = nvs_erase_key(storage, measurement_key);
+        if (erase_error != ESP_OK && erase_error != ESP_ERR_NVS_NOT_FOUND) {
+            ESP_LOGW(TAG, "No se pudo borrar el bloque %s: %s",
+                     measurement_key, esp_err_to_name(erase_error));
+        }
+    }
     ESP_ERROR_CHECK(nvs_commit(storage));
     esp_mqtt_client_stop(mqtt_client);
     esp_mqtt_client_destroy(mqtt_client);
@@ -362,7 +518,11 @@ static void process_sentence(char *sentence)
     gps_measurement_t m = {0};
     if (!parse_gga(sentence, &m) || !m.valid) return;
     if (upload_mode) return;
-    if (measurement_count < MAX_MEASUREMENTS) measurements[measurement_count++] = m;
+    if (measurement_count < MAX_MEASUREMENTS) {
+        measurements[measurement_count++] = m;
+    } else {
+        ESP_LOGW(TAG, "Limite de mediciones alcanzado: %d", MAX_MEASUREMENTS);
+    }
     if (measurement_count % 10 == 0) persist_measurements();
     oled_measurement(&m);
     ESP_LOGI(TAG, "Fix valido | lat=%.6f lon=%.6f", m.latitude, m.longitude);
@@ -381,6 +541,8 @@ void gps_neo6m_oled_mqtt_app_main(void)
     ESP_ERROR_CHECK(nvs_flash_init());
     ESP_ERROR_CHECK(nvs_open("gps", NVS_READWRITE, &storage));
     load_measurements();
+    load_wifi_profiles();
+    sync_configured_wifi_profiles();
     oled_init();
     gps_uart_init();
     wifi_events = xEventGroupCreate();
@@ -424,7 +586,7 @@ void gps_neo6m_oled_mqtt_app_main(void)
                     ESP_LOGW(TAG, "Fallo de WiFi/MQTT con %s", CONFIG_GPS_WIFI_SSID);
                     oled_message("CARGA FALLIDA", "Sin WiFi/MQTT");
                 } else {
-                    oled_message("CARGA COMPLETA", "Orange Pi OK");
+                    oled_upload_complete();
                 }
             } else {
                 oled_message("Modo", "GPS MONITOR");

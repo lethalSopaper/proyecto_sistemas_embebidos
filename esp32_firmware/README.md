@@ -13,9 +13,9 @@ fuente seleccionada en [`main/source.h`](./main/source.h).
 La lógica principal se organiza en [`main/`](./main/), mientras que cada fuente
 se guarda dentro de [`source/`](./source/), al mismo nivel.
 
-## Fuente actual: GPS NEO-6M + OLED SSD1306
+## Fuente actual: GPS NEO-6M + OLED SSD1306 + MQTT
 
-La fuente [`2_gps_neo6m_oled/`](./source/2_gps_neo6m_oled/) lee tramas NMEA
+La fuente [`3_gps_neo6m_oled_mqtt/`](./source/3_gps_neo6m_oled_mqtt/) lee tramas NMEA
 `GGA` mediante UART a 9600 baudios y muestra por el monitor serial la latitud,
 longitud, altitud, número de satélites y HDOP cuando existe un fix válido.
 Los mismos datos se muestran en el OLED SSD1306 de 128x64.
@@ -58,6 +58,13 @@ Desde este directorio, con el entorno de ESP-IDF habilitado:
 ./run.sh menuconfig
 ```
 
+Para borrar la memoria flash, incluidas las mediciones y los perfiles WiFi
+guardados:
+
+```bash
+./run.sh erase-flash /dev/ttyACM0
+```
+
 Usa `./run.sh menuconfig` para configurar el SSID, la contraseña WiFi, el
 broker MQTT y el tópico sin cargar manualmente el entorno de ESP-IDF.
 
@@ -87,6 +94,42 @@ una segunda pulsación regresa al monitoreo GPS.
 Configura SSID, contraseña, broker y tópico con `idf.py menuconfig`, en
 `GPS telemetry`. El valor predeterminado del broker es
 `mqtt://equipo12.local:1883` y el tópico es `proyecto/gps/telemetry`.
+
+### Perfiles WiFi persistentes
+
+En `GPS telemetry` puedes configurar hasta cinco perfiles (`WiFi SSID` y
+`Additional WiFi SSID 2` a `5`). Al arrancar, el firmware agrega los perfiles
+configurados a una lista persistente en NVS; no duplica SSID y conserva los
+perfiles anteriores aunque después cambies `menuconfig`. Si una contraseña de
+un SSID existente cambia, se actualiza en NVS.
+
+Al activar el modo upload, la ESP32 intenta cada perfil en orden hasta obtener
+una dirección IP. El OLED muestra `WiFi intentando` con el SSID actual y
+después `WiFi conectado` con el SSID que funcionó. Si ninguno funciona,
+muestra `WiFi sin conexion`.
+Durante el monitoreo GPS, la parte superior del OLED muestra la cantidad de
+mediciones pendientes. Al completar una carga, muestra el SSID utilizado y la
+cantidad de mediciones enviadas.
+
+Se pueden almacenar hasta 256 mediciones pendientes en NVS. El firmware las
+guarda en bloques pequeños y solo actualiza el bloque que está creciendo, para
+evitar agotar la memoria interna al reescribir toda la ruta. Estas se
+conservan hasta que una carga MQTT termina correctamente; si falla la
+conexión, permanecen disponibles para reintentar. Al alcanzar el límite,
+avisa en el monitor serial y descarta nuevas mediciones hasta completar una
+carga.
+Durante la carga se publica el estado `uploading`, se envían las mediciones y
+se publica `complete` al finalizar.
+
+Para agregar otra red:
+
+1. Abre `./run.sh menuconfig`.
+2. Configura uno de los campos adicionales.
+3. Guarda, sal y ejecuta `./run.sh flash`.
+
+Las redes se conservan en la NVS de la ESP32 y no se borran al reflashear la
+aplicación. Para borrar la lista, usa `idf.py erase-flash` y vuelve a
+configurar los perfiles.
 
 La Orange Pi debe ejecutar un broker MQTT en el puerto 1883 y puede validar
 los mensajes con [`orange_pi/mqtt_receiver/receiver.py`](../orange_pi/mqtt_receiver/receiver.py).
@@ -128,7 +171,7 @@ hostname -I
 Usa la dirección de la misma red que utilizará el ESP32, por ejemplo
 `192.168.0.50`. Si la IP cambia, actualiza la URI MQTT en `menuconfig`.
 
-### 2. Iniciar el receptor
+### 2. Desplegar el receptor
 
 Desde la computadora, despliega el receptor:
 
@@ -136,18 +179,8 @@ Desde la computadora, despliega el receptor:
 ./orange_pi/mqtt_receiver/deploy.sh
 ```
 
-Después déjalo ejecutándose en la Orange Pi:
-
-```bash
-cd ~/proyecto/orange_pi/mqtt_receiver
-.venv/bin/python receiver.py
-```
-
-Debe mostrar:
-
-```text
-Connected. Listening on proyecto/gps/telemetry and proyecto/gps/telemetry/status
-```
+El despliegue instala el entorno virtual y habilita el servicio de usuario
+para que el receptor inicie automáticamente con la Orange Pi.
 
 ### 3. Configurar y flashear el ESP32
 

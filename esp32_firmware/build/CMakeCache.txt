@@ -656,7 +656,7 @@ C_COMPILER_SUPPORTS_WFORMAT_SIGNEDNESS:INTERNAL=1
 //Details about finding Git
 FIND_PACKAGE_MESSAGE_DETAILS_Git:INTERNAL=[/usr/bin/git][v2.56.0()]
 //Details about finding Python3
-FIND_PACKAGE_MESSAGE_DETAILS_Python3:INTERNAL=[/home/lethalsopaper/.espressif/python_env/idf6.0_py3.14_env/bin/python][found components: Interpreter ][v3.14.8()]
+FIND_PACKAGE_MESSAGE_DETAILS_Python3:INTERNAL=[/home/lethalsopaper/.espressif/python_env/idf6.0_py3.14_env/bin/python][found components: Interpreter ][v3.14.10()]
 //Details about finding Threads
 FIND_PACKAGE_MESSAGE_DETAILS_Threads:INTERNAL=[TRUE][v()]
 //ADVANCED property for variable: GIT_EXECUTABLE
@@ -669,7 +669,7 @@ _Python3_Compiler_REASON_FAILURE:INTERNAL=
 _Python3_Development_REASON_FAILURE:INTERNAL=
 _Python3_EXECUTABLE:INTERNAL=/home/lethalsopaper/.espressif/python_env/idf6.0_py3.14_env/bin/python
 //Python3 Properties
-_Python3_INTERPRETER_PROPERTIES:INTERNAL=Python;3;14;8;32;64;;;abi3;/usr/lib64/python3.14;/home/lethalsopaper/.espressif/python_env/idf6.0_py3.14_env/lib64/python3.14;/home/lethalsopaper/.espressif/python_env/idf6.0_py3.14_env/lib/python3.14/site-packages;/home/lethalsopaper/.espressif/python_env/idf6.0_py3.14_env/lib64/python3.14/site-packages
+_Python3_INTERPRETER_PROPERTIES:INTERNAL=Python;3;14;10;32;64;;;abi3;/usr/lib64/python3.14;/home/lethalsopaper/.espressif/python_env/idf6.0_py3.14_env/lib64/python3.14;/home/lethalsopaper/.espressif/python_env/idf6.0_py3.14_env/lib/python3.14/site-packages;/home/lethalsopaper/.espressif/python_env/idf6.0_py3.14_env/lib64/python3.14/site-packages
 _Python3_INTERPRETER_SIGNATURE:INTERNAL=fe3ab04e27cbb89a7598002a11c1c6cf
 //NumPy reason failure
 _Python3_NumPy_REASON_FAILURE:INTERNAL=

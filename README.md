@@ -7,6 +7,21 @@ El proyecto consiste en un sistema distribuido de telemetría GPS para deportist
 ## Planteamiento del Problema
 Los deportistas requieren monitorear constantemente sus trayectos y distancias. Este proyecto propone un sistema accesible que registra las coordenadas de la ruta de forma portátil, transmite los datos mediante MQTT a una estación base local y ofrece una visualización detallada en tiempo real mediante pantallas físicas y dashboards web.
 
+## Estado actual
+
+Actualmente está implementado el flujo principal ESP32 → MQTT → Orange Pi:
+
+- La ESP32 obtiene coordenadas del GPS NEO-6M, las muestra en un OLED y las
+  almacena temporalmente para cargarlas por MQTT.
+- La Orange Pi recibe la telemetría y dibuja la ruta sobre OpenStreetMap en una
+  pantalla ILI9341 con controles táctiles de zoom.
+- El receptor MQTT puede instalarse como servicio de usuario y arrancar
+  automáticamente al encender la Orange Pi.
+
+El almacenamiento histórico en PC, Grafana y los flujos finales de Node-RED
+siguen pendientes. Las rutas de la Orange Pi todavía se reemplazan al iniciar
+una nueva carga y no se conservan como historial.
+
 ## Arquitectura del Sistema
 
 El proyecto está dividido en tres capas principales:
@@ -20,11 +35,11 @@ El proyecto está dividido en tres capas principales:
 
 2. **Capa de Borde (Procesamiento Local):**
    - **Hardware:** Orange Pi Zero 2W.
-   - **Software (Contenedores Docker):**
+   - **Software:**
      - `Eclipse Mosquitto`: Broker MQTT.
-     - `Node-RED`: Procesamiento de datos y enrutamiento. Ejecuta el script de Python.
-     - `InfluxDB`: Base de datos de series de tiempo para datos recientes.
-   - **Interfaz Física:** Pantalla táctil **ILI9341** controlada mediante un script de **Python** (ejecutado desde Node-RED) para visualizar métricas en tiempo real y enviar comandos de control a la ESP32.
+     - Receptor Python de telemetría y rutas.
+   - **Interfaz Física:** Pantalla táctil **ILI9341** para visualizar rutas y
+     controles de zoom.
 
 3. **Capa de Interfaz (Almacenamiento y Visualización Pesada):**
    - **Hardware:** PC Central.
@@ -58,9 +73,18 @@ Se sugiere mantener la siguiente estructura para organizar los archivos del proy
 * **Infraestructura:** Docker, Docker Compose.
 * **Protocolos:** MQTT, I2C/SPI (para pantalla y sensores).
 
-## Instalación y Uso (Próximamente)
+## Inicio rápido
 
-*Las instrucciones detalladas para levantar los contenedores Docker, flashear la ESP32 y configurar la pantalla se añadirán conforme avance el desarrollo.*
+Consulta [`esp32_firmware/README.md`](./esp32_firmware/README.md) para
+configurar, compilar y flashear la ESP32. Para desplegar el receptor y su
+servicio automático en la Orange Pi:
+
+```bash
+./orange_pi/mqtt_receiver/deploy.sh
+```
+
+La configuración específica del receptor está en
+[`orange_pi/mqtt_receiver/README.md`](./orange_pi/mqtt_receiver/README.md).
 
 ---
 *Desarrollado para la clase del Profesor Eduardo Fragoso Navarro.*

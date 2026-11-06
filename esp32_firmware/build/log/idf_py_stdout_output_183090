@@ -1,0 +1,55 @@
+Command: /home/lethalsopaper/.espressif/python_env/idf6.0_py3.14_env/bin/python /home/lethalsopaper/.espressif/v6.0.2/esp-idf/tools/idf_monitor.py -p /dev/ttyACM0 -b 115200 --toolchain-prefix xtensa-esp32s3-elf- --target esp32s3 --revision 0 /home/lethalsopaper/Documents/9_UNAM_semestre_9/3_fundamentos_de_sistemas_embebidos/proyecto/esp32_firmware/build/esp32_firmware.elf /home/lethalsopaper/Documents/9_UNAM_semestre_9/3_fundamentos_de_sistemas_embebidos/proyecto/esp32_firmware/build/bootloader/bootloader.elf -m '/home/lethalsopaper/.espressif/python_env/idf6.0_py3.14_env/bin/python' '/home/lethalsopaper/.espressif/v6.0.2/esp-idf/tools/idf.py' '-p' '/dev/ttyACM0'
+ESP-ROM:esp32s3-20210327
+Build:Mar 27 2021
+rst:0x15 (USB_UART_CHIP_RESET),boot:0x29 (SPI_FAST_FLASH_BOOT)
+Saved PC:0x4037b3ae
+SPIWP:0xee
+mode:DIO, clock div:1
+load:0x3fce2820,len:0x1548
+load:0x403c8700,len:0xd5c
+load:0x403cb700,len:0x2f48
+entry 0x403c8900
+[0;32mI (221) main_task: Started on CPU0[0m
+[0;32mI (221) main_task: Calling app_main()[0m
+[0;33mW (251) gps_oled_mqtt: No se pudo cargar el bloque 0 de mediciones: ESP_ERR_NVS_NOT_FOUND[0m
+[0;32mI (581) pp: pp rom version: e7ae62f[0m
+[0;32mI (581) net80211: net80211 rom version: e7ae62f[0m
+[0;32mI (591) wifi:wifi driver task: 3fceda24, prio:23, stack:6656, core=0[0m
+[0;32mI (591) wifi:wifi firmware version: 00ad238[0m
+[0;32mI (591) wifi:wifi certification version: v7.0[0m
+[0;32mI (591) wifi:config NVS flash: enabled[0m
+[0;32mI (591) wifi:config nano formatting: disabled[0m
+[0;32mI (591) wifi:Init data frame dynamic rx buffer num: 32[0m
+[0;32mI (591) wifi:Init static rx mgmt buffer num: 5[0m
+[0;32mI (591) wifi:Init management short buffer num: 32[0m
+[0;32mI (591) wifi:Init dynamic tx buffer num: 32[0m
+[0;32mI (591) wifi:Init static tx FG buffer num: 2[0m
+[0;32mI (591) wifi:Init static rx buffer size: 1600[0m
+[0;32mI (591) wifi:Init static rx buffer num: 10[0m
+[0;32mI (591) wifi:Init dynamic rx buffer num: 32[0m
+[0;32mI (591) wifi_init: rx ba win: 6[0m
+[0;32mI (591) wifi_init: accept mbox: 6[0m
+[0;32mI (591) wifi_init: tcpip mbox: 32[0m
+[0;32mI (591) wifi_init: udp mbox: 6[0m
+[0;32mI (591) wifi_init: tcp mbox: 6[0m
+[0;32mI (601) wifi_init: tcp tx win: 5760[0m
+[0;32mI (601) wifi_init: tcp rx win: 5760[0m
+[0;32mI (601) wifi_init: tcp mss: 1440[0m
+[0;32mI (601) wifi_init: WiFi IRAM OP enabled[0m
+[0;32mI (601) wifi_init: WiFi RX IRAM OP enabled[0m
+[0;32mI (601) gps_oled_mqtt: Boton de modo: D0/GPIO1 a GND[0m
+[0;32mI (601) gps_oled_mqtt: Mediciones pendientes: 0[0m
+[0;32mI (1621) gps_oled_mqtt: Fix valido | lat=19.392202 lon=-99.145797[0m
+[0;32mI (2621) gps_oled_mqtt: Fix valido | lat=19.392203 lon=-99.145795[0m
+[0;32mI (3621) gps_oled_mqtt: Fix valido | lat=19.392204 lon=-99.145796[0m
+[0;32mI (4621) gps_oled_mqtt: Fix valido | lat=19.392206 lon=-99.145795[0m
+[0;32mI (5621) gps_oled_mqtt: Fix valido | lat=19.392205 lon=-99.145797[0m
+[0;32mI (6621) gps_oled_mqtt: Fix valido | lat=19.392204 lon=-99.145799[0m
+[0;32mI (7621) gps_oled_mqtt: Fix valido | lat=19.392204 lon=-99.145800[0m
+[0;32mI (8621) gps_oled_mqtt: Fix valido | lat=19.392203 lon=-99.145799[0m
+[0;32mI (9621) gps_oled_mqtt: Fix valido | lat=19.392202 lon=-99.145803[0m
+[0;32mI (10631) gps_oled_mqtt: Fix valido | lat=19.392202 lon=-99.145807[0m
+[0;32mI (11621) gps_oled_mqtt: Fix valido | lat=19.392202 lon=-99.145810[0m
+[0;32mI (12621) gps_oled_mqtt: Fix valido | lat=19.392202 lon=-99.145814[0m
+[0;32mI (13621) gps_oled_mqtt: Fix valido | lat=19.392203 lon=-99.145816[0m
+[0;32mI (14621) gps_oled_mqtt: Fix valido | lat=19.392203 lon=-99.145819[0m

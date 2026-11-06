@@ -1,4 +1,5 @@
 # Código principal
 
-Este directorio contendrá los archivos fuente del firmware: lectura del GPS,
-comunicación MQTT y control de actuadores.
+Este directorio contiene el punto de entrada y la selección de la fuente
+activa del firmware. La lógica de GPS, OLED, WiFi, MQTT, NVS y botón se
+encuentra en `../source/3_gps_neo6m_oled_mqtt/`.
