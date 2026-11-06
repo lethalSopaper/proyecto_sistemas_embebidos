@@ -1,0 +1,14 @@
+.env
+grafana/*
+influxdb/*
+mariadb/*
+mosquitto/data/*
+mosquitto/log/*
+nodered/*
+
+!grafana/.gitkeep
+!influxdb/.gitkeep
+!mariadb/.gitkeep
+!mosquitto/data/.gitkeep
+!mosquitto/log/.gitkeep
+!nodered/.gitkeep
