@@ -1,0 +1,90 @@
+Command: ninja flash
+[1/5] cd /home/lethalsopaper/Documents/9_UNAM_semestre_9/3_fundamentos_de_sistemas_embebidos/proyecto/esp32_firmware/build && /home/lethalsopaper/.espressif/python_env/idf6.0_py3.14_env/bin/python /home/lethalsopaper/.espressif/v6.0.2/esp-idf/components/partition_table/check_sizes.py --offset 0x8000 partition --type app /home/lethalsopaper/Documents/9_UNAM_semestre_9/3_fundamentos_de_sistemas_embebidos/proyecto/esp32_firmware/build/partition_table/partition-table.bin /home/lethalsopaper/Documents/9_UNAM_semestre_9/3_fundamentos_de_sistemas_embebidos/proyecto/esp32_firmware/build/esp32_firmware.bin
+esp32_firmware.bin binary size 0xe0e90 bytes. Smallest app partition is 0x100000 bytes. 0x1f170 bytes (12%) free.
+[2/5] Performing build step for 'bootloader'
+[1/1] cd /home/lethalsopaper/Documents/9_UNAM_semestre_9/3_fundamentos_de_sistemas_embebidos/proyecto/esp32_firmware/build/bootloader && /home/lethalsopaper/.espressif/python_env/idf6.0_py3.14_env/bin/python /home/lethalsopaper/.espressif/v6.0.2/esp-idf/components/partition_table/check_sizes.py --offset 0x8000 bootloader 0x0 /home/lethalsopaper/Documents/9_UNAM_semestre_9/3_fundamentos_de_sistemas_embebidos/proyecto/esp32_firmware/build/bootloader/bootloader.bin
+Bootloader binary size 0x5240 bytes. 0x2dc0 bytes (36%) free.
+[3/5] No install step for 'bootloader'
+[4/5] Completed 'bootloader'
+[4/5] Running utility command for flash
+esptool --chip esp32s3 -p /dev/ttyACM0 -b 460800 --before=default-reset --after=hard-reset write-flash --flash-mode dio --flash-freq 80m --flash-size 2MB 0x0 bootloader/bootloader.bin 0x8000 partition_table/partition-table.bin 0x10000 esp32_firmware.bin
+esptool v5.4.0
+Serial port /dev/ttyACM0:
+Connecting...
+Connected to ESP32-S3 on /dev/ttyACM0:
+Chip type:          ESP32-S3 (QFN56) (revision v0.2)
+Features:           Wi-Fi, BT 5 (LE), Dual Core + LP Core, 240MHz, Embedded PSRAM 8MB (AP_3v3)
+Crystal frequency:  40MHz
+USB mode:           USB-Serial/JTAG
+MAC:                a4:cb:8f:d1:4d:50
+
+Uploading stub flasher...
+Running stub flasher...
+Stub flasher running.
+Changing baud rate to 460800...
+Changed.
+
+Configuring flash size...
+
+Writing 'bootloader/bootloader.bin' at 0x00000000...
+SHA digest in image updated.
+Flash will be erased from 0x00000000 to 0x00005fff...
+Compressed 21056 bytes to 13532...
+Writing at 0x00005240 ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━ 100.0% 13.21kB/13.21kB [0s] 
+Wrote 21056 bytes (13532 compressed) at 0x00000000 in 0.3 seconds (535.2 kbit/s).
+Verifying written data...
+Hash of data verified.
+
+Writing 'partition_table/partition-table.bin' at 0x00008000...
+Flash will be erased from 0x00008000 to 0x00008fff...
+Compressed 3072 bytes to 103...
+Writing at 0x00008c00 ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━ 100.0% 103B/103B [0s] 
+Wrote 3072 bytes (103 compressed) at 0x00008000 in 0.0 seconds (613.1 kbit/s).
+Verifying written data...
+Hash of data verified.
+
+Writing 'esp32_firmware.bin' at 0x00010000...
+Flash will be erased from 0x00010000 to 0x000f0fff...
+Compressed 921232 bytes to 594404...
+Writing at 0x0001ce85 ╸                                2.8% 16.00kB/580.47kB [0s] 
+Writing at 0x0002737c ━╸                               5.5% 32.00kB/580.47kB [0s] 
+Writing at 0x0002e8e7 ━━                               8.3% 48.00kB/580.47kB [0s] 
+Writing at 0x00038dec ━━━                             11.0% 64.00kB/580.47kB [0s] 
+Writing at 0x0003f4b0 ━━━━                            13.8% 80.00kB/580.47kB [1s] 
+Writing at 0x00045260 ━━━━╸                           16.5% 96.00kB/580.47kB [1s] 
+Writing at 0x0004b79d ━━━━━╸                          19.3% 112.00kB/580.47kB [1s] 
+Writing at 0x00051826 ━━━━━━╸                         22.1% 128.00kB/580.47kB [1s] 
+Writing at 0x00058192 ━━━━━━━                         24.8% 144.00kB/580.47kB [1s] 
+Writing at 0x0005e1f7 ━━━━━━━━                        27.6% 160.00kB/580.47kB [2s] 
+Writing at 0x000636c5 ━━━━━━━━━                       30.3% 176.00kB/580.47kB [2s] 
+Writing at 0x00068b7c ━━━━━━━━━╸                      33.1% 192.00kB/580.47kB [2s] 
+Writing at 0x0006e285 ━━━━━━━━━━╸                     35.8% 208.00kB/580.47kB [2s] 
+Writing at 0x00073982 ━━━━━━━━━━━╸                    38.6% 224.00kB/580.47kB [2s] 
+Writing at 0x0007909d ━━━━━━━━━━━━                    41.3% 240.00kB/580.47kB [2s] 
+Writing at 0x0007e61a ━━━━━━━━━━━━━                   44.1% 256.00kB/580.47kB [3s] 
+Writing at 0x00083c6f ━━━━━━━━━━━━━━                  46.9% 272.00kB/580.47kB [3s] 
+Writing at 0x00089039 ━━━━━━━━━━━━━━╸                 49.6% 288.00kB/580.47kB [3s] 
+Writing at 0x0008e045 ━━━━━━━━━━━━━━━╸                52.4% 304.00kB/580.47kB [3s] 
+Writing at 0x00093911 ━━━━━━━━━━━━━━━━╸               55.1% 320.00kB/580.47kB [3s] 
+Writing at 0x00099125 ━━━━━━━━━━━━━━━━━               57.9% 336.00kB/580.47kB [3s] 
+Writing at 0x0009e6bb ━━━━━━━━━━━━━━━━━━              60.6% 352.00kB/580.47kB [3s] 
+Writing at 0x000a3c04 ━━━━━━━━━━━━━━━━━━━             63.4% 368.00kB/580.47kB [3s] 
+Writing at 0x000a93f6 ━━━━━━━━━━━━━━━━━━━╸            66.2% 384.00kB/580.47kB [4s] 
+Writing at 0x000af4bc ━━━━━━━━━━━━━━━━━━━━╸           68.9% 400.00kB/580.47kB [4s] 
+Writing at 0x000b5022 ━━━━━━━━━━━━━━━━━━━━━           71.7% 416.00kB/580.47kB [4s] 
+Writing at 0x000bacc9 ━━━━━━━━━━━━━━━━━━━━━━          74.4% 432.00kB/580.47kB [4s] 
+Writing at 0x000c0956 ━━━━━━━━━━━━━━━━━━━━━━━         77.2% 448.00kB/580.47kB [4s] 
+Writing at 0x000c6352 ━━━━━━━━━━━━━━━━━━━━━━━╸        79.9% 464.00kB/580.47kB [4s] 
+Writing at 0x000cbfd2 ━━━━━━━━━━━━━━━━━━━━━━━━╸       82.7% 480.00kB/580.47kB [4s] 
+Writing at 0x000d1e48 ━━━━━━━━━━━━━━━━━━━━━━━━━╸      85.4% 496.00kB/580.47kB [5s] 
+Writing at 0x000d77e9 ━━━━━━━━━━━━━━━━━━━━━━━━━━      88.2% 512.00kB/580.47kB [5s] 
+Writing at 0x000ddbd0 ━━━━━━━━━━━━━━━━━━━━━━━━━━━     91.0% 528.00kB/580.47kB [5s] 
+Writing at 0x000e3a30 ━━━━━━━━━━━━━━━━━━━━━━━━━━━━    93.7% 544.00kB/580.47kB [5s] 
+Writing at 0x000e9cad ━━━━━━━━━━━━━━━━━━━━━━━━━━━━╸   96.5% 560.00kB/580.47kB [5s] 
+Writing at 0x000eed2a ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━╸  99.2% 576.00kB/580.47kB [5s] 
+Writing at 0x000f0e90 ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━ 100.0% 580.47kB/580.47kB [5s] 
+Wrote 921232 bytes (594404 compressed) at 0x00010000 in 5.9 seconds (1247.9 kbit/s).
+Verifying written data...
+Hash of data verified.
+
+Hard resetting via RTS pin...

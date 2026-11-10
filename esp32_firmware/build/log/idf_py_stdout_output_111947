@@ -1,0 +1,71 @@
+Command: /home/lethalsopaper/.espressif/python_env/idf6.0_py3.14_env/bin/python /home/lethalsopaper/.espressif/v6.0.2/esp-idf/tools/idf_monitor.py -p /dev/ttyACM0 -b 115200 --toolchain-prefix xtensa-esp32s3-elf- --target esp32s3 --revision 0 /home/lethalsopaper/Documents/9_UNAM_semestre_9/3_fundamentos_de_sistemas_embebidos/proyecto/esp32_firmware/build/esp32_firmware.elf /home/lethalsopaper/Documents/9_UNAM_semestre_9/3_fundamentos_de_sistemas_embebidos/proyecto/esp32_firmware/build/bootloader/bootloader.elf -m '/home/lethalsopaper/.espressif/python_env/idf6.0_py3.14_env/bin/python' '/home/lethalsopaper/.espressif/v6.0.2/esp-idf/tools/idf.py' '-p' '/dev/ttyACM0'
+ESP-ROM:esp32s3-20210327
+Build:Mar 27 2021
+rst:0x15 (USB_UART_CHIP_RESET),boot:0x29 (SPI_FAST_FLASH_BOOT)
+Saved PC:0x4037b3ae
+SPIWP:0xee
+mode:DIO, clock div:1
+load:0x3fce2820,len:0x1548
+load:0x403c8700,len:0xd5c
+load:0x403cb700,len:0x2f48
+entry 0x403c8900
+[0;32mI (220) main_task: Started on CPU0[0m
+[0;32mI (220) main_task: Calling app_main()[0m
+[0;32mI (240) pp: pp rom version: e7ae62f[0m
+[0;32mI (240) net80211: net80211 rom version: e7ae62f[0m
+[0;32mI (250) wifi:wifi driver task: 3fced91c, prio:23, stack:6656, core=0[0m
+[0;32mI (250) wifi:wifi firmware version: 00ad238[0m
+[0;32mI (250) wifi:wifi certification version: v7.0[0m
+[0;32mI (250) wifi:config NVS flash: enabled[0m
+[0;32mI (250) wifi:config nano formatting: disabled[0m
+[0;32mI (250) wifi:Init data frame dynamic rx buffer num: 32[0m
+[0;32mI (250) wifi:Init static rx mgmt buffer num: 5[0m
+[0;32mI (250) wifi:Init management short buffer num: 32[0m
+[0;32mI (250) wifi:Init dynamic tx buffer num: 32[0m
+[0;32mI (250) wifi:Init static tx FG buffer num: 2[0m
+[0;32mI (250) wifi:Init static rx buffer size: 1600[0m
+[0;32mI (250) wifi:Init static rx buffer num: 10[0m
+[0;32mI (250) wifi:Init dynamic rx buffer num: 32[0m
+[0;32mI (250) wifi_init: rx ba win: 6[0m
+[0;32mI (250) wifi_init: accept mbox: 6[0m
+[0;32mI (250) wifi_init: tcpip mbox: 32[0m
+[0;32mI (250) wifi_init: udp mbox: 6[0m
+[0;32mI (250) wifi_init: tcp mbox: 6[0m
+[0;32mI (250) wifi_init: tcp tx win: 5760[0m
+[0;32mI (250) wifi_init: tcp rx win: 5760[0m
+[0;32mI (250) wifi_init: tcp mss: 1440[0m
+[0;32mI (250) wifi_init: WiFi IRAM OP enabled[0m
+[0;32mI (250) wifi_init: WiFi RX IRAM OP enabled[0m
+[0;32mI (250) gps_oled_mqtt: Boton de modo: D0/GPIO1 a GND[0m
+[0;32mI (260) gps_oled_mqtt: Mediciones pendientes: 0[0m
+[0;32mI (660) gps_oled_mqtt: Fix valido | lat=19.392159 lon=-99.145753[0m
+[0;32mI (1660) gps_oled_mqtt: Fix valido | lat=19.392147 lon=-99.145756[0m
+[0;32mI (2650) gps_oled_mqtt: Fix valido | lat=19.392137 lon=-99.145762[0m
+[0;32mI (3650) gps_oled_mqtt: Fix valido | lat=19.392132 lon=-99.145765[0m
+[0;32mI (4660) gps_oled_mqtt: Fix valido | lat=19.392134 lon=-99.145768[0m
+[0;32mI (5660) gps_oled_mqtt: Fix valido | lat=19.392132 lon=-99.145768[0m
+[0;32mI (6260) gps_oled_mqtt: Modo cambiado a UPLOAD[0m
+[0;32mI (6260) gps_oled_mqtt: Conectando a WiFi SSID=TP-Link_F271_2G (con contraseña)[0m
+[0;33mW (6260) wifi:Password length matches WPA2 standards, authmode threshold changes from OPEN to WPA2[0m
+[0;32mI (6270) phy_init: phy_version 712,87e8c20e,Apr 13 2026,18:51:10[0m
+[0;33mW (6270) phy_init: failed to load RF calibration data (0x1102), falling back to full calibration[0m
+[0;32mI (6300) phy_init: Saving new calibration data due to checksum failure or outdated calibration data, mode(2)[0m
+[0;32mI (6320) wifi:mode : sta (a4:cb:8f:d1:4d:50)[0m
+[0;32mI (6320) wifi:enable tsf[0m
+[0;32mI (7490) wifi:new:<10,0>, old:<1,0>, ap:<255,255>, sta:<10,0>, prof:1, snd_ch_cfg:0x0[0m
+[0;32mI (7490) wifi:state: init -> auth (0xb0)[0m
+[0;32mI (7510) wifi:state: auth -> assoc (0x0)[0m
+[0;32mI (7530) wifi:state: assoc -> run (0x10)[0m
+[0;32mI (7560) wifi:connected with TP-Link_F271_2G, aid = 1, channel 10, BW20, bssid = 22:3b:f3:3f:f2:71[0m
+[0;32mI (7560) wifi:security: WPA2-PSK, phy: bgn, rssi: -58, cipher(pairwise:0x3, group:0x3), pmf:0[0m
+[0;32mI (7570) wifi:pm start, type: 1[0m
+
+[0;32mI (7570) wifi:dp: 1, bi: 102400, li: 3, scale listen interval from 307200 us to 307200 us[0m
+[0;32mI (7570) wifi:set rx beacon pti, rx_bcn_pti: 0, bcn_timeout: 25000, mt_pti: 0, mt_time: 10000[0m
+[0;32mI (7580) wifi:AP's beacon interval = 102400 us, DTIM period = 1[0m
+[0;32mI (7590) wifi:<ba-add>idx:0 (ifx:0, 22:3b:f3:3f:f2:71), tid:0, ssn:0, winSize:64[0m
+[0;32mI (8590) esp_netif_handlers: sta ip: 192.168.0.192, mask: 255.255.255.0, gw: 192.168.0.1[0m
+[0;32mI (8590) gps_oled_mqtt: WiFi conectado; IP=192.168.0.192[0m
+[0;32mI (8780) gps_oled_mqtt: Conectado al broker MQTT[0m
+[0;32mI (8780) gps_oled_mqtt: Publicando 6 mediciones en proyecto/gps/telemetry[0m
+[0;32mI (8880) gps_oled_mqtt: Mediciones publicadas: 6[0m

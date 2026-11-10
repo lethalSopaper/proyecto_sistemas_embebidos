@@ -1,7 +1,7 @@
 {
     "version":            "1.3",
     "project_name":       "esp32_firmware",
-    "project_version":    "6138a5d-dirty",
+    "project_version":    "24b5d1e-dirty",
     "project_path":       "/home/lethalsopaper/Documents/9_UNAM_semestre_9/3_fundamentos_de_sistemas_embebidos/proyecto/esp32_firmware",
     "idf_path":           "/home/lethalsopaper/.espressif/v6.0.2/esp-idf",
     "build_dir":          "/home/lethalsopaper/Documents/9_UNAM_semestre_9/3_fundamentos_de_sistemas_embebidos/proyecto/esp32_firmware/build",
@@ -1780,8 +1780,8 @@
             "managed_reqs": [],
             "managed_priv_reqs": [ "espressif__mqtt" ],
             "file": "/home/lethalsopaper/Documents/9_UNAM_semestre_9/3_fundamentos_de_sistemas_embebidos/proyecto/esp32_firmware/build/esp-idf/main/libmain.a",
-            "sources": [ "/home/lethalsopaper/Documents/9_UNAM_semestre_9/3_fundamentos_de_sistemas_embebidos/proyecto/esp32_firmware/main/main.c", "/home/lethalsopaper/Documents/9_UNAM_semestre_9/3_fundamentos_de_sistemas_embebidos/proyecto/esp32_firmware/source/1_gps_neo6m/gps_neo6m.c", "/home/lethalsopaper/Documents/9_UNAM_semestre_9/3_fundamentos_de_sistemas_embebidos/proyecto/esp32_firmware/source/2_gps_neo6m_oled/gps_neo6m_oled.c", "/home/lethalsopaper/Documents/9_UNAM_semestre_9/3_fundamentos_de_sistemas_embebidos/proyecto/esp32_firmware/source/3_gps_neo6m_oled_mqtt/gps_neo6m_oled_mqtt.c" ],
-            "include_dirs": [ ".", "../source/1_gps_neo6m", "../source/2_gps_neo6m_oled", "../source/3_gps_neo6m_oled_mqtt" ]
+            "sources": [ "/home/lethalsopaper/Documents/9_UNAM_semestre_9/3_fundamentos_de_sistemas_embebidos/proyecto/esp32_firmware/main/main.c", "/home/lethalsopaper/Documents/9_UNAM_semestre_9/3_fundamentos_de_sistemas_embebidos/proyecto/esp32_firmware/source/1_gps_neo6m/gps_neo6m.c", "/home/lethalsopaper/Documents/9_UNAM_semestre_9/3_fundamentos_de_sistemas_embebidos/proyecto/esp32_firmware/source/2_gps_neo6m_oled/gps_neo6m_oled.c", "/home/lethalsopaper/Documents/9_UNAM_semestre_9/3_fundamentos_de_sistemas_embebidos/proyecto/esp32_firmware/source/3_gps_neo6m_oled_mqtt/gps_neo6m_oled_mqtt.c", "/home/lethalsopaper/Documents/9_UNAM_semestre_9/3_fundamentos_de_sistemas_embebidos/proyecto/esp32_firmware/source/4_gps_neo6m_mqtt_led/gps_neo6m_mqtt_led.c" ],
+            "include_dirs": [ ".", "../source/1_gps_neo6m", "../source/2_gps_neo6m_oled", "../source/3_gps_neo6m_oled_mqtt", "../source/4_gps_neo6m_mqtt_led" ]
         },
         "mbedtls": {
             "alias": "idf::mbedtls",
@@ -3948,7 +3948,7 @@
             "priv_reqs": [ "espressif__mqtt" ],
             "managed_reqs": [],
             "managed_priv_reqs": [ "espressif__mqtt" ],
-            "include_dirs": [ ".", "../source/1_gps_neo6m", "../source/2_gps_neo6m_oled", "../source/3_gps_neo6m_oled_mqtt" ]
+            "include_dirs": [ ".", "../source/1_gps_neo6m", "../source/2_gps_neo6m_oled", "../source/3_gps_neo6m_oled_mqtt", "../source/4_gps_neo6m_mqtt_led" ]
         },
         "u8g2": {
             "alias": "idf::u8g2",

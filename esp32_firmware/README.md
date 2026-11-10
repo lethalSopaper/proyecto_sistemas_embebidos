@@ -121,6 +121,38 @@ carga.
 Durante la carga se publica el estado `uploading`, se envían las mediciones y
 se publica `complete` al finalizar.
 
+## Variante sin OLED con LEDs
+
+La fuente [`4_gps_neo6m_mqtt_led/`](./source/4_gps_neo6m_mqtt_led/) conserva
+GPS, WiFi, MQTT, NVS y el botón, pero omite completamente el OLED. Usa dos
+LEDs para reducir hardware y consumo:
+
+| Indicador | Pin |
+|---|---|
+| Rojo | D10 / GPIO9 |
+| Verde | D9 / GPIO8 |
+
+El LED rojo pulsa con cada medición válida y queda encendido al alcanzar las
+256 mediciones. El LED verde se enciende al obtener un fix GPS, se apaga
+durante la carga y queda encendido después de una carga exitosa o al volver al
+modo GPS. Los LEDs están documentados como activos en nivel alto; conecta cada
+LED con su resistencia limitadora y comparte GND con la ESP32.
+
+Para seleccionar esta variante, en [`main/source.h`](./main/source.h) comenta
+la fuente OLED y activa:
+
+```c
+#include "gps_neo6m_mqtt_led.h"
+#define SOURCE gps_neo6m_led_mqtt_app_main
+```
+
+Después compila y flashea:
+
+```bash
+./run.sh build
+./run.sh flash
+```
+
 Para agregar otra red:
 
 1. Abre `./run.sh menuconfig`.

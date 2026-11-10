@@ -23,7 +23,7 @@ if [[ -n "$TOUCH_DRIVER_DIR" && -f "$TOUCH_DRIVER_DIR/xpt2046_opi.py" ]]; then
     scp "$TOUCH_DRIVER_DIR/xpt2046_opi.py" "$REMOTE:$REMOTE_DIR/"
 fi
 
-ssh "$REMOTE" "cd '$REMOTE_DIR' && \
+ssh -t "$REMOTE" "cd '$REMOTE_DIR' && \
     python3 -m venv .venv && \
     .venv/bin/python -m pip install --upgrade pip paho-mqtt Pillow numpy python-periphery && \
     mkdir -p ~/.config/systemd/user && \
