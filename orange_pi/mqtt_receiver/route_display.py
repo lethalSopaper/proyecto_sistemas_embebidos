@@ -45,7 +45,7 @@ def _world_pixel(latitude: float, longitude: float, zoom: int) -> tuple[float, f
 
 
 class RouteDisplay:
-    def __init__(self) -> None:
+    def __init__(self, route_database) -> None:
         self.display = ILI9341(
             bus=1,
             dispositivo=0,
@@ -58,6 +58,12 @@ class RouteDisplay:
         self.width = self.display.width
         self.height = self.display.height
         self.points: list[tuple[float, float]] = []
+        self.route_database = route_database
+        self.screen = "menu"
+        self.sort_by = "date"
+        self.routes: list[dict[str, object]] = []
+        self.page = 0
+        self.selected_route_id: int | None = None
         self.lock = threading.Lock()
         self.font = ImageFont.load_default()
         try:
@@ -72,7 +78,7 @@ class RouteDisplay:
         )
         self.touch = self._create_touch()
         self.last_touch = 0.0
-        self.clear()
+        self._refresh_routes()
         if self.touch is not None:
             threading.Thread(target=self._touch_loop, daemon=True).start()
 
@@ -99,7 +105,11 @@ class RouteDisplay:
                             flush=True,
                         )
                     if now - self.last_touch >= 0.4:
-                        if 0 <= x <= 70 and 0 <= y <= 70:
+                        if self.screen == "menu":
+                            self._handle_menu_touch(x, y)
+                        elif 88 <= x <= 152 and 0 <= y <= 55:
+                            self._show_menu()
+                        elif 0 <= x <= 70 and 0 <= y <= 70:
                             print("Touch: zoom out", flush=True)
                             self._change_radius(1)
                         elif self.width - 70 <= x <= self.width and 0 <= y <= 70:
@@ -109,6 +119,41 @@ class RouteDisplay:
             except (OSError, RuntimeError, TypeError, ValueError):
                 pass
             time.sleep(0.05)
+
+    def _handle_menu_touch(self, x: int, y: int) -> None:
+        if y <= 45 and x < self.width // 2:
+            self.sort_by = "date"
+            self.page = 0
+            self._refresh_routes()
+        elif y <= 45:
+            self.sort_by = "name"
+            self.page = 0
+            self._refresh_routes()
+        elif y >= self.height - 42 and x < self.width // 2:
+            self.page = max(0, self.page - 1)
+            self._render_menu()
+        elif y >= self.height - 42:
+            self.page += 1
+            self._render_menu()
+        elif 45 <= y < self.height - 42:
+            index = self.page * 6 + (y - 45) // 40
+            if index < len(self.routes):
+                route = self.routes[index]
+                self.selected_route_id = int(route["id"])
+                self.points = self.route_database.get_route_points(
+                    self.selected_route_id
+                )
+                self.screen = "map"
+                self._render()
+
+    def _refresh_routes(self) -> None:
+        self.routes = self.route_database.list_routes(self.sort_by)
+        self._render_menu()
+
+    def _show_menu(self) -> None:
+        self.screen = "menu"
+        self.page = 0
+        self._refresh_routes()
 
     def _touch_to_screen(self, raw_x: int, raw_y: int) -> tuple[int, int]:
         if TOUCH_SWAP_AXES:
@@ -133,11 +178,13 @@ class RouteDisplay:
     def clear(self) -> None:
         with self.lock:
             self.points.clear()
+            self.screen = "map"
             self._render()
 
     def add_point(self, latitude: float, longitude: float) -> None:
         with self.lock:
             self.points.append((latitude, longitude))
+            self.screen = "map"
             self._render()
 
     def _select_zoom(self, latitude: float) -> int:
@@ -219,8 +266,51 @@ class RouteDisplay:
             (self.width - 39, top + 8), "+",
             fill=(255, 255, 255), font=self.control_font,
         )
+        draw.rounded_rectangle(
+            (88, top, 152, top + button_size),
+            radius=6, fill=(0, 80, 180), outline=(255, 255, 255), width=2,
+        )
+        draw.text((108, top + 12), "R", fill=(255, 255, 255), font=self.font)
+
+    def _render_menu(self) -> None:
+        image = Image.new("RGB", (self.width, self.height), (20, 25, 35))
+        draw = ImageDraw.Draw(image)
+        draw.text((8, 4), "Rutas guardadas", fill=(255, 255, 255), font=self.control_font)
+        draw.rectangle((0, 35, self.width, 45), fill=(0, 80, 150))
+        draw.text((12, 36), "Fecha" if self.sort_by == "date" else "Ordenar fecha",
+                  fill=(255, 255, 255), font=self.font)
+        draw.text((self.width // 2 + 8, 36),
+                  "Nombre" if self.sort_by == "name" else "Ordenar nombre",
+                  fill=(255, 255, 255), font=self.font)
+        start = self.page * 6
+        visible = self.routes[start:start + 6]
+        for row, route in enumerate(visible):
+            top = 48 + row * 40
+            draw.rectangle((4, top, self.width - 4, top + 36),
+                           fill=(40, 50, 65), outline=(100, 110, 125))
+            name = str(route.get("name") or f"Ruta {route['id']}")
+            draw.text((9, top + 3), name[:30], fill=(255, 255, 255), font=self.font)
+            date = route["started_at"].strftime("%Y-%m-%d %H:%M")
+            points = int(route.get("point_count") or 0)
+            distance = float(route.get("distance_m") or 0)
+            draw.text((9, top + 19),
+                      f"{date} | {points} pts | {distance:.0f} m",
+                      fill=(190, 210, 225), font=self.font)
+        draw.rectangle((0, self.height - 42, self.width, self.height),
+                       fill=(0, 0, 0))
+        total_pages = max(1, (len(self.routes) + 5) // 6)
+        draw.text((8, self.height - 30),
+                  f"{self.page + 1}/{total_pages}  {len(self.routes)} rutas",
+                  fill=(255, 255, 255), font=self.font)
+        draw.text((self.width // 2 + 12, self.height - 30),
+                  "< anterior        siguiente >", fill=(255, 255, 255),
+                  font=self.font)
+        self.display.image(image)
 
     def _render(self) -> None:
+        if self.screen == "menu":
+            self._render_menu()
+            return
         if not self.points:
             image = Image.new("RGB", (self.width, self.height), (0, 0, 0))
             ImageDraw.Draw(image).text(
@@ -261,9 +351,9 @@ class RouteDisplay:
         self.display.image(image)
 
 
-def create_route_display() -> Optional[RouteDisplay]:
+def create_route_display(route_database) -> Optional[RouteDisplay]:
     try:
-        return RouteDisplay()
+        return RouteDisplay(route_database)
     except (ImportError, OSError, RuntimeError) as error:
         print(f"ILI9341 no disponible; se continuará sin pantalla: {error}")
         return None

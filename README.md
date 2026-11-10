@@ -11,16 +11,18 @@ Los deportistas requieren monitorear constantemente sus trayectos y distancias. 
 
 Actualmente está implementado el flujo principal ESP32 → MQTT → Orange Pi:
 
-- La ESP32 obtiene coordenadas del GPS NEO-6M, las muestra en un OLED y las
-  almacena temporalmente para cargarlas por MQTT.
-- La Orange Pi recibe la telemetría y dibuja la ruta sobre OpenStreetMap en una
-  pantalla ILI9341 con controles táctiles de zoom.
-- El receptor MQTT puede instalarse como servicio de usuario y arrancar
+- La ESP32 obtiene coordenadas del GPS NEO-6M y las almacena temporalmente para
+  cargarlas por MQTT. Hay variantes con OLED y con LEDs.
+- La Orange Pi recibe la telemetría, dibuja la ruta sobre OpenStreetMap y
+  conserva las rutas en MariaDB con fecha, puntos y distancia aproximada.
+- Mosquitto, Node-RED, InfluxDB, MariaDB y Grafana se ejecutan en Docker en la
+  Orange Pi.
+- El receptor MQTT se instala como servicio de usuario y arranca
   automáticamente al encender la Orange Pi.
 
-El almacenamiento histórico en PC, Grafana y los flujos finales de Node-RED
-siguen pendientes. Las rutas de la Orange Pi todavía se reemplazan al iniciar
-una nueva carga y no se conservan como historial.
+Node-RED todavía debe configurarse para distribuir la telemetría hacia
+InfluxDB, MariaDB y el programa de pantalla. La pantalla muestra la ruta
+actual; el historial completo queda en MariaDB.
 
 ## Arquitectura del Sistema
 
@@ -35,17 +37,19 @@ El proyecto está dividido en tres capas principales:
 
 2. **Capa de Borde (Procesamiento Local):**
    - **Hardware:** Orange Pi Zero 2W.
-   - **Software:**
+   - **Software en Docker:**
      - `Eclipse Mosquitto`: Broker MQTT.
-     - Receptor Python de telemetría y rutas.
+     - `Node-RED`: Procesamiento y distribución.
+     - `InfluxDB`: Telemetría reciente.
+     - `MariaDB`: Historial de rutas.
+     - `Grafana`: Visualización.
+   - **Receptor Python:** guarda las rutas y controla la pantalla ILI9341.
    - **Interfaz Física:** Pantalla táctil **ILI9341** para visualizar rutas y
      controles de zoom.
 
-3. **Capa de Interfaz (Almacenamiento y Visualización Pesada):**
-   - **Hardware:** PC Central.
-   - **Software (Contenedores Docker):**
-     - `MariaDB`: Base de datos relacional para el registro histórico de todas las rutas y usuarios.
-     - `Grafana`: Dashboards interactivos con mapas (OpenStreetMap) y gráficas de velocidad/elevación.
+3. **Capa de Interfaz:**
+   - **Hardware:** PC o navegador conectado a la Orange Pi.
+   - **Software:** Acceso remoto a Grafana y Node-RED alojados en la Orange Pi.
 
 ## Estructura del Repositorio
 
@@ -56,10 +60,10 @@ Se sugiere mantener la siguiente estructura para organizar los archivos del proy
 │   ├── main/               # Punto de entrada y selector de fuentes
 │   └── source/             # Código de cada fuente de la ESP32
 ├── orange_pi/              # Scripts y configuraciones para la Capa de Borde
-│   ├── python_ili9341/     # Script de Python para controlar la pantalla táctil
-│   └── docker/             # Archivo docker-compose.yml (Mosquitto, Node-RED, InfluxDB)
-├── pc_server/              # Configuraciones para la PC (Capa de Interfaz)
-│   └── docker/             # Archivo docker-compose.yml (MariaDB, Grafana)
+│   ├── mqtt_receiver/      # Receptor, pantalla y base de datos de rutas
+│   ├── python_ili9341/     # Controlador de la pantalla táctil
+│   └── docker/             # Mosquitto, Node-RED, InfluxDB, MariaDB y Grafana
+├── pc_server/              # Configuraciones opcionales para la PC
 ├── node_red/               # Archivos JSON exportados de los flujos de Node-RED
 ├── docs/                   # Documentación, diagramas (Fritzing/Kicad), imágenes
 └── README.md               # Este archivo

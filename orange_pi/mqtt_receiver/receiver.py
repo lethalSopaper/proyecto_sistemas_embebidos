@@ -3,6 +3,8 @@ import os
 
 import paho.mqtt.client as mqtt
 
+from route_database import RouteDatabase
+
 if os.getenv("ILI9341_ENABLED", "1") == "1":
     try:
         from route_display import create_route_display
@@ -16,7 +18,12 @@ BROKER = os.getenv("MQTT_BROKER", "0.0.0.0")
 PORT = int(os.getenv("MQTT_PORT", "1883"))
 TOPIC = os.getenv("MQTT_TOPIC", "proyecto/gps/telemetry")
 STATUS_TOPIC = f"{TOPIC}/status"
-route_display = create_route_display() if create_route_display is not None else None
+route_database = RouteDatabase()
+route_display = (
+    create_route_display(route_database)
+    if create_route_display is not None
+    else None
+)
 
 
 def on_connect(client, userdata, flags, reason_code, properties=None):
@@ -30,8 +37,12 @@ def on_connect(client, userdata, flags, reason_code, properties=None):
 def on_message(client, userdata, message):
     if message.topic == STATUS_TOPIC:
         status = message.payload.decode("utf-8")
-        if status == "uploading" and route_display is not None:
-            route_display.clear()
+        if status == "uploading":
+            route_database.start_route()
+            if route_display is not None:
+                route_display.clear()
+        elif status == "complete":
+            route_database.finish_route()
         print(f"ESP32 status: {status}")
         return
     try:
@@ -39,14 +50,21 @@ def on_message(client, userdata, message):
     except (UnicodeDecodeError, json.JSONDecodeError) as error:
         print(f"Invalid telemetry payload: {error}")
         return
+    try:
+        latitude = float(measurement["latitude"])
+        longitude = float(measurement["longitude"])
+    except (KeyError, TypeError, ValueError) as error:
+        print(f"Invalid telemetry fields: {error}")
+        return
     print(
         "GPS: "
-        f"lat={measurement['latitude']:.6f} "
-        f"lon={measurement['longitude']:.6f} "
+        f"lat={latitude:.6f} "
+        f"lon={longitude:.6f} "
         f"alt={measurement['altitude']:.1f} m"
     )
+    route_database.add_point(measurement)
     if route_display is not None:
-        route_display.add_point(measurement["latitude"], measurement["longitude"])
+        route_display.add_point(latitude, longitude)
 
 
 client = mqtt.Client(mqtt.CallbackAPIVersion.VERSION2)

@@ -41,6 +41,8 @@ services:
   mariadb:
     image: mariadb:11
     restart: unless-stopped
+    ports:
+      - "3306:3306"
     environment:
       MARIADB_ROOT_PASSWORD: ${MARIADB_ROOT_PASSWORD:?Define MARIADB_ROOT_PASSWORD en .env}
       MARIADB_DATABASE: ${MARIADB_DATABASE:-gps}

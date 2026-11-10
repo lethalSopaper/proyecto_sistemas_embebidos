@@ -44,7 +44,7 @@ La arquitectura levantada es:
 | Mosquitto | Broker MQTT para la ESP32 | Puerto `1883` |
 | Node-RED | Procesamiento y distribución | `http://IP_DE_LA_ORANGE:1880` |
 | InfluxDB | Telemetría reciente | `http://IP_DE_LA_ORANGE:8086` |
-| MariaDB | Historial de rutas | Puerto interno `3306` |
+| MariaDB | Historial de rutas | Puerto `3306` |
 | Grafana | Dashboards y visualización | `http://IP_DE_LA_ORANGE:3000` |
 
 Obtén la dirección de la Orange Pi con:
@@ -59,7 +59,9 @@ organización, el bucket y el token definidos en `.env`.
 
 El esquema inicial de MariaDB se crea automáticamente en el primer arranque.
 Los datos se guardan en subdirectorios de `docker/` y sobreviven a los
-reinicios de los contenedores.
+reinicios de los contenedores. La tabla `routes` identifica cada carga y
+`route_points` almacena sus coordenadas, fecha/hora, altitud, satélites y HDOP.
+El receptor Python usa el puerto `3306` para guardar el historial.
 
 ## Operación y diagnóstico
 
@@ -108,3 +110,14 @@ al mismo tiempo que el contenedor, porque ambos usan el puerto `1883`:
 ```bash
 sudo systemctl disable --now mosquitto
 ```
+
+El receptor MQTT se despliega desde la computadora con:
+
+```bash
+./orange_pi/mqtt_receiver/deploy.sh
+```
+
+Después crea `~/proyecto/orange_pi/mqtt_receiver/.env` a partir de
+`.env.example` y coloca en `GPS_DB_PASSWORD` el mismo valor de
+`MARIADB_PASSWORD` usado por MariaDB. El servicio de usuario espera y reintenta
+la conexión si MariaDB todavía está iniciando.

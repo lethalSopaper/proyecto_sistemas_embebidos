@@ -1,5 +1,6 @@
 CREATE TABLE IF NOT EXISTS routes (
     id BIGINT UNSIGNED NOT NULL AUTO_INCREMENT,
+    name VARCHAR(128) NULL,
     device_id VARCHAR(64) NOT NULL,
     started_at DATETIME(6) NOT NULL,
     finished_at DATETIME(6) NULL,
