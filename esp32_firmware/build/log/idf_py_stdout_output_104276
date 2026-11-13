@@ -1,0 +1,339 @@
+Command: /home/lethalsopaper/.espressif/python_env/idf6.0_py3.14_env/bin/python /home/lethalsopaper/.espressif/v6.0.2/esp-idf/tools/idf_monitor.py -p /dev/ttyACM0 -b 115200 --toolchain-prefix xtensa-esp32s3-elf- --target esp32s3 --revision 0 /home/lethalsopaper/Documents/9_UNAM_semestre_9/3_fundamentos_de_sistemas_embebidos/proyecto/esp32_firmware/build/esp32_firmware.elf /home/lethalsopaper/Documents/9_UNAM_semestre_9/3_fundamentos_de_sistemas_embebidos/proyecto/esp32_firmware/build/bootloader/bootloader.elf -m '/home/lethalsopaper/.espressif/python_env/idf6.0_py3.14_env/bin/python' '/home/lethalsopaper/.espressif/v6.0.2/esp-idf/tools/idf.py' '-p' '/dev/ttyACM0'
+ESP-ROM:esp32s3-20210327
+Build:Mar 27 2021
+rst:0x15 (USB_UART_CHIP_RESET),boot:0x29 (SPI_FAST_FLASH_BOOT)
+Saved PC:0x4037b3ae
+SPIWP:0xee
+mode:DIO, clock div:1
+load:0x3fce2820,len:0x1548
+load:0x403c8700,len:0xd5c
+load:0x403cb700,len:0x2f48
+entry 0x403c8900
+[0;32mI (220) main_task: Started on CPU0[0m
+[0;32mI (220) main_task: Calling app_main()[0m
+[0;33mW (240) gps_oled_mqtt: No se pudo cargar el bloque 0 de mediciones: ESP_ERR_NVS_NOT_FOUND[0m
+[0;32mI (250) pp: pp rom version: e7ae62f[0m
+[0;32mI (250) net80211: net80211 rom version: e7ae62f[0m
+[0;32mI (260) wifi:wifi driver task: 3fceda44, prio:23, stack:6656, core=0[0m
+[0;32mI (270) wifi:wifi firmware version: 00ad238[0m
+[0;32mI (270) wifi:wifi certification version: v7.0[0m
+[0;32mI (270) wifi:config NVS flash: enabled[0m
+[0;32mI (270) wifi:config nano formatting: disabled[0m
+[0;32mI (270) wifi:Init data frame dynamic rx buffer num: 32[0m
+[0;32mI (270) wifi:Init static rx mgmt buffer num: 5[0m
+[0;32mI (270) wifi:Init management short buffer num: 32[0m
+[0;32mI (270) wifi:Init dynamic tx buffer num: 32[0m
+[0;32mI (270) wifi:Init static tx FG buffer num: 2[0m
+[0;32mI (270) wifi:Init static rx buffer size: 1600[0m
+[0;32mI (270) wifi:Init static rx buffer num: 10[0m
+[0;32mI (270) wifi:Init dynamic rx buffer num: 32[0m
+[0;32mI (270) wifi_init: rx ba win: 6[0m
+[0;32mI (270) wifi_init: accept mbox: 6[0m
+[0;32mI (270) wifi_init: tcpip mbox: 32[0m
+[0;32mI (270) wifi_init: udp mbox: 6[0m
+[0;32mI (270) wifi_init: tcp mbox: 6[0m
+[0;32mI (270) wifi_init: tcp tx win: 5760[0m
+[0;32mI (270) wifi_init: tcp rx win: 5760[0m
+[0;32mI (270) wifi_init: tcp mss: 1440[0m
+[0;32mI (270) wifi_init: WiFi IRAM OP enabled[0m
+[0;32mI (270) wifi_init: WiFi RX IRAM OP enabled[0m
+[0;32mI (270) gps_oled_mqtt: Boton de modo: D0/GPIO1 a GND[0m
+[0;32mI (270) gps_oled_mqtt: Mediciones pendientes: 0[0m
+[0;32mI (1460) gps_oled_mqtt: Fix valido | lat=19.392200 lon=-99.145729[0m
+[0;32mI (2460) gps_oled_mqtt: Fix valido | lat=19.392200 lon=-99.145724[0m
+[0;32mI (3460) gps_oled_mqtt: Fix valido | lat=19.392201 lon=-99.145719[0m
+[0;32mI (4460) gps_oled_mqtt: Fix valido | lat=19.392202 lon=-99.145714[0m
+[0;32mI (5460) gps_oled_mqtt: Fix valido | lat=19.392202 lon=-99.145706[0m
+[0;32mI (6460) gps_oled_mqtt: Fix valido | lat=19.392203 lon=-99.145700[0m
+[0;32mI (7460) gps_oled_mqtt: Fix valido | lat=19.392205 lon=-99.145694[0m
+[0;32mI (8460) gps_oled_mqtt: Fix valido | lat=19.392206 lon=-99.145687[0m
+[0;32mI (9460) gps_oled_mqtt: Fix valido | lat=19.392208 lon=-99.145679[0m
+[0;32mI (10470) gps_oled_mqtt: Fix valido | lat=19.392208 lon=-99.145668[0m
+[0;32mI (11460) gps_oled_mqtt: Fix valido | lat=19.392209 lon=-99.145662[0m
+[0;32mI (12460) gps_oled_mqtt: Fix valido | lat=19.392209 lon=-99.145655[0m
+[0;32mI (13460) gps_oled_mqtt: Fix valido | lat=19.392209 lon=-99.145655[0m
+[0;32mI (14460) gps_oled_mqtt: Fix valido | lat=19.392208 lon=-99.145654[0m
+[0;32mI (15460) gps_oled_mqtt: Fix valido | lat=19.392207 lon=-99.145653[0m
+[0;32mI (16460) gps_oled_mqtt: Fix valido | lat=19.392206 lon=-99.145652[0m
+[0;32mI (17460) gps_oled_mqtt: Fix valido | lat=19.392206 lon=-99.145653[0m
+[0;32mI (18460) gps_oled_mqtt: Fix valido | lat=19.392205 lon=-99.145652[0m
+[0;32mI (19460) gps_oled_mqtt: Fix valido | lat=19.392204 lon=-99.145651[0m
+[0;32mI (20460) gps_oled_mqtt: Fix valido | lat=19.392204 lon=-99.145652[0m
+[0;32mI (21460) gps_oled_mqtt: Fix valido | lat=19.392203 lon=-99.145653[0m
+[0;32mI (22460) gps_oled_mqtt: Fix valido | lat=19.392201 lon=-99.145660[0m
+[0;32mI (23460) gps_oled_mqtt: Fix valido | lat=19.392201 lon=-99.145663[0m
+[0;32mI (24460) gps_oled_mqtt: Fix valido | lat=19.392200 lon=-99.145668[0m
+[0;32mI (25460) gps_oled_mqtt: Fix valido | lat=19.392201 lon=-99.145670[0m
+[0;32mI (26460) gps_oled_mqtt: Fix valido | lat=19.392201 lon=-99.145674[0m
+[0;32mI (27460) gps_oled_mqtt: Fix valido | lat=19.392201 lon=-99.145676[0m
+[0;32mI (28460) gps_oled_mqtt: Fix valido | lat=19.392201 lon=-99.145679[0m
+[0;32mI (29460) gps_oled_mqtt: Fix valido | lat=19.392202 lon=-99.145681[0m
+[0;32mI (30460) gps_oled_mqtt: Fix valido | lat=19.392202 lon=-99.145683[0m
+[0;32mI (31460) gps_oled_mqtt: Fix valido | lat=19.392201 lon=-99.145687[0m
+[0;32mI (32460) gps_oled_mqtt: Fix valido | lat=19.392200 lon=-99.145691[0m
+[0;32mI (33460) gps_oled_mqtt: Fix valido | lat=19.392200 lon=-99.145695[0m
+[0;32mI (34460) gps_oled_mqtt: Fix valido | lat=19.392201 lon=-99.145696[0m
+[0;32mI (35460) gps_oled_mqtt: Fix valido | lat=19.392199 lon=-99.145702[0m
+[0;32mI (36460) gps_oled_mqtt: Fix valido | lat=19.392198 lon=-99.145704[0m
+[0;32mI (37460) gps_oled_mqtt: Fix valido | lat=19.392198 lon=-99.145706[0m
+[0;32mI (38460) gps_oled_mqtt: Fix valido | lat=19.392198 lon=-99.145707[0m
+[0;32mI (39460) gps_oled_mqtt: Fix valido | lat=19.392198 lon=-99.145707[0m
+[0;32mI (40460) gps_oled_mqtt: Fix valido | lat=19.392198 lon=-99.145709[0m
+[0;32mI (41460) gps_oled_mqtt: Fix valido | lat=19.392198 lon=-99.145712[0m
+[0;32mI (42460) gps_oled_mqtt: Fix valido | lat=19.392198 lon=-99.145714[0m
+[0;32mI (43460) gps_oled_mqtt: Fix valido | lat=19.392199 lon=-99.145714[0m
+[0;32mI (44460) gps_oled_mqtt: Fix valido | lat=19.392199 lon=-99.145718[0m
+[0;32mI (45460) gps_oled_mqtt: Fix valido | lat=19.392200 lon=-99.145718[0m
+[0;32mI (46460) gps_oled_mqtt: Fix valido | lat=19.392200 lon=-99.145718[0m
+[0;32mI (47460) gps_oled_mqtt: Fix valido | lat=19.392201 lon=-99.145719[0m
+[0;32mI (48460) gps_oled_mqtt: Fix valido | lat=19.392202 lon=-99.145719[0m
+[0;32mI (49460) gps_oled_mqtt: Fix valido | lat=19.392201 lon=-99.145722[0m
+[0;32mI (50460) gps_oled_mqtt: Fix valido | lat=19.392201 lon=-99.145720[0m
+[0;32mI (51460) gps_oled_mqtt: Fix valido | lat=19.392201 lon=-99.145720[0m
+[0;32mI (52460) gps_oled_mqtt: Fix valido | lat=19.392202 lon=-99.145719[0m
+[0;32mI (53460) gps_oled_mqtt: Fix valido | lat=19.392202 lon=-99.145718[0m
+[0;32mI (54460) gps_oled_mqtt: Fix valido | lat=19.392202 lon=-99.145720[0m
+[0;32mI (55460) gps_oled_mqtt: Fix valido | lat=19.392202 lon=-99.145720[0m
+[0;32mI (56460) gps_oled_mqtt: Fix valido | lat=19.392202 lon=-99.145721[0m
+[0;32mI (57460) gps_oled_mqtt: Fix valido | lat=19.392202 lon=-99.145723[0m
+[0;32mI (58460) gps_oled_mqtt: Fix valido | lat=19.392202 lon=-99.145724[0m
+[0;32mI (59460) gps_oled_mqtt: Fix valido | lat=19.392202 lon=-99.145725[0m
+[0;32mI (60500) gps_oled_mqtt: Fix valido | lat=19.392203 lon=-99.145725[0m
+[0;32mI (61460) gps_oled_mqtt: Fix valido | lat=19.392203 lon=-99.145727[0m
+[0;32mI (62460) gps_oled_mqtt: Fix valido | lat=19.392204 lon=-99.145728[0m
+[0;32mI (63460) gps_oled_mqtt: Fix valido | lat=19.392203 lon=-99.145730[0m
+[0;32mI (64460) gps_oled_mqtt: Fix valido | lat=19.392203 lon=-99.145732[0m
+[0;32mI (65460) gps_oled_mqtt: Fix valido | lat=19.392203 lon=-99.145733[0m
+[0;32mI (66460) gps_oled_mqtt: Fix valido | lat=19.392204 lon=-99.145735[0m
+[0;32mI (67460) gps_oled_mqtt: Fix valido | lat=19.392204 lon=-99.145736[0m
+[0;32mI (68460) gps_oled_mqtt: Fix valido | lat=19.392203 lon=-99.145738[0m
+[0;32mI (69460) gps_oled_mqtt: Fix valido | lat=19.392203 lon=-99.145739[0m
+[0;32mI (70460) gps_oled_mqtt: Fix valido | lat=19.392204 lon=-99.145740[0m
+[0;32mI (71460) gps_oled_mqtt: Fix valido | lat=19.392203 lon=-99.145740[0m
+[0;32mI (72460) gps_oled_mqtt: Fix valido | lat=19.392202 lon=-99.145741[0m
+[0;32mI (73460) gps_oled_mqtt: Fix valido | lat=19.392202 lon=-99.145742[0m
+[0;32mI (74460) gps_oled_mqtt: Fix valido | lat=19.392202 lon=-99.145743[0m
+[0;32mI (75460) gps_oled_mqtt: Fix valido | lat=19.392201 lon=-99.145745[0m
+[0;32mI (76460) gps_oled_mqtt: Fix valido | lat=19.392200 lon=-99.145747[0m
+[0;32mI (77460) gps_oled_mqtt: Fix valido | lat=19.392200 lon=-99.145747[0m
+[0;32mI (78460) gps_oled_mqtt: Fix valido | lat=19.392199 lon=-99.145747[0m
+[0;32mI (79460) gps_oled_mqtt: Fix valido | lat=19.392199 lon=-99.145748[0m
+[0;32mI (80460) gps_oled_mqtt: Fix valido | lat=19.392200 lon=-99.145751[0m
+[0;32mI (81460) gps_oled_mqtt: Fix valido | lat=19.392200 lon=-99.145752[0m
+[0;32mI (82460) gps_oled_mqtt: Fix valido | lat=19.392200 lon=-99.145751[0m
+[0;32mI (83460) gps_oled_mqtt: Fix valido | lat=19.392200 lon=-99.145752[0m
+[0;32mI (84460) gps_oled_mqtt: Fix valido | lat=19.392200 lon=-99.145750[0m
+[0;32mI (85460) gps_oled_mqtt: Fix valido | lat=19.392200 lon=-99.145750[0m
+[0;32mI (86460) gps_oled_mqtt: Fix valido | lat=19.392201 lon=-99.145751[0m
+[0;32mI (87460) gps_oled_mqtt: Fix valido | lat=19.392201 lon=-99.145753[0m
+[0;32mI (88460) gps_oled_mqtt: Fix valido | lat=19.392201 lon=-99.145756[0m
+[0;32mI (89460) gps_oled_mqtt: Fix valido | lat=19.392202 lon=-99.145759[0m
+[0;32mI (90460) gps_oled_mqtt: Fix valido | lat=19.392201 lon=-99.145759[0m
+[0;32mI (91460) gps_oled_mqtt: Fix valido | lat=19.392202 lon=-99.145761[0m
+[0;32mI (92460) gps_oled_mqtt: Fix valido | lat=19.392202 lon=-99.145762[0m
+[0;32mI (93460) gps_oled_mqtt: Fix valido | lat=19.392202 lon=-99.145765[0m
+[0;32mI (94460) gps_oled_mqtt: Fix valido | lat=19.392201 lon=-99.145765[0m
+[0;32mI (95460) gps_oled_mqtt: Fix valido | lat=19.392201 lon=-99.145765[0m
+[0;32mI (96460) gps_oled_mqtt: Fix valido | lat=19.392201 lon=-99.145765[0m
+[0;32mI (97460) gps_oled_mqtt: Fix valido | lat=19.392201 lon=-99.145766[0m
+[0;32mI (98460) gps_oled_mqtt: Fix valido | lat=19.392201 lon=-99.145767[0m
+[0;32mI (99460) gps_oled_mqtt: Fix valido | lat=19.392202 lon=-99.145769[0m
+[0;32mI (100460) gps_oled_mqtt: Fix valido | lat=19.392201 lon=-99.145769[0m
+[0;32mI (101460) gps_oled_mqtt: Fix valido | lat=19.392201 lon=-99.145771[0m
+[0;32mI (102460) gps_oled_mqtt: Fix valido | lat=19.392202 lon=-99.145774[0m
+[0;32mI (103460) gps_oled_mqtt: Fix valido | lat=19.392202 lon=-99.145776[0m
+[0;32mI (104460) gps_oled_mqtt: Fix valido | lat=19.392202 lon=-99.145777[0m
+[0;32mI (105460) gps_oled_mqtt: Fix valido | lat=19.392202 lon=-99.145777[0m
+[0;32mI (106460) gps_oled_mqtt: Fix valido | lat=19.392202 lon=-99.145778[0m
+[0;32mI (107460) gps_oled_mqtt: Fix valido | lat=19.392203 lon=-99.145780[0m
+[0;32mI (108460) gps_oled_mqtt: Fix valido | lat=19.392203 lon=-99.145781[0m
+[0;32mI (109460) gps_oled_mqtt: Fix valido | lat=19.392203 lon=-99.145776[0m
+[0;32mI (110460) gps_oled_mqtt: Fix valido | lat=19.392204 lon=-99.145776[0m
+[0;32mI (111460) gps_oled_mqtt: Fix valido | lat=19.392204 lon=-99.145772[0m
+[0;32mI (112460) gps_oled_mqtt: Fix valido | lat=19.392205 lon=-99.145773[0m
+[0;32mI (113460) gps_oled_mqtt: Fix valido | lat=19.392205 lon=-99.145771[0m
+[0;32mI (114460) gps_oled_mqtt: Fix valido | lat=19.392205 lon=-99.145768[0m
+[0;32mI (115460) gps_oled_mqtt: Fix valido | lat=19.392204 lon=-99.145764[0m
+[0;32mI (116460) gps_oled_mqtt: Fix valido | lat=19.392204 lon=-99.145762[0m
+[0;32mI (117460) gps_oled_mqtt: Fix valido | lat=19.392205 lon=-99.145762[0m
+[0;32mI (118460) gps_oled_mqtt: Fix valido | lat=19.392204 lon=-99.145759[0m
+[0;32mI (119470) gps_oled_mqtt: Fix valido | lat=19.392203 lon=-99.145755[0m
+[0;32mI (120460) gps_oled_mqtt: Fix valido | lat=19.392203 lon=-99.145755[0m
+[0;32mI (121460) gps_oled_mqtt: Fix valido | lat=19.392204 lon=-99.145760[0m
+[0;32mI (122460) gps_oled_mqtt: Fix valido | lat=19.392202 lon=-99.145760[0m
+[0;32mI (123460) gps_oled_mqtt: Fix valido | lat=19.392202 lon=-99.145765[0m
+[0;32mI (124460) gps_oled_mqtt: Fix valido | lat=19.392203 lon=-99.145771[0m
+[0;32mI (125460) gps_oled_mqtt: Fix valido | lat=19.392203 lon=-99.145774[0m
+[0;32mI (126460) gps_oled_mqtt: Fix valido | lat=19.392204 lon=-99.145781[0m
+[0;32mI (127460) gps_oled_mqtt: Fix valido | lat=19.392204 lon=-99.145793[0m
+[0;32mI (128460) gps_oled_mqtt: Fix valido | lat=19.392205 lon=-99.145801[0m
+[0;32mI (129460) gps_oled_mqtt: Fix valido | lat=19.392207 lon=-99.145805[0m
+[0;32mI (130460) gps_oled_mqtt: Fix valido | lat=19.392207 lon=-99.145801[0m
+[0;32mI (131460) gps_oled_mqtt: Fix valido | lat=19.392208 lon=-99.145798[0m
+[0;32mI (132460) gps_oled_mqtt: Fix valido | lat=19.392209 lon=-99.145804[0m
+[0;32mI (133460) gps_oled_mqtt: Fix valido | lat=19.392209 lon=-99.145801[0m
+[0;32mI (134460) gps_oled_mqtt: Fix valido | lat=19.392210 lon=-99.145804[0m
+[0;32mI (135470) gps_oled_mqtt: Fix valido | lat=19.392211 lon=-99.145813[0m
+[0;32mI (136460) gps_oled_mqtt: Fix valido | lat=19.392213 lon=-99.145813[0m
+[0;32mI (137460) gps_oled_mqtt: Fix valido | lat=19.392213 lon=-99.145816[0m
+[0;32mI (138460) gps_oled_mqtt: Fix valido | lat=19.392215 lon=-99.145816[0m
+[0;32mI (139460) gps_oled_mqtt: Fix valido | lat=19.392213 lon=-99.145814[0m
+[0;32mI (140460) gps_oled_mqtt: Fix valido | lat=19.392211 lon=-99.145810[0m
+[0;32mI (141460) gps_oled_mqtt: Fix valido | lat=19.392210 lon=-99.145812[0m
+[0;32mI (142460) gps_oled_mqtt: Fix valido | lat=19.392209 lon=-99.145816[0m
+[0;32mI (143460) gps_oled_mqtt: Fix valido | lat=19.392208 lon=-99.145817[0m
+[0;32mI (144460) gps_oled_mqtt: Fix valido | lat=19.392208 lon=-99.145814[0m
+[0;32mI (145460) gps_oled_mqtt: Fix valido | lat=19.392209 lon=-99.145807[0m
+[0;32mI (146460) gps_oled_mqtt: Fix valido | lat=19.392208 lon=-99.145811[0m
+[0;32mI (147460) gps_oled_mqtt: Fix valido | lat=19.392211 lon=-99.145810[0m
+[0;32mI (148470) gps_oled_mqtt: Fix valido | lat=19.392210 lon=-99.145808[0m
+[0;32mI (149460) gps_oled_mqtt: Fix valido | lat=19.392208 lon=-99.145804[0m
+[0;32mI (150460) gps_oled_mqtt: Fix valido | lat=19.392208 lon=-99.145806[0m
+[0;32mI (151460) gps_oled_mqtt: Fix valido | lat=19.392207 lon=-99.145810[0m
+[0;32mI (152460) gps_oled_mqtt: Fix valido | lat=19.392207 lon=-99.145813[0m
+[0;32mI (153460) gps_oled_mqtt: Fix valido | lat=19.392207 lon=-99.145805[0m
+[0;32mI (154460) gps_oled_mqtt: Fix valido | lat=19.392208 lon=-99.145801[0m
+[0;32mI (155460) gps_oled_mqtt: Fix valido | lat=19.392208 lon=-99.145799[0m
+[0;32mI (156460) gps_oled_mqtt: Fix valido | lat=19.392208 lon=-99.145795[0m
+[0;32mI (157460) gps_oled_mqtt: Fix valido | lat=19.392207 lon=-99.145796[0m
+[0;32mI (158460) gps_oled_mqtt: Fix valido | lat=19.392208 lon=-99.145797[0m
+[0;32mI (159460) gps_oled_mqtt: Fix valido | lat=19.392207 lon=-99.145796[0m
+[0;32mI (160460) gps_oled_mqtt: Fix valido | lat=19.392205 lon=-99.145790[0m
+[0;32mI (161460) gps_oled_mqtt: Fix valido | lat=19.392204 lon=-99.145786[0m
+[0;32mI (162460) gps_oled_mqtt: Fix valido | lat=19.392203 lon=-99.145782[0m
+[0;32mI (163460) gps_oled_mqtt: Fix valido | lat=19.392203 lon=-99.145788[0m
+[0;32mI (164460) gps_oled_mqtt: Fix valido | lat=19.392202 lon=-99.145776[0m
+[0;32mI (165460) gps_oled_mqtt: Fix valido | lat=19.392201 lon=-99.145771[0m
+[0;32mI (166460) gps_oled_mqtt: Fix valido | lat=19.392201 lon=-99.145769[0m
+[0;32mI (167460) gps_oled_mqtt: Fix valido | lat=19.392201 lon=-99.145765[0m
+[0;32mI (168460) gps_oled_mqtt: Fix valido | lat=19.392202 lon=-99.145772[0m
+[0;32mI (169460) gps_oled_mqtt: Fix valido | lat=19.392204 lon=-99.145784[0m
+[0;32mI (170460) gps_oled_mqtt: Fix valido | lat=19.392205 lon=-99.145789[0m
+[0;32mI (171460) gps_oled_mqtt: Fix valido | lat=19.392206 lon=-99.145796[0m
+[0;32mI (172460) gps_oled_mqtt: Fix valido | lat=19.392206 lon=-99.145796[0m
+[0;32mI (173460) gps_oled_mqtt: Fix valido | lat=19.392207 lon=-99.145800[0m
+[0;32mI (174460) gps_oled_mqtt: Fix valido | lat=19.392208 lon=-99.145802[0m
+[0;32mI (175460) gps_oled_mqtt: Fix valido | lat=19.392207 lon=-99.145795[0m
+[0;32mI (176460) gps_oled_mqtt: Fix valido | lat=19.392208 lon=-99.145793[0m
+[0;32mI (177460) gps_oled_mqtt: Fix valido | lat=19.392208 lon=-99.145786[0m
+[0;32mI (178460) gps_oled_mqtt: Fix valido | lat=19.392208 lon=-99.145788[0m
+[0;32mI (179470) gps_oled_mqtt: Fix valido | lat=19.392208 lon=-99.145792[0m
+[0;32mI (180500) gps_oled_mqtt: Fix valido | lat=19.392210 lon=-99.145796[0m
+[0;32mI (181460) gps_oled_mqtt: Fix valido | lat=19.392210 lon=-99.145802[0m
+[0;32mI (182460) gps_oled_mqtt: Fix valido | lat=19.392211 lon=-99.145802[0m
+[0;32mI (183460) gps_oled_mqtt: Fix valido | lat=19.392212 lon=-99.145810[0m
+[0;32mI (184460) gps_oled_mqtt: Fix valido | lat=19.392212 lon=-99.145810[0m
+[0;32mI (185460) gps_oled_mqtt: Fix valido | lat=19.392211 lon=-99.145809[0m
+[0;32mI (186460) gps_oled_mqtt: Fix valido | lat=19.392211 lon=-99.145806[0m
+[0;32mI (187460) gps_oled_mqtt: Fix valido | lat=19.392211 lon=-99.145802[0m
+[0;32mI (188460) gps_oled_mqtt: Fix valido | lat=19.392212 lon=-99.145805[0m
+[0;32mI (189460) gps_oled_mqtt: Fix valido | lat=19.392211 lon=-99.145797[0m
+[0;32mI (190460) gps_oled_mqtt: Fix valido | lat=19.392212 lon=-99.145800[0m
+[0;32mI (191460) gps_oled_mqtt: Fix valido | lat=19.392214 lon=-99.145805[0m
+[0;32mI (192460) gps_oled_mqtt: Fix valido | lat=19.392215 lon=-99.145808[0m
+[0;32mI (193460) gps_oled_mqtt: Fix valido | lat=19.392217 lon=-99.145808[0m
+[0;32mI (194460) gps_oled_mqtt: Fix valido | lat=19.392216 lon=-99.145797[0m
+[0;32mI (195460) gps_oled_mqtt: Fix valido | lat=19.392217 lon=-99.145793[0m
+[0;32mI (196470) gps_oled_mqtt: Fix valido | lat=19.392218 lon=-99.145793[0m
+[0;32mI (197460) gps_oled_mqtt: Fix valido | lat=19.392217 lon=-99.145777[0m
+[0;32mI (198460) gps_oled_mqtt: Fix valido | lat=19.392216 lon=-99.145772[0m
+[0;32mI (199460) gps_oled_mqtt: Fix valido | lat=19.392216 lon=-99.145765[0m
+[0;32mI (200460) gps_oled_mqtt: Fix valido | lat=19.392216 lon=-99.145763[0m
+[0;32mI (201470) gps_oled_mqtt: Fix valido | lat=19.392216 lon=-99.145766[0m
+[0;32mI (202460) gps_oled_mqtt: Fix valido | lat=19.392218 lon=-99.145764[0m
+[0;32mI (203460) gps_oled_mqtt: Fix valido | lat=19.392218 lon=-99.145763[0m
+[0;32mI (204460) gps_oled_mqtt: Fix valido | lat=19.392218 lon=-99.145764[0m
+[0;32mI (205460) gps_oled_mqtt: Fix valido | lat=19.392218 lon=-99.145764[0m
+[0;32mI (206460) gps_oled_mqtt: Fix valido | lat=19.392216 lon=-99.145762[0m
+[0;32mI (207460) gps_oled_mqtt: Fix valido | lat=19.392215 lon=-99.145761[0m
+[0;32mI (208460) gps_oled_mqtt: Fix valido | lat=19.392216 lon=-99.145762[0m
+[0;32mI (209460) gps_oled_mqtt: Fix valido | lat=19.392214 lon=-99.145760[0m
+[0;32mI (210470) gps_oled_mqtt: Fix valido | lat=19.392213 lon=-99.145761[0m
+[0;32mI (211460) gps_oled_mqtt: Fix valido | lat=19.392213 lon=-99.145764[0m
+[0;32mI (212460) gps_oled_mqtt: Fix valido | lat=19.392212 lon=-99.145766[0m
+[0;32mI (213460) gps_oled_mqtt: Fix valido | lat=19.392213 lon=-99.145769[0m
+[0;32mI (214460) gps_oled_mqtt: Fix valido | lat=19.392213 lon=-99.145769[0m
+[0;32mI (215460) gps_oled_mqtt: Fix valido | lat=19.392214 lon=-99.145774[0m
+[0;32mI (216460) gps_oled_mqtt: Fix valido | lat=19.392215 lon=-99.145777[0m
+[0;32mI (217460) gps_oled_mqtt: Fix valido | lat=19.392214 lon=-99.145778[0m
+[0;32mI (218460) gps_oled_mqtt: Fix valido | lat=19.392214 lon=-99.145778[0m
+[0;32mI (219470) gps_oled_mqtt: Fix valido | lat=19.392213 lon=-99.145778[0m
+[0;32mI (220460) gps_oled_mqtt: Fix valido | lat=19.392213 lon=-99.145779[0m
+[0;32mI (221460) gps_oled_mqtt: Fix valido | lat=19.392212 lon=-99.145776[0m
+[0;32mI (222460) gps_oled_mqtt: Fix valido | lat=19.392211 lon=-99.145777[0m
+[0;32mI (223460) gps_oled_mqtt: Fix valido | lat=19.392212 lon=-99.145775[0m
+[0;32mI (224460) gps_oled_mqtt: Fix valido | lat=19.392213 lon=-99.145775[0m
+[0;32mI (225460) gps_oled_mqtt: Fix valido | lat=19.392211 lon=-99.145772[0m
+[0;32mI (226460) gps_oled_mqtt: Fix valido | lat=19.392209 lon=-99.145769[0m
+[0;32mI (227460) gps_oled_mqtt: Fix valido | lat=19.392209 lon=-99.145771[0m
+[0;32mI (228460) gps_oled_mqtt: Fix valido | lat=19.392207 lon=-99.145768[0m
+[0;32mI (229460) gps_oled_mqtt: Fix valido | lat=19.392205 lon=-99.145761[0m
+[0;32mI (230460) gps_oled_mqtt: Fix valido | lat=19.392206 lon=-99.145766[0m
+[0;32mI (231460) gps_oled_mqtt: Fix valido | lat=19.392206 lon=-99.145771[0m
+[0;32mI (232460) gps_oled_mqtt: Fix valido | lat=19.392204 lon=-99.145775[0m
+[0;32mI (233460) gps_oled_mqtt: Fix valido | lat=19.392204 lon=-99.145776[0m
+[0;32mI (234460) gps_oled_mqtt: Fix valido | lat=19.392204 lon=-99.145777[0m
+[0;32mI (235470) gps_oled_mqtt: Fix valido | lat=19.392200 lon=-99.145766[0m
+[0;32mI (236460) gps_oled_mqtt: Fix valido | lat=19.392200 lon=-99.145766[0m
+[0;32mI (237470) gps_oled_mqtt: Fix valido | lat=19.392199 lon=-99.145769[0m
+[0;32mI (238460) gps_oled_mqtt: Fix valido | lat=19.392197 lon=-99.145765[0m
+[0;32mI (239470) gps_oled_mqtt: Fix valido | lat=19.392195 lon=-99.145757[0m
+[0;32mI (240460) gps_oled_mqtt: Fix valido | lat=19.392192 lon=-99.145752[0m
+[0;32mI (241460) gps_oled_mqtt: Fix valido | lat=19.392192 lon=-99.145759[0m
+[0;32mI (242460) gps_oled_mqtt: Fix valido | lat=19.392191 lon=-99.145760[0m
+[0;32mI (243460) gps_oled_mqtt: Fix valido | lat=19.392191 lon=-99.145766[0m
+[0;32mI (244460) gps_oled_mqtt: Fix valido | lat=19.392191 lon=-99.145775[0m
+[0;32mI (245460) gps_oled_mqtt: Fix valido | lat=19.392191 lon=-99.145783[0m
+[0;32mI (246460) gps_oled_mqtt: Fix valido | lat=19.392192 lon=-99.145797[0m
+[0;32mI (247460) gps_oled_mqtt: Fix valido | lat=19.392193 lon=-99.145801[0m
+[0;32mI (248460) gps_oled_mqtt: Fix valido | lat=19.392191 lon=-99.145791[0m
+[0;32mI (249460) gps_oled_mqtt: Fix valido | lat=19.392191 lon=-99.145783[0m
+[0;32mI (250460) gps_oled_mqtt: Fix valido | lat=19.392192 lon=-99.145783[0m
+[0;32mI (251460) gps_oled_mqtt: Fix valido | lat=19.392192 lon=-99.145777[0m
+[0;32mI (252460) gps_oled_mqtt: Fix valido | lat=19.392193 lon=-99.145786[0m
+[0;32mI (253460) gps_oled_mqtt: Fix valido | lat=19.392193 lon=-99.145788[0m
+[0;32mI (254460) gps_oled_mqtt: Fix valido | lat=19.392193 lon=-99.145786[0m
+[0;32mI (255470) gps_oled_mqtt: Fix valido | lat=19.392194 lon=-99.145792[0m
+[0;32mI (256460) gps_oled_mqtt: Fix valido | lat=19.392194 lon=-99.145807[0m
+[0;33mW (257360) gps_oled_mqtt: Limite de mediciones alcanzado: 256[0m
+[0;32mI (257360) gps_oled_mqtt: Fix valido | lat=19.392195 lon=-99.145801[0m
+[0;33mW (258360) gps_oled_mqtt: Limite de mediciones alcanzado: 256[0m
+[0;32mI (258360) gps_oled_mqtt: Fix valido | lat=19.392194 lon=-99.145797[0m
+[0;33mW (259370) gps_oled_mqtt: Limite de mediciones alcanzado: 256[0m
+[0;32mI (259370) gps_oled_mqtt: Fix valido | lat=19.392197 lon=-99.145803[0m
+[0;33mW (260360) gps_oled_mqtt: Limite de mediciones alcanzado: 256[0m
+[0;32mI (260370) gps_oled_mqtt: Fix valido | lat=19.392198 lon=-99.145808[0m
+[0;32mI (260970) gps_oled_mqtt: Modo cambiado a UPLOAD[0m
+[0;32mI (260970) gps_oled_mqtt: Conectando a WiFi SSID=equipo12 (sin contraseña)[0m
+[0;32mI (260990) phy_init: phy_version 712,87e8c20e,Apr 13 2026,18:51:10[0m
+[0;32mI (261030) wifi:mode : sta (a4:cb:8f:d1:4d:50)[0m
+[0;32mI (261030) wifi:enable tsf[0m
+[0;33mW (263450) gps_oled_mqtt: WiFi desconectado; razon=201[0m
+[0;32mI (269030) gps_oled_mqtt: Conectando a WiFi SSID=TP-Link_F271 (con contraseña)[0m
+[0;33mW (269030) wifi:Password length matches WPA2 standards, authmode threshold changes from OPEN to WPA2[0m
+[0;33mW (269100) gps_oled_mqtt: WiFi desconectado; razon=36[0m
+[0;33mW (271510) gps_oled_mqtt: WiFi desconectado; razon=201[0m
+[0;32mI (277100) gps_oled_mqtt: Conectando a WiFi SSID=fr2.4g (con contraseña)[0m
+[0;33mW (277100) wifi:Password length matches WPA2 standards, authmode threshold changes from OPEN to WPA2[0m
+[0;33mW (277120) gps_oled_mqtt: WiFi desconectado; razon=36[0m
+[0;33mW (279530) gps_oled_mqtt: WiFi desconectado; razon=201[0m
+[0;32mI (285120) gps_oled_mqtt: Conectando a WiFi SSID=TP-Link_F271_2G (con contraseña)[0m
+[0;33mW (285120) wifi:Password length matches WPA2 standards, authmode threshold changes from OPEN to WPA2[0m
+[0;33mW (285140) gps_oled_mqtt: WiFi desconectado; razon=36[0m
+[0;32mI (286240) wifi:new:<10,0>, old:<1,0>, ap:<255,255>, sta:<10,0>, prof:1, snd_ch_cfg:0x0[0m
+[0;32mI (286250) wifi:state: init -> auth (0xb0)[0m
+[0;32mI (286250) wifi:state: auth -> assoc (0x0)[0m
+[0;32mI (286260) wifi:state: assoc -> run (0x10)[0m
+[0;32mI (286310) wifi:connected with TP-Link_F271_2G, aid = 1, channel 10, BW20, bssid = 22:3b:f3:3f:f2:71[0m
+[0;32mI (286310) wifi:security: WPA2-PSK, phy: bgn, rssi: -60, cipher(pairwise:0x3, group:0x3), pmf:0[0m
+[0;32mI (286320) wifi:pm start, type: 1[0m
+
+[0;32mI (286320) wifi:dp: 1, bi: 102400, li: 3, scale listen interval from 307200 us to 307200 us[0m
+[0;32mI (286320) wifi:set rx beacon pti, rx_bcn_pti: 0, bcn_timeout: 25000, mt_pti: 0, mt_time: 10000[0m
+[0;32mI (286330) wifi:<ba-add>idx:0 (ifx:0, 22:3b:f3:3f:f2:71), tid:0, ssn:0, winSize:64[0m
+[0;32mI (286400) wifi:AP's beacon interval = 102400 us, DTIM period = 1[0m
+[0;32mI (287350) esp_netif_handlers: sta ip: 192.168.0.192, mask: 255.255.255.0, gw: 192.168.0.1[0m
+[0;32mI (287350) gps_oled_mqtt: WiFi conectado; IP=192.168.0.192[0m
+[0;32mI (287540) gps_oled_mqtt: Conectado al broker MQTT[0m
+[0;32mI (287540) gps_oled_mqtt: Publicando 256 mediciones en proyecto/gps/telemetry[0m
+[0;32mI (292280) gps_oled_mqtt: Mediciones publicadas: 256[0m

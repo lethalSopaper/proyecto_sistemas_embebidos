@@ -17,8 +17,6 @@
 #include "freertos/event_groups.h"
 #include "nvs.h"
 #include "nvs_flash.h"
-#include "u8g2.h"
-#include "u8g2_esp32_hal.h"
 
 #define GPS_UART_NUM UART_NUM_1
 #define GPS_UART_BAUD_RATE 9600
@@ -26,9 +24,16 @@
 #define GPS_UART_TX_PIN GPIO_NUM_3
 #define GPS_UART_BUFFER_SIZE 1024
 #define GPS_LINE_BUFFER_SIZE 128
+#ifndef GPS_MQTT_NO_DISPLAY
 #define OLED_SDA_PIN GPIO_NUM_7
 #define OLED_SCL_PIN GPIO_NUM_44
 #define OLED_I2C_ADDRESS 0x78
+#include "u8g2.h"
+#include "u8g2_esp32_hal.h"
+#else
+#define RED_LED_PIN GPIO_NUM_9
+#define GREEN_LED_PIN GPIO_NUM_8
+#endif
 #define MODE_BUTTON_PIN GPIO_NUM_1
 #define MAX_MEASUREMENTS 256
 #define MEASUREMENT_CHUNK_SIZE 8
@@ -42,7 +47,9 @@
 static const char *TAG = "gps_oled_mqtt";
 static EventGroupHandle_t wifi_events;
 static esp_mqtt_client_handle_t mqtt_client;
+#ifndef GPS_MQTT_NO_DISPLAY
 static u8g2_t display;
+#endif
 static bool upload_mode;
 static bool wifi_initialized;
 static bool wifi_started;
@@ -195,6 +202,7 @@ static void sync_configured_wifi_profiles(void)
     persist_wifi_profiles();
 }
 
+#ifndef GPS_MQTT_NO_DISPLAY
 static void oled_message(const char *title, const char *message)
 {
     u8g2_ClearBuffer(&display);
@@ -203,7 +211,42 @@ static void oled_message(const char *title, const char *message)
     u8g2_DrawStr(&display, 0, 32, message);
     u8g2_SendBuffer(&display);
 }
+#endif
 
+#ifdef GPS_MQTT_NO_DISPLAY
+static void leds_init(void)
+{
+    gpio_config_t leds = {
+        .pin_bit_mask = (1ULL << RED_LED_PIN) | (1ULL << GREEN_LED_PIN),
+        .mode = GPIO_MODE_OUTPUT,
+        .pull_up_en = GPIO_PULLUP_DISABLE,
+        .pull_down_en = GPIO_PULLDOWN_DISABLE,
+        .intr_type = GPIO_INTR_DISABLE,
+    };
+    ESP_ERROR_CHECK(gpio_config(&leds));
+    gpio_set_level(RED_LED_PIN, 0);
+    gpio_set_level(GREEN_LED_PIN, 0);
+}
+
+static void led_green_set(bool on)
+{
+    gpio_set_level(GREEN_LED_PIN, on ? 1 : 0);
+}
+
+static void led_red_set(bool on)
+{
+    gpio_set_level(RED_LED_PIN, on ? 1 : 0);
+}
+
+static void led_red_measurement(void)
+{
+    led_red_set(true);
+    vTaskDelay(pdMS_TO_TICKS(100));
+    if (measurement_count < MAX_MEASUREMENTS) led_red_set(false);
+}
+#endif
+
+#ifndef GPS_MQTT_NO_DISPLAY
 static void oled_measurement(const gps_measurement_t *m)
 {
     char line[32];
@@ -236,6 +279,22 @@ static void oled_upload_complete(void)
     u8g2_DrawStr(&display, 0, 60, "Pulsa: GPS MONITOR");
     u8g2_SendBuffer(&display);
 }
+#else
+static void oled_message(const char *title, const char *message)
+{
+    (void)title;
+    (void)message;
+}
+
+static void oled_measurement(const gps_measurement_t *m)
+{
+    (void)m;
+}
+
+static void oled_upload_complete(void)
+{
+}
+#endif
 
 static void wifi_event_handler(
     void *arg,
@@ -440,6 +499,7 @@ static void gps_uart_init(void)
                                  UART_PIN_NO_CHANGE, UART_PIN_NO_CHANGE));
 }
 
+#ifndef GPS_MQTT_NO_DISPLAY
 static void oled_init(void)
 {
     u8g2_esp32_hal_t hal = U8G2_ESP32_HAL_DEFAULT;
@@ -463,6 +523,7 @@ static void oled_init(void)
     u8g2_SetPowerSave(&display, 0);
     oled_message("GPS NEO-6M", "GPS MONITOR");
 }
+#endif
 
 static bool nmea_coordinate_to_decimal(
     const char *value, double *coordinate
@@ -520,8 +581,15 @@ static void process_sentence(char *sentence)
     if (upload_mode) return;
     if (measurement_count < MAX_MEASUREMENTS) {
         measurements[measurement_count++] = m;
+#ifdef GPS_MQTT_NO_DISPLAY
+        led_green_set(true);
+        led_red_measurement();
+#endif
     } else {
         ESP_LOGW(TAG, "Limite de mediciones alcanzado: %d", MAX_MEASUREMENTS);
+#ifdef GPS_MQTT_NO_DISPLAY
+        led_red_set(true);
+#endif
     }
     if (measurement_count % 10 == 0) persist_measurements();
     oled_measurement(&m);
@@ -543,7 +611,12 @@ void gps_neo6m_oled_mqtt_app_main(void)
     load_measurements();
     load_wifi_profiles();
     sync_configured_wifi_profiles();
+#ifndef GPS_MQTT_NO_DISPLAY
     oled_init();
+#else
+    leds_init();
+    if (measurement_count >= MAX_MEASUREMENTS) led_red_set(true);
+#endif
     gps_uart_init();
     wifi_events = xEventGroupCreate();
     if (wifi_events == NULL) {
@@ -580,15 +653,26 @@ void gps_neo6m_oled_mqtt_app_main(void)
             upload_mode = !upload_mode;
             ESP_LOGI(TAG, "Modo cambiado a %s", upload_mode ? "UPLOAD" : "GPS");
             if (upload_mode) {
+#ifdef GPS_MQTT_NO_DISPLAY
+                led_green_set(false);
+#endif
                 oled_message("Modo", "CARGA WIFI");
                 bool connected = wifi_initialized && wifi_connect();
                 if (!connected || !upload_measurements()) {
                     ESP_LOGW(TAG, "Fallo de WiFi/MQTT con %s", CONFIG_GPS_WIFI_SSID);
                     oled_message("CARGA FALLIDA", "Sin WiFi/MQTT");
                 } else {
+#ifdef GPS_MQTT_NO_DISPLAY
+                    led_green_set(true);
+                    led_red_set(false);
+#endif
                     oled_upload_complete();
                 }
             } else {
+#ifdef GPS_MQTT_NO_DISPLAY
+                led_green_set(true);
+                if (measurement_count < MAX_MEASUREMENTS) led_red_set(false);
+#endif
                 oled_message("Modo", "GPS MONITOR");
             }
             vTaskDelay(pdMS_TO_TICKS(50));

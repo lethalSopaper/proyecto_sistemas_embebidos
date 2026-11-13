@@ -14,7 +14,8 @@ echo "Desplegando receptor MQTT en ${REMOTE}:${REMOTE_DIR}"
 
 ssh "$REMOTE" "mkdir -p '$REMOTE_DIR'"
 scp "$SCRIPT_DIR/receiver.py" "$SCRIPT_DIR/route_display.py" \
-    "$SCRIPT_DIR/README.md" "$SCRIPT_DIR/proyecto-gps-receiver.service" \
+    "$SCRIPT_DIR/route_database.py" "$SCRIPT_DIR/README.md" \
+    "$SCRIPT_DIR/proyecto-gps-receiver.service" "$SCRIPT_DIR/.env.example" \
     "$REMOTE:$REMOTE_DIR/"
 if [[ -n "$ILI9341_DRIVER_DIR" ]]; then
     scp "$ILI9341_DRIVER_DIR/ili9341_opi.py" "$REMOTE:$REMOTE_DIR/"
@@ -23,9 +24,10 @@ if [[ -n "$TOUCH_DRIVER_DIR" && -f "$TOUCH_DRIVER_DIR/xpt2046_opi.py" ]]; then
     scp "$TOUCH_DRIVER_DIR/xpt2046_opi.py" "$REMOTE:$REMOTE_DIR/"
 fi
 
-ssh "$REMOTE" "cd '$REMOTE_DIR' && \
+ssh -t "$REMOTE" "cd '$REMOTE_DIR' && \
     python3 -m venv .venv && \
-    .venv/bin/python -m pip install --upgrade pip paho-mqtt Pillow numpy python-periphery && \
+    .venv/bin/python -m pip install --upgrade pip paho-mqtt Pillow numpy \
+        python-periphery mysql-connector-python && \
     mkdir -p ~/.config/systemd/user && \
     sed 's|%h/proyecto/orange_pi/mqtt_receiver|$REMOTE_DIR|g' \
         proyecto-gps-receiver.service > \

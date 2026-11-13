@@ -1,0 +1,88 @@
+Command: /home/lethalsopaper/.espressif/python_env/idf6.0_py3.14_env/bin/python /home/lethalsopaper/.espressif/v6.0.2/esp-idf/tools/idf_monitor.py -p /dev/ttyACM0 -b 115200 --toolchain-prefix xtensa-esp32s3-elf- --target esp32s3 --revision 0 /home/lethalsopaper/Documents/9_UNAM_semestre_9/3_fundamentos_de_sistemas_embebidos/proyecto/esp32_firmware/build/esp32_firmware.elf /home/lethalsopaper/Documents/9_UNAM_semestre_9/3_fundamentos_de_sistemas_embebidos/proyecto/esp32_firmware/build/bootloader/bootloader.elf -m '/home/lethalsopaper/.espressif/python_env/idf6.0_py3.14_env/bin/python' '/home/lethalsopaper/.espressif/v6.0.2/esp-idf/tools/idf.py' '-p' '/dev/ttyACM0'
+ESP-ROM:esp32s3-20210327
+Build:Mar 27 2021
+rst:0x15 (USB_UART_CHIP_RESET),boot:0x29 (SPI_FAST_FLASH_BOOT)
+Saved PC:0x4037b3ae
+SPIWP:0xee
+mode:DIO, clock div:1
+load:0x3fce2820,len:0x1548
+load:0x403c8700,len:0xd5c
+load:0x403cb700,len:0x2f48
+entry 0x403c8900
+[0;32mI (220) main_task: Started on CPU0[0m
+[0;32mI (220) main_task: Calling app_main()[0m
+[0;33mW (260) gps_oled_mqtt: No se pudo cargar el bloque 0 de mediciones: ESP_ERR_NVS_NOT_FOUND[0m
+[0;32mI (270) pp: pp rom version: e7ae62f[0m
+[0;32mI (270) net80211: net80211 rom version: e7ae62f[0m
+[0;32mI (280) wifi:wifi driver task: 3fcedb4c, prio:23, stack:6656, core=0[0m
+[0;32mI (290) wifi:wifi firmware version: 00ad238[0m
+[0;32mI (290) wifi:wifi certification version: v7.0[0m
+[0;32mI (290) wifi:config NVS flash: enabled[0m
+[0;32mI (290) wifi:config nano formatting: disabled[0m
+[0;32mI (290) wifi:Init data frame dynamic rx buffer num: 32[0m
+[0;32mI (290) wifi:Init static rx mgmt buffer num: 5[0m
+[0;32mI (290) wifi:Init management short buffer num: 32[0m
+[0;32mI (290) wifi:Init dynamic tx buffer num: 32[0m
+[0;32mI (290) wifi:Init static tx FG buffer num: 2[0m
+[0;32mI (290) wifi:Init static rx buffer size: 1600[0m
+[0;32mI (290) wifi:Init static rx buffer num: 10[0m
+[0;32mI (290) wifi:Init dynamic rx buffer num: 32[0m
+[0;32mI (290) wifi_init: rx ba win: 6[0m
+[0;32mI (290) wifi_init: accept mbox: 6[0m
+[0;32mI (290) wifi_init: tcpip mbox: 32[0m
+[0;32mI (290) wifi_init: udp mbox: 6[0m
+[0;32mI (290) wifi_init: tcp mbox: 6[0m
+[0;32mI (290) wifi_init: tcp tx win: 5760[0m
+[0;32mI (290) wifi_init: tcp rx win: 5760[0m
+[0;32mI (290) wifi_init: tcp mss: 1440[0m
+[0;32mI (290) wifi_init: WiFi IRAM OP enabled[0m
+[0;32mI (290) wifi_init: WiFi RX IRAM OP enabled[0m
+[0;32mI (290) gps_oled_mqtt: Boton de modo: D0/GPIO1 a GND[0m
+[0;32mI (290) gps_oled_mqtt: Mediciones pendientes: 0[0m
+[0;32mI (1070) gps_oled_mqtt: Fix valido | lat=19.392158 lon=-99.145748[0m
+[0;32mI (2060) gps_oled_mqtt: Fix valido | lat=19.392160 lon=-99.145746[0m
+[0;32mI (3060) gps_oled_mqtt: Fix valido | lat=19.392161 lon=-99.145746[0m
+[0;32mI (4060) gps_oled_mqtt: Fix valido | lat=19.392161 lon=-99.145747[0m
+[0;32mI (5060) gps_oled_mqtt: Fix valido | lat=19.392162 lon=-99.145747[0m
+[0;32mI (6070) gps_oled_mqtt: Fix valido | lat=19.392162 lon=-99.145744[0m
+[0;32mI (7060) gps_oled_mqtt: Fix valido | lat=19.392162 lon=-99.145742[0m
+[0;32mI (8070) gps_oled_mqtt: Fix valido | lat=19.392163 lon=-99.145739[0m
+[0;32mI (9070) gps_oled_mqtt: Fix valido | lat=19.392163 lon=-99.145736[0m
+[0;32mI (10120) gps_oled_mqtt: Fix valido | lat=19.392159 lon=-99.145733[0m
+[0;32mI (11070) gps_oled_mqtt: Fix valido | lat=19.392159 lon=-99.145732[0m
+[0;32mI (12070) gps_oled_mqtt: Fix valido | lat=19.392159 lon=-99.145730[0m
+[0;32mI (13070) gps_oled_mqtt: Fix valido | lat=19.392159 lon=-99.145729[0m
+[0;32mI (13470) gps_oled_mqtt: Modo cambiado a UPLOAD[0m
+[0;32mI (13470) gps_oled_mqtt: Conectando a WiFi SSID=equipo12 (sin contraseña)[0m
+[0;32mI (13490) phy_init: phy_version 712,87e8c20e,Apr 13 2026,18:51:10[0m
+[0;32mI (13530) wifi:mode : sta (a4:cb:8f:d1:4d:50)[0m
+[0;32mI (13530) wifi:enable tsf[0m
+[0;33mW (15940) gps_oled_mqtt: WiFi desconectado; razon=201[0m
+[0;32mI (21530) gps_oled_mqtt: Conectando a WiFi SSID=TP-Link_F271 (con contraseña)[0m
+[0;33mW (21530) wifi:Password length matches WPA2 standards, authmode threshold changes from OPEN to WPA2[0m
+[0;33mW (21550) gps_oled_mqtt: WiFi desconectado; razon=36[0m
+[0;33mW (23960) gps_oled_mqtt: WiFi desconectado; razon=201[0m
+[0;32mI (29550) gps_oled_mqtt: Conectando a WiFi SSID=fr2.4g (con contraseña)[0m
+[0;33mW (29550) wifi:Password length matches WPA2 standards, authmode threshold changes from OPEN to WPA2[0m
+[0;33mW (29570) gps_oled_mqtt: WiFi desconectado; razon=36[0m
+[0;33mW (31980) gps_oled_mqtt: WiFi desconectado; razon=201[0m
+[0;32mI (37570) gps_oled_mqtt: Conectando a WiFi SSID=TP-Link_F271_2G (con contraseña)[0m
+[0;33mW (37570) wifi:Password length matches WPA2 standards, authmode threshold changes from OPEN to WPA2[0m
+[0;33mW (37590) gps_oled_mqtt: WiFi desconectado; razon=36[0m
+[0;32mI (38770) wifi:new:<10,0>, old:<1,0>, ap:<255,255>, sta:<10,0>, prof:1, snd_ch_cfg:0x0[0m
+[0;32mI (38770) wifi:state: init -> auth (0xb0)[0m
+[0;32mI (38780) wifi:state: auth -> assoc (0x0)[0m
+[0;32mI (38790) wifi:state: assoc -> run (0x10)[0m
+[0;32mI (38820) wifi:connected with TP-Link_F271_2G, aid = 1, channel 10, BW20, bssid = 22:3b:f3:3f:f2:71[0m
+[0;32mI (38820) wifi:security: WPA2-PSK, phy: bgn, rssi: -58, cipher(pairwise:0x3, group:0x3), pmf:0[0m
+[0;32mI (38900) wifi:pm start, type: 1[0m
+
+[0;32mI (38900) wifi:dp: 1, bi: 102400, li: 3, scale listen interval from 307200 us to 307200 us[0m
+[0;32mI (38900) wifi:set rx beacon pti, rx_bcn_pti: 0, bcn_timeout: 25000, mt_pti: 0, mt_time: 10000[0m
+[0;32mI (38900) wifi:AP's beacon interval = 102400 us, DTIM period = 1[0m
+[0;32mI (41460) wifi:<ba-add>idx:0 (ifx:0, 22:3b:f3:3f:f2:71), tid:0, ssn:4, winSize:64[0m
+[0;32mI (42460) esp_netif_handlers: sta ip: 192.168.0.192, mask: 255.255.255.0, gw: 192.168.0.1[0m
+[0;32mI (42460) gps_oled_mqtt: WiFi conectado; IP=192.168.0.192[0m
+[0;32mI (42550) gps_oled_mqtt: Conectado al broker MQTT[0m
+[0;32mI (42550) gps_oled_mqtt: Publicando 13 mediciones en proyecto/gps/telemetry[0m
+[0;32mI (42830) gps_oled_mqtt: Mediciones publicadas: 13[0m

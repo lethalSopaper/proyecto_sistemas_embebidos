@@ -4,11 +4,13 @@ idf_component_register(
         "../source/1_gps_neo6m/gps_neo6m.c"
         "../source/2_gps_neo6m_oled/gps_neo6m_oled.c"
         "../source/3_gps_neo6m_oled_mqtt/gps_neo6m_oled_mqtt.c"
+        "../source/4_gps_neo6m_mqtt_led/gps_neo6m_mqtt_led.c"
     INCLUDE_DIRS
         "."
         "../source/1_gps_neo6m"
         "../source/2_gps_neo6m_oled"
         "../source/3_gps_neo6m_oled_mqtt"
+        "../source/4_gps_neo6m_mqtt_led"
     REQUIRES
         esp_driver_gpio
         esp_driver_uart

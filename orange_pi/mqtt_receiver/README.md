@@ -1,9 +1,10 @@
-# Receptor MQTT de telemetría y ruta
+# Receptor MQTT de telemetría, pantalla e historial de rutas
 
 La ESP32 publica mediciones JSON en `proyecto/gps/telemetry` usando el broker
-MQTT de la Orange Pi (`equipo12.local:1883`). Este directorio contiene un
-receptor mínimo para validar la conexión y el estado de carga antes de integrarlo con Node-RED. También dibuja la ruta recibida en el
-ILI9341 conectado por SPI.
+MQTT de la Orange Pi (`equipo12.local:1883`). Este directorio contiene el
+receptor Python, la pantalla ILI9341, el controlador táctil y la persistencia
+de rutas en MariaDB. Node-RED y la integración con InfluxDB se mantienen como
+la siguiente etapa del flujo.
 
 Instala el cliente en la Orange Pi con:
 
@@ -12,6 +13,7 @@ sudo apt update
 sudo apt install mosquitto mosquitto-clients python3-venv
 python3 -m venv .venv
 .venv/bin/python -m pip install paho-mqtt Pillow numpy python-periphery
+.venv/bin/python -m pip install mysql-connector-python
 .venv/bin/python receiver.py
 ```
 
@@ -207,3 +209,92 @@ Después de detenerlo, puedes iniciarlo otra vez con:
 ssh orangepi@equipo12.local \
   'systemctl --user start proyecto-gps-receiver.service'
 ```
+
+## Historial de rutas en MariaDB
+
+Cada carga de la ESP32 se guarda como una ruta independiente:
+
+- `uploading` crea una ruta con fecha y hora UTC.
+- Cada mensaje de telemetría se guarda en `route_points`.
+- `complete` registra la hora de finalización, el número de puntos y la
+  distancia aproximada.
+
+Después de desplegar, crea la configuración privada del receptor:
+
+```bash
+cd ~/proyecto/orange_pi/mqtt_receiver
+cp .env.example .env
+nano .env
+```
+
+En `GPS_DB_PASSWORD` usa el mismo valor de `MARIADB_PASSWORD` del archivo
+`~/proyecto/orange_pi/docker/.env`. El servicio carga este archivo
+automáticamente. Si modificas el Compose para publicar MariaDB, reinicia los
+contenedores:
+
+```bash
+cd ~/proyecto/orange_pi/docker
+sudo docker-compose up -d mariadb
+```
+
+Confirma que MariaDB publique el puerto para el receptor:
+
+```bash
+sudo docker-compose ps mariadb
+```
+
+Debe aparecer `0.0.0.0:3306->3306/tcp`. Si no aparece, actualiza el
+`docker-compose.yml` y recrea el contenedor. El receptor espera y reintenta
+la conexión automáticamente mientras MariaDB inicia.
+
+El esquema se crea automáticamente al inicializar MariaDB por primera vez.
+Para consultar las rutas:
+
+```bash
+sudo docker exec -it docker_mariadb_1 \
+  mariadb -ugps_user -p gps \
+  -e 'SELECT id, device_id, started_at, finished_at, point_count, distance_m FROM routes ORDER BY started_at DESC;'
+```
+
+La fecha y hora de `started_at` permiten identificar cada recorrido. La
+visualización de la pantalla sigue mostrando solo la ruta actual; el historial
+queda almacenado en MariaDB para consultas posteriores desde Node-RED o
+Grafana.
+
+## Verificación rápida
+
+Confirma que el servicio esté conectado a MQTT y MariaDB:
+
+```bash
+journalctl --user -u proyecto-gps-receiver.service -n 50
+```
+
+Realiza una carga de prueba desde la ESP32 y consulta el resultado:
+
+```bash
+sudo docker exec -it docker_mariadb_1 \
+  mariadb -ugps_user -p gps \
+  -e 'SELECT id, started_at, finished_at, point_count, distance_m FROM routes ORDER BY id DESC LIMIT 10;'
+```
+
+Una ruta válida debe tener `started_at`, `finished_at` y un `point_count`
+mayor que cero. Sus coordenadas se consultan en `route_points`.
+
+## Menú de rutas en la pantalla
+
+Al iniciar el receptor, la ILI9341 muestra un explorador de rutas en lugar de
+abrir directamente el mapa. Cada elemento muestra su nombre, fecha/hora,
+número de puntos y distancia aproximada. Las rutas reciben por defecto un
+nombre como `Ruta 2026-11-10 01:07`.
+
+El panel táctil permite:
+
+- Pulsar `Fecha` para ordenar de la más reciente a la más antigua.
+- Pulsar `Nombre` para ordenar alfabéticamente.
+- Pulsar una ruta para abrir su mapa.
+- Usar `anterior` y `siguiente` para cambiar de página.
+- Pulsar `R` en el mapa para regresar al explorador.
+- Usar `-` y `+` en el mapa para cambiar el radio de visualización.
+
+La columna `name` permite agregar posteriormente nombres personalizados desde
+Node-RED o MariaDB sin cambiar el formato de los puntos GPS.
