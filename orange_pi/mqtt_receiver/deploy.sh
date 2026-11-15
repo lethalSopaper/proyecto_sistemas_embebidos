@@ -14,7 +14,8 @@ echo "Desplegando receptor MQTT en ${REMOTE}:${REMOTE_DIR}"
 
 ssh "$REMOTE" "mkdir -p '$REMOTE_DIR'"
 scp "$SCRIPT_DIR/receiver.py" "$SCRIPT_DIR/route_display.py" \
-    "$SCRIPT_DIR/route_database.py" "$SCRIPT_DIR/README.md" \
+    "$SCRIPT_DIR/route_database.py" "$SCRIPT_DIR/route_statistics.py" \
+    "$SCRIPT_DIR/README.md" \
     "$SCRIPT_DIR/proyecto-gps-receiver.service" "$SCRIPT_DIR/.env.example" \
     "$REMOTE:$REMOTE_DIR/"
 if [[ -n "$ILI9341_DRIVER_DIR" ]]; then
@@ -36,7 +37,8 @@ ssh -t "$REMOTE" "cd '$REMOTE_DIR' && \
     sudo systemctl disable --now proyecto-gps-receiver.service 2>/dev/null || true; \
     sudo rm -f /etc/systemd/system/proyecto-gps-receiver.service; \
     systemctl --user daemon-reload && \
-    systemctl --user enable --now proyecto-gps-receiver.service && \
+    systemctl --user enable proyecto-gps-receiver.service && \
+    systemctl --user restart proyecto-gps-receiver.service && \
     sudo loginctl enable-linger '$ORANGE_USER'"
 
 echo

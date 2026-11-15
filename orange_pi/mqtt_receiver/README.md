@@ -289,12 +289,21 @@ nombre como `Ruta 2026-11-10 01:07`.
 
 El panel táctil permite:
 
-- Pulsar `Fecha` para ordenar de la más reciente a la más antigua.
-- Pulsar `Nombre` para ordenar alfabéticamente.
+- Pulsar `Orden: fecha/nombre` para alternar el criterio de orden.
+- Pulsar `Estadísticas` para abrir el resumen local de rutas finalizadas.
 - Pulsar una ruta para abrir su mapa.
 - Usar `anterior` y `siguiente` para cambiar de página.
 - Pulsar `R` en el mapa para regresar al explorador.
 - Usar `-` y `+` en el mapa para cambiar el radio de visualización.
+
+El resumen de la pantalla muestra distancia acumulada, ruta más larga y
+gráficas locales de distancia y velocidades para las ocho rutas recientes.
+Grafana ofrece el dashboard web en
+`http://IP_DE_LA_ORANGE:3000/d/gps-stats/estadisticas-gps`;
+ambas vistas consultan MariaDB. Las velocidades son aproximadas: los puntos
+no incluyen la hora de captura GPS, así que se usa la hora de recepción durante
+la carga MQTT. No representan fielmente la velocidad real del recorrido.
+«Mejor tiempo» se omite porque no hay una distancia fija de referencia.
 
 La columna `name` permite agregar posteriormente nombres personalizados desde
 Node-RED o MariaDB sin cambiar el formato de los puntos GPS.

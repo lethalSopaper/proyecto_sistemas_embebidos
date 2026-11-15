@@ -7,6 +7,10 @@ mosquitto/log/*
 nodered/*
 
 !grafana/.gitkeep
+!grafana/dashboards/
+!grafana/dashboards/**
+!grafana/provisioning/
+!grafana/provisioning/**
 !influxdb/.gitkeep
 !mariadb/.gitkeep
 !mosquitto/data/.gitkeep

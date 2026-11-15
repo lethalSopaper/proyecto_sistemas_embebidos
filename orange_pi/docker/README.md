@@ -19,8 +19,11 @@ cp .env.example .env
 nano .env
 ```
 
-Configura contraseñas y el token de InfluxDB en `.env`; no compartas ni
-commitees ese archivo. Si Docker muestra un error relacionado con
+Configura las contraseñas y el token de InfluxDB en `.env`; no compartas ni
+commitees ese archivo. `GRAFANA_ADMIN_PASSWORD` debe coincidir con la
+contraseña actual del administrador si Grafana ya se inicializó; cambiar la
+variable no modifica una contraseña guardada en el volumen existente. Si Docker
+muestra un error relacionado con
 `apparmor_parser`, instala las herramientas de AppArmor:
 
 ```bash
@@ -53,15 +56,31 @@ Obtén la dirección de la Orange Pi con:
 hostname -I
 ```
 
-En Grafana, el usuario inicial normalmente es `admin`; utiliza la contraseña
-configurada en la primera instalación. En InfluxDB, usa el usuario, la
-organización, el bucket y el token definidos en `.env`.
+Abre el dashboard provisionado en
+`http://IP_DE_LA_ORANGE:3000/d/gps-stats/estadisticas-gps`. El datasource
+`MariaDB GPS` se configura automáticamente para leer las rutas finalizadas. En
+Grafana, inicia sesión con `GRAFANA_ADMIN_USER` y `GRAFANA_ADMIN_PASSWORD` de
+`.env`. En InfluxDB, usa el usuario, la organización, el bucket y el token
+definidos allí.
+Para aplicar esta configuración a una instalación existente, agrega esas dos
+variables de Grafana a `.env` sin reemplazar las contraseñas que ya utilizas y
+recrea el servicio:
+
+```bash
+sudo docker-compose up -d grafana
+```
 
 El esquema inicial de MariaDB se crea automáticamente en el primer arranque.
 Los datos se guardan en subdirectorios de `docker/` y sobreviven a los
 reinicios de los contenedores. La tabla `routes` identifica cada carga y
 `route_points` almacena sus coordenadas, fecha/hora, altitud, satélites y HDOP.
 El receptor Python usa el puerto `3306` para guardar el historial.
+
+El dashboard muestra la distancia acumulada y la ruta más larga usando
+recorridos finalizados. También muestra velocidades aproximadas: la máxima usa
+el intervalo entre mensajes recibidos y la promedio divide la distancia entre
+la duración de la carga MQTT. No representan la velocidad real del recorrido;
+el firmware actual no incluye la hora de captura GPS de cada muestra.
 
 ## Operación y diagnóstico
 
@@ -121,3 +140,27 @@ Después crea `~/proyecto/orange_pi/mqtt_receiver/.env` a partir de
 `.env.example` y coloca en `GPS_DB_PASSWORD` el mismo valor de
 `MARIADB_PASSWORD` usado por MariaDB. El servicio de usuario espera y reintenta
 la conexión si MariaDB todavía está iniciando.
+
+## Consultas para probar la base de datos
+
+Ingresar a la base de datos con:
+
+```bash
+cd ~/proyecto/orange_pi/docker
+sudo docker-compose exec mariadb mariadb -u gps_user -p gps
+```
+
+probar el registro de los datos del gps:
+
+```sql
+SELECT id, name, started_at, finished_at, point_count, distance_m
+FROM routes
+ORDER BY started_at DESC;
+```
+
+```sql
+SELECT recorded_at, latitude, longitude, altitude_m, satellites, hdop
+FROM route_points
+WHERE route_id = 1
+ORDER BY recorded_at;
+```

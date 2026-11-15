@@ -1,4 +1,3 @@
-import math
 import os
 import threading
 import time
@@ -6,6 +5,11 @@ from datetime import datetime, timezone
 
 import mysql.connector
 from mysql.connector import Error
+from route_statistics import (
+    RouteStatistics,
+    calculate_route_statistics,
+    distance_between_points,
+)
 
 
 class RouteDatabase:
@@ -69,16 +73,7 @@ class RouteDatabase:
     def _distance_m(
         first: tuple[float, float], second: tuple[float, float]
     ) -> float:
-        radius_m = 6_371_000.0
-        lat1, lon1 = map(math.radians, first)
-        lat2, lon2 = map(math.radians, second)
-        dlat = lat2 - lat1
-        dlon = lon2 - lon1
-        value = (
-            math.sin(dlat / 2) ** 2
-            + math.cos(lat1) * math.cos(lat2) * math.sin(dlon / 2) ** 2
-        )
-        return 2 * radius_m * math.asin(math.sqrt(value))
+        return distance_between_points(first, second)
 
     def start_route(self) -> None:
         with self.lock:
@@ -199,3 +194,34 @@ class RouteDatabase:
             points = [(float(latitude), float(longitude)) for latitude, longitude in cursor]
             cursor.close()
             return points
+
+    def get_statistics(self) -> RouteStatistics:
+        with self.lock:
+            cursor = self.connection.cursor()
+            try:
+                cursor.execute(
+                    """
+                    SELECT id, name, distance_m, started_at, finished_at
+                    FROM routes
+                    WHERE finished_at IS NOT NULL
+                    ORDER BY finished_at, id
+                    """
+                )
+                routes = cursor.fetchall()
+            finally:
+                cursor.close()
+
+            cursor = self.connection.cursor()
+            try:
+                cursor.execute(
+                    """
+                    SELECT p.route_id, p.recorded_at, p.latitude, p.longitude
+                    FROM route_points p
+                    JOIN routes r ON r.id = p.route_id
+                    WHERE r.finished_at IS NOT NULL
+                    ORDER BY p.route_id, p.recorded_at, p.id
+                    """
+                )
+                return calculate_route_statistics(routes, cursor)
+            finally:
+                cursor.close()
