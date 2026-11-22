@@ -1,0 +1,7 @@
+ALTER TABLE routes
+    ADD COLUMN IF NOT EXISTS is_valid BOOLEAN NOT NULL DEFAULT TRUE
+    AFTER distance_m;
+
+ALTER TABLE routes
+    ADD COLUMN IF NOT EXISTS invalid_reason VARCHAR(255) NULL
+    AFTER is_valid;

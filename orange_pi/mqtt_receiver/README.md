@@ -31,8 +31,10 @@ OpenStreetMap y la línea azul representa la ruta. El punto verde es el inicio
 y el rojo el último punto. La vista usa un radio de 1 km alrededor de la ruta
 por defecto, muestra el número de puntos recibidos y evita que una ruta corta
 se estire hasta ocupar toda la pantalla. Los mosaicos se guardan en `osm_tiles/` para reutilizarlos sin descargarlos
-otra vez. La ruta actual se limpia al iniciar una nueva carga; por ahora no se
-guarda un historial de rutas.
+otra vez. Puedes abrir el menú o las estadísticas durante una carga; las
+muestras continúan guardándose sin forzar la pantalla de vuelta al mapa. La
+ruta actual se limpia al iniciar una nueva carga; por ahora no se guarda un
+historial de rutas.
 
 Si el panel táctil está conectado, los botones `-` y `+` de la parte superior
 cambian el radio entre `50 m`, `250 m`, `1 km`, `5 km` y `10 km`. El controlador
@@ -215,7 +217,8 @@ ssh orangepi@equipo12.local \
 Cada carga de la ESP32 se guarda como una ruta independiente:
 
 - `uploading` crea una ruta con fecha y hora UTC.
-- Cada mensaje de telemetría se guarda en `route_points`.
+- Cada mensaje de telemetría se guarda en `route_points`, con la hora de
+  recepción en `recorded_at` y la hora UTC de captura GPS en `captured_at`.
 - `complete` registra la hora de finalización, el número de puntos y la
   distancia aproximada.
 
@@ -280,6 +283,49 @@ sudo docker exec -it docker_mariadb_1 \
 Una ruta válida debe tener `started_at`, `finished_at` y un `point_count`
 mayor que cero. Sus coordenadas se consultan en `route_points`.
 
+### Preparar MariaDB para velocidades por hora de captura
+
+Las versiones anteriores guardaban las muestras al momento de recibir la carga
+MQTT, por lo que `recorded_at` representa la hora de recepción y no la hora del
+recorrido. La ESP32 ahora incluye `captured_at_ms` en cada mensaje, generado con
+la hora UTC del GPS (RMC + GGA). El receptor lo convierte a `captured_at` en
+MariaDB; las velocidades se calculan con esa columna.
+
+La migración siguiente elimina **todas** las rutas y sus puntos para descartar
+los registros de prueba anteriores. Desde la PC, copia el archivo:
+
+```bash
+ssh orangepi@equipo12.local \
+  'mkdir -p ~/proyecto/orange_pi/docker/migrations'
+scp orange_pi/docker/migrations/002-gps-capture-time.sql \
+  orangepi@equipo12.local:~/proyecto/orange_pi/docker/migrations/
+```
+
+En la Orange Pi, detén el receptor y ejecuta la migración una sola vez contra
+la base `gps`:
+
+```bash
+systemctl --user stop proyecto-gps-receiver.service
+cd ~/proyecto/orange_pi/docker
+sudo docker-compose exec -T mariadb sh -c \
+  'mariadb -uroot -p"$MARIADB_ROOT_PASSWORD" gps' \
+  < migrations/002-gps-capture-time.sql
+```
+
+El borrado de `routes` elimina en cascada sus filas de `route_points`; se
+reinician los contadores de ID y se agrega `captured_at`. No ejecutes esto si
+hay recorridos que quieras conservar. No borra datos de InfluxDB, Grafana ni
+de la memoria NVS de la ESP32.
+
+Antes de ejecutar la limpieza, actualiza y compila el firmware y despliega el
+receptor con `./orange_pi/mqtt_receiver/deploy.sh`. Si la ESP32 aún tiene una
+carga pendiente de la versión anterior, súbela una vez: sus muestras quedarán
+con `captured_at = NULL` y la carga exitosa las borrará de NVS. Luego detén el
+receptor y ejecuta la migración para eliminar también esa carga de MariaDB.
+Reinicia el receptor y registra una ruta nueva; así las pruebas no mezclarán
+muestras antiguas sin hora GPS. Este flujo Python sigue siendo el que escribe
+en MariaDB; la integración con Node-RED queda para la siguiente etapa.
+
 ## Menú de rutas en la pantalla
 
 Al iniciar el receptor, la ILI9341 muestra un explorador de rutas en lugar de
@@ -300,9 +346,9 @@ El resumen de la pantalla muestra distancia acumulada, ruta más larga y
 gráficas locales de distancia y velocidades para las ocho rutas recientes.
 Grafana ofrece el dashboard web en
 `http://IP_DE_LA_ORANGE:3000/d/gps-stats/estadisticas-gps`;
-ambas vistas consultan MariaDB. Las velocidades son aproximadas: los puntos
-no incluyen la hora de captura GPS, así que se usa la hora de recepción durante
-la carga MQTT. No representan fielmente la velocidad real del recorrido.
+ambas vistas consultan MariaDB. La velocidad se calcula con los tiempos UTC
+de captura del GPS, no con el momento de recepción durante la carga MQTT; la
+precisión sigue limitada por el intervalo y la calidad de las muestras GPS.
 «Mejor tiempo» se omite porque no hay una distancia fija de referencia.
 
 La columna `name` permite agregar posteriormente nombres personalizados desde

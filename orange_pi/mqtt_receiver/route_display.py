@@ -62,12 +62,14 @@ class RouteDisplay:
         self.screen = "menu"
         self.sort_by = "date"
         self.routes: list[dict[str, object]] = []
+        self.routes_error: str | None = None
         self.page = 0
         self.statistics_page = 0
         self.statistics = RouteStatistics.empty()
         self.statistics_error: str | None = None
         self.selected_route_id: int | None = None
         self.lock = threading.Lock()
+        self.display_lock = threading.Lock()
         self.font = ImageFont.load_default()
         try:
             bold_font = "/usr/share/fonts/truetype/dejavu/DejaVuSans-Bold.ttf"
@@ -109,6 +111,12 @@ class RouteDisplay:
                             flush=True,
                         )
                     if now - self.last_touch >= 0.4:
+                        if TOUCH_DEBUG:
+                            print(
+                                f"Accion touch: pantalla={self.screen}, "
+                                f"x={x}, y={y}",
+                                flush=True,
+                            )
                         if self.screen == "menu":
                             self._handle_menu_touch(x, y)
                         elif self.screen == "statistics":
@@ -122,14 +130,20 @@ class RouteDisplay:
                             print("Touch: zoom in", flush=True)
                             self._change_radius(-1)
                         self.last_touch = now
-            except (OSError, RuntimeError, TypeError, ValueError):
-                pass
+            except (OSError, RuntimeError, TypeError, ValueError) as error:
+                if TOUCH_DEBUG:
+                    print(
+                        f"Error procesando touch en pantalla "
+                        f"{self.screen}: {error}",
+                        flush=True,
+                    )
             time.sleep(0.05)
 
     def _handle_menu_touch(self, x: int, y: int) -> None:
         if y < 58 and x < self.width // 2:
-            self.sort_by = "name" if self.sort_by == "date" else "date"
-            self.page = 0
+            with self.lock:
+                self.sort_by = "name" if self.sort_by == "date" else "date"
+                self.page = 0
             self._refresh_routes()
         elif y < 58:
             self._show_statistics()
@@ -144,17 +158,29 @@ class RouteDisplay:
             index = self.page * 6 + (y - 58) // 23
             if index < len(self.routes):
                 route = self.routes[index]
-                self.selected_route_id = int(route["id"])
-                self.points = self.route_database.get_route_points(
-                    self.selected_route_id
-                )
-                self.screen = "map"
+                route_id = int(route["id"])
+                try:
+                    points = self.route_database.get_route_points(route_id)
+                except MySQLError as error:
+                    with self.lock:
+                        self.routes_error = str(error)
+                    print(f"No se pudo cargar la ruta: {error}", flush=True)
+                    with self.lock:
+                        self.screen = "menu"
+                    self._render_menu()
+                    return
+                with self.lock:
+                    self.selected_route_id = route_id
+                    self.points = points
+                    self.routes_error = None
+                    self.screen = "map"
                 self._render()
 
     def _show_statistics(self) -> None:
-        self.screen = "statistics"
-        self.statistics_page = 0
-        self.statistics_error = None
+        with self.lock:
+            self.screen = "statistics"
+            self.statistics_page = 0
+            self.statistics_error = None
         try:
             self.statistics = self.route_database.get_statistics()
         except MySQLError as error:
@@ -167,16 +193,27 @@ class RouteDisplay:
         if y <= 32 and x < 72:
             self._show_menu()
         elif y >= self.height - 32:
-            self.statistics_page = 1 - self.statistics_page
+            with self.lock:
+                self.statistics_page = 1 - self.statistics_page
             self._render_statistics()
 
     def _refresh_routes(self) -> None:
-        self.routes = self.route_database.list_routes(self.sort_by)
+        try:
+            routes = self.route_database.list_routes(self.sort_by)
+            route_error = None
+        except MySQLError as error:
+            routes = []
+            route_error = str(error)
+            print(f"No se pudieron cargar las rutas: {error}", flush=True)
+        with self.lock:
+            self.routes = routes
+            self.routes_error = route_error
         self._render_menu()
 
     def _show_menu(self) -> None:
-        self.screen = "menu"
-        self.page = 0
+        with self.lock:
+            self.screen = "menu"
+            self.page = 0
         self._refresh_routes()
 
     def _touch_to_screen(self, raw_x: int, raw_y: int) -> tuple[int, int]:
@@ -197,22 +234,23 @@ class RouteDisplay:
             self.radius_index = max(
                 0, min(len(VIEW_RADII_M) - 1, self.radius_index + direction)
             )
-            self._render()
+        self._render()
 
     def clear(self) -> None:
         with self.lock:
             self.points.clear()
             self.screen = "map"
-            self._render()
+        self._render()
 
     def add_point(self, latitude: float, longitude: float) -> None:
         with self.lock:
             self.points.append((latitude, longitude))
-            self.screen = "map"
+            render_map = self.screen == "map"
+        if render_map:
             self._render()
 
-    def _select_zoom(self, latitude: float) -> int:
-        radius_m = VIEW_RADII_M[self.radius_index]
+    def _select_zoom(self, latitude: float, radius_index: int) -> int:
+        radius_m = VIEW_RADII_M[radius_index]
         lat_delta = radius_m / 111_320.0
         lon_delta = radius_m / (111_320.0 * max(0.1, math.cos(math.radians(latitude))))
         for zoom in range(19, 9, -1):
@@ -310,18 +348,25 @@ class RouteDisplay:
                   fill=(255, 255, 255), font=self.font)
         start = self.page * 6
         visible = self.routes[start:start + 6]
-        for row, route in enumerate(visible):
-            top = 58 + row * 23
-            draw.rectangle((4, top, self.width - 4, top + 21),
-                           fill=(40, 50, 65), outline=(100, 110, 125))
-            name = str(route.get("name") or f"Ruta {route['id']}")
-            draw.text((9, top + 1), name[:34], fill=(255, 255, 255), font=self.font)
-            date = route["started_at"].strftime("%Y-%m-%d %H:%M")
-            points = int(route.get("point_count") or 0)
-            distance = float(route.get("distance_m") or 0)
-            draw.text((9, top + 12),
-                      f"{date} | {distance / 1000:.2f} km | {points} pts",
-                      fill=(190, 210, 225), font=self.font)
+        if self.routes_error is not None:
+            draw.text((8, 92), "No se pudieron cargar las rutas",
+                      fill=(255, 180, 180), font=self.font)
+            draw.text((8, 110), "Revisa los logs y MariaDB",
+                      fill=(255, 255, 255), font=self.font)
+        else:
+            for row, route in enumerate(visible):
+                top = 58 + row * 23
+                draw.rectangle((4, top, self.width - 4, top + 21),
+                               fill=(40, 50, 65), outline=(100, 110, 125))
+                name = str(route.get("name") or f"Ruta {route['id']}")
+                draw.text((9, top + 1), name[:34],
+                          fill=(255, 255, 255), font=self.font)
+                date = route["started_at"].strftime("%Y-%m-%d %H:%M")
+                points = int(route.get("point_count") or 0)
+                distance = float(route.get("distance_m") or 0)
+                draw.text((9, top + 12),
+                          f"{date} | {distance / 1000:.2f} km | {points} pts",
+                          fill=(190, 210, 225), font=self.font)
         draw.rectangle((0, self.height - 42, self.width, self.height),
                        fill=(0, 0, 0))
         total_pages = max(1, (len(self.routes) + 5) // 6)
@@ -331,7 +376,14 @@ class RouteDisplay:
         draw.text((self.width // 2 + 12, self.height - 30),
                   "< anterior        siguiente >", fill=(255, 255, 255),
                   font=self.font)
-        self.display.image(image)
+        self._display_image(image, "menu")
+
+    def _display_image(self, image: Image.Image, expected_screen: str) -> None:
+        with self.display_lock:
+            with self.lock:
+                if self.screen != expected_screen:
+                    return
+                self.display.image(image)
 
     def _render_statistics(self) -> None:
         image = Image.new("RGB", (self.width, self.height), (20, 25, 35))
@@ -354,7 +406,7 @@ class RouteDisplay:
                   fill=(255, 255, 255), font=self.font)
         draw.text((self.width - 88, self.height - 20), "Cambiar >",
                   fill=(255, 255, 255), font=self.font)
-        self.display.image(image)
+        self._display_image(image, "statistics")
 
     def _draw_statistics_summary(self, draw: ImageDraw.ImageDraw) -> None:
         draw.text((92, 7), "Estadísticas GPS",
@@ -456,23 +508,29 @@ class RouteDisplay:
             draw.ellipse((x - 2, y - 2, x + 2, y + 2), fill=(70, 180, 255))
 
     def _render(self) -> None:
-        if self.screen == "menu":
+        with self.lock:
+            screen = self.screen
+            points = list(self.points)
+            radius_index = self.radius_index
+        if screen == "menu":
             self._render_menu()
             return
-        if not self.points:
+        if screen != "map":
+            return
+        if not points:
             image = Image.new("RGB", (self.width, self.height), (0, 0, 0))
             ImageDraw.Draw(image).text(
                 (12, 12), "Esperando coordenadas...", fill=(255, 255, 255),
                 font=self.font,
             )
             self._draw_controls(image)
-            self.display.image(image)
+            self._display_image(image, "map")
             return
 
-        center_lat = sum(point[0] for point in self.points) / len(self.points)
-        center_lon = sum(point[1] for point in self.points) / len(self.points)
-        zoom = self._select_zoom(center_lat)
-        world_points = [_world_pixel(lat, lon, zoom) for lat, lon in self.points]
+        center_lat = sum(point[0] for point in points) / len(points)
+        center_lon = sum(point[1] for point in points) / len(points)
+        zoom = self._select_zoom(center_lat, radius_index)
+        world_points = [_world_pixel(lat, lon, zoom) for lat, lon in points]
         center_x, center_y = _world_pixel(center_lat, center_lon, zoom)
         image = self._map_image(zoom, center_x, center_y)
         draw = ImageDraw.Draw(image)
@@ -490,13 +548,13 @@ class RouteDisplay:
         draw.ellipse((end_x - 5, end_y - 5, end_x + 5, end_y + 5),
                      fill=(220, 0, 0))
         draw.rectangle((0, self.height - 25, self.width, self.height), fill=(0, 0, 0))
-        radius = VIEW_RADII_M[self.radius_index]
+        radius = VIEW_RADII_M[radius_index]
         draw.text((3, self.height - 23), f"{len(pixels)} puntos | radio {radius:.0f} m",
                   fill=(255, 255, 255), font=self.font)
         draw.text((3, self.height - 12), "© OpenStreetMap contributors",
                   fill=(255, 255, 255), font=self.font)
         self._draw_controls(image)
-        self.display.image(image)
+        self._display_image(image, "map")
 
 
 def create_route_display(route_database) -> Optional[RouteDisplay]:

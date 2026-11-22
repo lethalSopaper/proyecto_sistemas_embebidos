@@ -13,5 +13,8 @@ El receptor se despliega desde la computadora con
 servicio de usuario `systemd` en la Orange Pi.
 
 El despliegue de Docker y sus comandos de diagnóstico están documentados en
-[`docker/README.md`](./docker/README.md). Cada carga MQTT crea una ruta
-identificada por fecha y hora; sus puntos se guardan en MariaDB.
+[`docker/README.md`](./docker/README.md). Desde la raíz del repositorio,
+[`../deploy.sh`](../deploy.sh) actualiza el stack y el receptor sin reemplazar
+`.env` ni los datos persistentes. Cada carga MQTT crea una ruta identificada
+por fecha y hora; sus puntos se guardan en MariaDB e InfluxDB conserva una
+copia de la telemetría recibida.

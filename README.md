@@ -12,17 +12,20 @@ Los deportistas requieren monitorear constantemente sus trayectos y distancias. 
 Actualmente está implementado el flujo principal ESP32 → MQTT → Orange Pi:
 
 - La ESP32 obtiene coordenadas del GPS NEO-6M y las almacena temporalmente para
-  cargarlas por MQTT. Hay variantes con OLED y con LEDs.
+  cargarlas por MQTT, incluyendo fecha y hora UTC de captura de cada muestra.
+  Hay variantes con OLED y con LEDs.
 - La Orange Pi recibe la telemetría, dibuja la ruta sobre OpenStreetMap y
-  conserva las rutas en MariaDB con fecha, puntos y distancia aproximada.
+  conserva las rutas en MariaDB con hora de captura y recepción, puntos y
+  distancia aproximada.
 - Mosquitto, Node-RED, InfluxDB, MariaDB y Grafana se ejecutan en Docker en la
   Orange Pi.
 - El receptor MQTT se instala como servicio de usuario y arranca
   automáticamente al encender la Orange Pi.
 
-Node-RED todavía debe configurarse para distribuir la telemetría hacia
-InfluxDB, MariaDB y el programa de pantalla. La pantalla muestra la ruta
-actual; el historial completo queda en MariaDB.
+Node-RED procesa en paralelo la telemetría MQTT y la conserva en InfluxDB,
+además de ofrecer un panel web protegido para consultar y administrar rutas
+guardadas en MariaDB. El receptor Python sigue siendo el único escritor del
+historial de rutas.
 
 ## Arquitectura del Sistema
 
@@ -80,15 +83,20 @@ Se sugiere mantener la siguiente estructura para organizar los archivos del proy
 ## Inicio rápido
 
 Consulta [`esp32_firmware/README.md`](./esp32_firmware/README.md) para
-configurar, compilar y flashear la ESP32. Para desplegar el receptor y su
-servicio automático en la Orange Pi:
+configurar, compilar y flashear la ESP32. Configura primero las credenciales
+Docker en `orange_pi/docker/.env` en la Orange Pi. Desde este repositorio,
+despliega los servicios y el receptor con:
 
 ```bash
-./orange_pi/mqtt_receiver/deploy.sh
+./deploy.sh
 ```
 
-La configuración específica del receptor está en
-[`orange_pi/mqtt_receiver/README.md`](./orange_pi/mqtt_receiver/README.md).
+Se puede indicar la dirección de la Orange Pi con
+`ORANGE_HOST=192.168.1.158 ./deploy.sh`. El panel de rutas queda en
+`http://IP_DE_LA_ORANGE:1880/routes`; Grafana mantiene las estadísticas de
+MariaDB y añade el dashboard de telemetría de InfluxDB. Consulta
+[`orange_pi/docker/README.md`](./orange_pi/docker/README.md) para configurar
+credenciales, acceder a los paneles y conocer el alcance de la redundancia.
 
 ---
 *Desarrollado para la clase del Profesor Eduardo Fragoso Navarro.*

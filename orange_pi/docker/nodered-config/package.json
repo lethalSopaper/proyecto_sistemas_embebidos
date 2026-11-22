@@ -1,0 +1,12 @@
+{
+  "name": "gps-nodered-runtime",
+  "private": true,
+  "scripts": {
+    "build": "node --check settings.js && node --check install-flows.js && node --check gps-repository.js && npm test",
+    "test": "node --test test/*.test.js"
+  },
+  "dependencies": {
+    "bcryptjs": "3.0.3",
+    "mysql2": "3.24.6"
+  }
+}

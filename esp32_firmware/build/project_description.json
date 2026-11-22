@@ -1,7 +1,7 @@
 {
     "version":            "1.3",
     "project_name":       "esp32_firmware",
-    "project_version":    "06e82bb-dirty",
+    "project_version":    "94d3ec7-dirty",
     "project_path":       "/home/hansmarcus/Desktop/clases/SistemasEmbebidos/proyecto_sistemas_embebidos/esp32_firmware",
     "idf_path":           "/home/hansmarcus/.espressif/v6.1/esp-idf",
     "build_dir":          "/home/hansmarcus/Desktop/clases/SistemasEmbebidos/proyecto_sistemas_embebidos/esp32_firmware/build",

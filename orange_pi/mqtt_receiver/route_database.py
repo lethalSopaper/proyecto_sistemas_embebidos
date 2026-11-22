@@ -34,6 +34,30 @@ class RouteDatabase:
                 raise
         cursor.execute(
             """
+            ALTER TABLE route_points
+            ADD COLUMN IF NOT EXISTS captured_at DATETIME(6) NULL
+            AFTER recorded_at
+            """
+        )
+        self.connection.commit()
+        cursor.execute(
+            """
+            ALTER TABLE routes
+            ADD COLUMN IF NOT EXISTS is_valid BOOLEAN NOT NULL DEFAULT TRUE
+            AFTER distance_m
+            """
+        )
+        self.connection.commit()
+        cursor.execute(
+            """
+            ALTER TABLE routes
+            ADD COLUMN IF NOT EXISTS invalid_reason VARCHAR(255) NULL
+            AFTER is_valid
+            """
+        )
+        self.connection.commit()
+        cursor.execute(
+            """
             UPDATE routes
             SET name = CONCAT('Ruta ', DATE_FORMAT(started_at, '%Y-%m-%d %H:%i'))
             WHERE name IS NULL OR name = ''
@@ -107,6 +131,14 @@ class RouteDatabase:
                 return
             latitude = float(measurement["latitude"])
             longitude = float(measurement["longitude"])
+            captured_at_ms = int(measurement.get("captured_at_ms", 0) or 0)
+            captured_at = (
+                datetime.fromtimestamp(
+                    captured_at_ms / 1000, tz=timezone.utc
+                ).replace(tzinfo=None)
+                if captured_at_ms > 0
+                else None
+            )
             point = (latitude, longitude)
             if self.previous_point is not None:
                 self.distance_m += self._distance_m(self.previous_point, point)
@@ -114,13 +146,14 @@ class RouteDatabase:
             cursor.execute(
             """
             INSERT INTO route_points
-                (route_id, recorded_at, latitude, longitude, altitude_m,
-                 satellites, hdop)
-            VALUES (%s, %s, %s, %s, %s, %s, %s)
+                (route_id, recorded_at, captured_at, latitude, longitude,
+                 altitude_m, satellites, hdop)
+            VALUES (%s, %s, %s, %s, %s, %s, %s, %s)
             """,
                 (
                     self.route_id,
                     self._now(),
+                    captured_at,
                     latitude,
                     longitude,
                     measurement.get("altitude"),
@@ -170,7 +203,8 @@ class RouteDatabase:
             cursor = self.connection.cursor(dictionary=True)
             cursor.execute(
                 f"""
-                SELECT id, name, started_at, finished_at, point_count, distance_m
+                SELECT id, name, started_at, finished_at, point_count,
+                       distance_m, is_valid, invalid_reason
                 FROM routes
                 ORDER BY {order}
                 """
@@ -203,7 +237,7 @@ class RouteDatabase:
                     """
                     SELECT id, name, distance_m, started_at, finished_at
                     FROM routes
-                    WHERE finished_at IS NOT NULL
+                    WHERE finished_at IS NOT NULL AND is_valid = 1
                     ORDER BY finished_at, id
                     """
                 )
@@ -215,10 +249,10 @@ class RouteDatabase:
             try:
                 cursor.execute(
                     """
-                    SELECT p.route_id, p.recorded_at, p.latitude, p.longitude
+                    SELECT p.route_id, p.captured_at, p.latitude, p.longitude
                     FROM route_points p
                     JOIN routes r ON r.id = p.route_id
-                    WHERE r.finished_at IS NOT NULL
+                    WHERE r.finished_at IS NOT NULL AND r.is_valid = 1
                     ORDER BY p.route_id, p.recorded_at, p.id
                     """
                 )

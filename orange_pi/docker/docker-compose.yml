@@ -12,10 +12,25 @@ services:
       - ./mosquitto/log:/mosquitto/log
 
   nodered:
-    image: nodered/node-red:latest
+    build:
+      context: ./nodered-config
+    image: proyecto-gps-nodered:1
     restart: unless-stopped
     ports:
       - "1880:1880"
+    environment:
+      MARIADB_HOST: mariadb
+      MARIADB_PORT: "3306"
+      MARIADB_DATABASE: ${MARIADB_DATABASE:-gps}
+      MARIADB_USER: ${MARIADB_USER:-gps_user}
+      MARIADB_PASSWORD: ${MARIADB_PASSWORD:?Define MARIADB_PASSWORD en .env}
+      INFLUXDB_ORG: ${INFLUXDB_ORG:-proyecto}
+      INFLUXDB_BUCKET: ${INFLUXDB_BUCKET:-gps}
+      INFLUXDB_TOKEN: ${INFLUXDB_TOKEN:?Define INFLUXDB_TOKEN en .env}
+      NODERED_ADMIN_USER: ${NODERED_ADMIN_USER:-admin}
+      NODERED_ADMIN_PASSWORD: ${NODERED_ADMIN_PASSWORD:?Define NODERED_ADMIN_PASSWORD en .env}
+      NODERED_HTTP_USER: ${NODERED_HTTP_USER:-admin}
+      NODERED_HTTP_PASSWORD: ${NODERED_HTTP_PASSWORD:?Define NODERED_HTTP_PASSWORD en .env}
     volumes:
       - ./nodered:/data
     depends_on:
@@ -63,6 +78,9 @@ services:
       MARIADB_DATABASE: ${MARIADB_DATABASE:-gps}
       MARIADB_USER: ${MARIADB_USER:-gps_user}
       MARIADB_PASSWORD: ${MARIADB_PASSWORD:?Define MARIADB_PASSWORD en .env}
+      INFLUXDB_ORG: ${INFLUXDB_ORG:-proyecto}
+      INFLUXDB_BUCKET: ${INFLUXDB_BUCKET:-gps}
+      INFLUXDB_TOKEN: ${INFLUXDB_TOKEN:?Define INFLUXDB_TOKEN en .env}
     volumes:
       - ./grafana:/var/lib/grafana
       - ./grafana/provisioning:/etc/grafana/provisioning:ro
