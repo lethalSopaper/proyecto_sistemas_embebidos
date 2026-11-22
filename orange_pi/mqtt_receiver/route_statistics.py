@@ -134,7 +134,6 @@ def calculate_route_statistics(
     max_speed_kmh = max(
         (route.max_speed_kmh for route in all_performance), default=0.0
     )
-    performance = tuple(all_performance[-8:])
     average_speed_kmh = (
         timed_distance_m * 3.6 / total_duration_s
         if total_duration_s > 0
@@ -145,5 +144,5 @@ def calculate_route_statistics(
         average_speed_kmh=average_speed_kmh,
         total_distance_km=total_distance_m / 1000,
         longest_distance_km=longest_distance_m / 1000,
-        routes=performance,
+        routes=tuple(all_performance),
     )

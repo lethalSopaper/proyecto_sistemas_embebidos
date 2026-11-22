@@ -36,7 +36,7 @@ class RouteStatisticsTests(unittest.TestCase):
             statistics.routes[1].average_speed_kmh, 36.0, places=5
         )
 
-    def test_global_max_speed_includes_routes_outside_recent_chart_window(self):
+    def test_history_keeps_routes_outside_recent_chart_window(self):
         start = datetime(2026, 1, 1)
         routes = [
             (
@@ -55,8 +55,11 @@ class RouteStatisticsTests(unittest.TestCase):
 
         statistics = calculate_route_statistics(routes, points)
 
-        self.assertEqual(len(statistics.routes), 8)
-        self.assertNotIn(1, [route.route_id for route in statistics.routes])
+        self.assertEqual(len(statistics.routes), 10)
+        self.assertEqual(
+            [route.route_id for route in statistics.routes[-8:]],
+            list(range(3, 11)),
+        )
         self.assertGreater(statistics.max_speed_kmh, 30.0)
 
     def test_empty_history_returns_zeroes(self):

@@ -65,6 +65,7 @@ class RouteDisplay:
         self.routes_error: str | None = None
         self.page = 0
         self.statistics_page = 0
+        self.selected_route_index = 0
         self.statistics = RouteStatistics.empty()
         self.statistics_error: str | None = None
         self.selected_route_id: int | None = None
@@ -182,20 +183,64 @@ class RouteDisplay:
             self.statistics_page = 0
             self.statistics_error = None
         try:
-            self.statistics = self.route_database.get_statistics()
+            statistics = self.route_database.get_statistics()
         except MySQLError as error:
             self.statistics_error = str(error)
             print(f"No se pudieron consultar las estadísticas: {error}",
                   flush=True)
+        else:
+            with self.lock:
+                self.statistics = statistics
+                self.selected_route_index = max(0, len(statistics.routes) - 1)
         self._render_statistics()
 
     def _handle_statistics_touch(self, x: int, y: int) -> None:
         if y <= 32 and x < 72:
             self._show_menu()
-        elif y >= self.height - 32:
+        elif y <= 32 and self.statistics_page == 2 and x >= self.width - 80:
             with self.lock:
-                self.statistics_page = 1 - self.statistics_page
+                self.statistics_page = 1
             self._render_statistics()
+        elif y >= self.height - 30:
+            with self.lock:
+                if self.statistics_page == 0:
+                    if x >= self.width // 2:
+                        self.statistics_page = 1
+                elif self.statistics_page == 1:
+                    self.statistics_page = 0 if x < self.width // 2 else 2
+                else:
+                    direction = -1 if x < self.width // 2 else 1
+                    last_index = len(self.statistics.routes) - 1
+                    self.selected_route_index = max(
+                        0,
+                        min(last_index, self.selected_route_index + direction),
+                    )
+            self._render_statistics()
+        elif (
+            self.statistics_page == 1
+            and 58 <= y < self.height - 40
+            and 32 <= x <= self.width - 10
+        ):
+            routes = self.statistics.routes
+            visible_routes = routes[-8:]
+            if visible_routes:
+                left, right = 32, self.width - 10
+                if len(visible_routes) == 1:
+                    chart_index = 0
+                else:
+                    slot_width = (right - left) / (len(visible_routes) - 1)
+                    chart_index = round((x - left) / slot_width)
+                    chart_index = max(
+                        0, min(len(visible_routes) - 1, chart_index)
+                    )
+                route_id = visible_routes[chart_index].route_id
+                with self.lock:
+                    self.selected_route_index = next(
+                        index for index, route in enumerate(routes)
+                        if route.route_id == route_id
+                    )
+                    self.statistics_page = 2
+                self._render_statistics()
 
     def _refresh_routes(self) -> None:
         try:
@@ -390,6 +435,9 @@ class RouteDisplay:
         draw = ImageDraw.Draw(image)
         draw.rectangle((0, 0, self.width, 28), fill=(0, 0, 0))
         draw.text((6, 8), "< Rutas", fill=(255, 255, 255), font=self.font)
+        if self.statistics_page == 2:
+            draw.text((self.width - 66, 8), "Gráfica",
+                      fill=(255, 255, 255), font=self.font)
         if self.statistics_error is not None:
             draw.text((8, 92), "No se pudieron leer las estadísticas",
                       fill=(255, 180, 180), font=self.font)
@@ -397,14 +445,21 @@ class RouteDisplay:
                       fill=(255, 255, 255), font=self.font)
         elif self.statistics_page == 0:
             self._draw_statistics_summary(draw)
-        else:
+        elif self.statistics_page == 1:
             self._draw_route_performance(draw)
+        else:
+            self._draw_selected_route(draw)
         draw.rectangle((0, self.height - 30, self.width, self.height),
                        fill=(0, 0, 0))
-        page_label = "Resumen" if self.statistics_page == 0 else "Por ruta"
-        draw.text((8, self.height - 20), page_label,
+        if self.statistics_page == 0:
+            footer = ("Resumen", "Velocidades >")
+        elif self.statistics_page == 1:
+            footer = ("Resumen <", "Detalle >")
+        else:
+            footer = ("< Anterior", "Siguiente >")
+        draw.text((8, self.height - 20), footer[0],
                   fill=(255, 255, 255), font=self.font)
-        draw.text((self.width - 88, self.height - 20), "Cambiar >",
+        draw.text((self.width // 2 + 8, self.height - 20), footer[1],
                   fill=(255, 255, 255), font=self.font)
         self._display_image(image, "statistics")
 
@@ -439,7 +494,7 @@ class RouteDisplay:
     def _draw_distance_chart(
         self, draw: ImageDraw.ImageDraw, top: int, bottom: int
     ) -> None:
-        routes = self.statistics.routes
+        routes = self.statistics.routes[-8:]
         if not routes:
             draw.text((8, top + 12), "Sin recorridos finalizados",
                       fill=(190, 210, 225), font=self.font)
@@ -467,7 +522,9 @@ class RouteDisplay:
     def _draw_route_performance(self, draw: ImageDraw.ImageDraw) -> None:
         draw.text((92, 7), "Velocidad por ruta",
                   fill=(255, 255, 255), font=self.font)
-        routes = self.statistics.routes
+        draw.text((160, 36), "Toca un punto",
+                  fill=(190, 210, 225), font=self.font)
+        routes = self.statistics.routes[-8:]
         if not routes:
             draw.text((8, 104), "Sin recorridos finalizados",
                       fill=(190, 210, 225), font=self.font)
@@ -503,9 +560,43 @@ class RouteDisplay:
             draw.line(points_max, fill=(255, 170, 50), width=2)
             draw.line(points_average, fill=(70, 180, 255), width=2)
         for x, y in points_max:
-            draw.ellipse((x - 2, y - 2, x + 2, y + 2), fill=(255, 170, 50))
+            draw.ellipse((x - 4, y - 4, x + 4, y + 4), fill=(255, 170, 50))
         for x, y in points_average:
-            draw.ellipse((x - 2, y - 2, x + 2, y + 2), fill=(70, 180, 255))
+            draw.ellipse((x - 4, y - 4, x + 4, y + 4), fill=(70, 180, 255))
+
+    def _draw_selected_route(self, draw: ImageDraw.ImageDraw) -> None:
+        routes = self.statistics.routes
+        if not routes:
+            draw.text((8, 92), "Sin recorridos finalizados",
+                      fill=(190, 210, 225), font=self.font)
+            return
+
+        index = max(0, min(self.selected_route_index, len(routes) - 1))
+        route = routes[index]
+        draw.text((8, 38), f"Ruta {route.route_id}: {route.name[:28]}",
+                  fill=(255, 255, 255), font=self.font)
+        draw.text((8, 54), route.finished_at.strftime("Finalizada %d/%m %H:%M"),
+                  fill=(190, 210, 225), font=self.font)
+        values = (
+            ("Distancia", f"{route.distance_km:.2f} km"),
+            ("Vel. promedio", f"{route.average_speed_kmh:.1f} km/h"),
+            ("Vel. máxima", f"{route.max_speed_kmh:.1f} km/h"),
+            ("Recorrido", f"{index + 1} de {len(routes)}"),
+        )
+        card_width = (self.width - 24) // 2
+        for value_index, (label, value) in enumerate(values):
+            column = value_index % 2
+            row = value_index // 2
+            left = 8 + column * (card_width + 8)
+            top = 78 + row * 56
+            draw.rounded_rectangle(
+                (left, top, left + card_width, top + 48),
+                radius=5, fill=(40, 50, 65), outline=(100, 110, 125),
+            )
+            draw.text((left + 6, top + 4), label,
+                      fill=(190, 210, 225), font=self.font)
+            draw.text((left + 6, top + 21), value,
+                      fill=(255, 255, 255), font=self.stats_value_font)
 
     def _render(self) -> None:
         with self.lock:

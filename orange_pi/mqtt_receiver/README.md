@@ -337,6 +337,11 @@ El panel táctil permite:
 
 - Pulsar `Orden: fecha/nombre` para alternar el criterio de orden.
 - Pulsar `Estadísticas` para abrir el resumen local de rutas finalizadas.
+- En estadísticas, tocar `Velocidades >` y pulsar un punto de la gráfica para
+  abrir el detalle de esa ruta. En el detalle, usar `Anterior` y `Siguiente`
+  para recorrer todo el historial, no solo las ocho rutas de la gráfica.
+- En el encabezado del detalle, pulsar `Gráfica` para volver a la comparación
+  de velocidades.
 - Pulsar una ruta para abrir su mapa.
 - Usar `anterior` y `siguiente` para cambiar de página.
 - Pulsar `R` en el mapa para regresar al explorador.
@@ -344,6 +349,7 @@ El panel táctil permite:
 
 El resumen de la pantalla muestra distancia acumulada, ruta más larga y
 gráficas locales de distancia y velocidades para las ocho rutas recientes.
+El detalle táctil muestra distancia y velocidades de una ruta seleccionada.
 Grafana ofrece el dashboard web en
 `http://IP_DE_LA_ORANGE:3000/d/gps-stats/estadisticas-gps`;
 ambas vistas consultan MariaDB. La velocidad se calcula con los tiempos UTC
