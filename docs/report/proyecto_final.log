@@ -1,4 +1,4 @@
-This is pdfTeX, Version 3.141592653-2.6-1.40.29 (TeX Live 2026) (preloaded format=pdflatex 2026.11.13)  22 NOV 2026 18:16
+This is pdfTeX, Version 3.141592653-2.6-1.40.29 (TeX Live 2026) (preloaded format=pdflatex 2026.11.13)  22 NOV 2026 18:46
 entering extended mode
  restricted \write18 enabled.
  %&-line parsing enabled.
@@ -2121,6 +2121,16 @@ Package: listings 2025/11/14 1.11b (Carsten Heinz)
 Package hyperref Info: Option `colorlinks' set `true' on input line 112.
 
 (/usr/share/texlive/texmf-dist/tex/generic/pgf/frontendlayer/tikz/libraries/tik
+zlibrarybackgrounds.code.tex
+File: tikzlibrarybackgrounds.code.tex 2025-08-29 v3.1.11a (3.1.11a)
+\pgf@layerbox@background=\box158
+\pgf@layerboxsaved@background=\box159
+)
+(/usr/share/texlive/texmf-dist/tex/generic/pgf/frontendlayer/tikz/libraries/tik
+zlibraryfit.code.tex
+File: tikzlibraryfit.code.tex 2025-08-29 v3.1.11a (3.1.11a)
+)
+(/usr/share/texlive/texmf-dist/tex/generic/pgf/frontendlayer/tikz/libraries/tik
 zlibraryshapes.geometric.code.tex
 File: tikzlibraryshapes.geometric.code.tex 2025-08-29 v3.1.11a (3.1.11a)
 
@@ -2209,7 +2219,7 @@ LaTeX Font Info:    ... okay on input line 7.
 [Loading MPS to PDF converter (version 2006.09.02).]
 \scratchcounter=\count618
 \scratchdimen=\dimen505
-\scratchbox=\box158
+\scratchbox=\box160
 \nofMPsegments=\count619
 \nofMParguments=\count620
 \everyMPshowfont=\toks78
@@ -2441,54 +2451,59 @@ Underfull \hbox (badness 2205) in paragraph at lines 66--67
  []
 
 [3]
-Underfull \hbox (badness 10000) in paragraph at lines 110--111
+LaTeX Font Info:    Font shape `T1/lmss/m/it' in size <8> not available
+(Font)              Font shape `T1/lmss/m/sl' tried instead on input line 147.
+LaTeX Font Info:    Font shape `T1/lmss/b/n' in size <8> not available
+(Font)              Font shape `T1/lmss/bx/n' tried instead on input line 147.
+
+Underfull \hbox (badness 10000) in paragraph at lines 170--171
 []|\T1/lmss/m/n/10.95 Entrada UART1
  []
 
 
-Underfull \hbox (badness 10000) in paragraph at lines 110--111
+Underfull \hbox (badness 10000) in paragraph at lines 170--171
 \T1/lmss/m/n/10.95 (\T1/lmtt/m/n/10.95 UART_NUM_1\T1/lmss/m/n/10.95 ), $\OT1/lm
 r/m/n/10.95 9600[]$\T1/lmss/m/n/10.95 ,
  []
 
 
-Underfull \hbox (badness 10000) in paragraph at lines 112--113
+Underfull \hbox (badness 10000) in paragraph at lines 172--173
 []|\T1/lmss/m/n/10.95 Salida UART1
  []
 
 
-Underfull \hbox (badness 10000) in paragraph at lines 112--113
+Underfull \hbox (badness 10000) in paragraph at lines 172--173
 \T1/lmss/m/n/10.95 (\T1/lmtt/m/n/10.95 UART_NUM_1\T1/lmss/m/n/10.95 ), $\OT1/lm
 r/m/n/10.95 9600[]$\T1/lmss/m/n/10.95 ,
  []
 
 
-Underfull \hbox (badness 10000) in paragraph at lines 116--117
+Underfull \hbox (badness 10000) in paragraph at lines 176--177
 []|\T1/lmss/m/n/10.95 Salida \T1/lmss/m/sl/10.95 push-pull\T1/lmss/m/n/10.95 ; 
 in-dica
  []
 
 
-Underfull \hbox (badness 1824) in paragraph at lines 116--117
+Underfull \hbox (badness 1824) in paragraph at lines 176--177
 \T1/lmss/m/n/10.95 mon-i-toreo ac-tivo o carga
  []
 
 
-Underfull \hbox (badness 10000) in paragraph at lines 120--121
+Underfull \hbox (badness 10000) in paragraph at lines 180--181
 []|\T1/lmss/m/n/10.95 Bus I2C por soft-ware
  []
 
 [4{/usr/share/texlive/texmf-dist/fonts/enc/dvips/lm/lm-rm.enc}]
 LaTeX Font Info:    Font shape `T1/lmss/m/it' in size <12> not available
-(Font)              Font shape `T1/lmss/m/sl' tried instead on input line 130.
+(Font)              Font shape `T1/lmss/m/sl' tried instead on input line 190.
  [5{/usr/share/texlive/texmf-dist/fonts/enc/dvips/lm/lm-mathit.enc}] [6]
-Overfull \hbox (1.90448pt too wide) in paragraph at lines 189--189
+Overfull \hbox (1.90448pt too wide) in paragraph at lines 249--249
 |\T1/lmss/bx/n/14.4 Adquisición UART, de-cod-i-fi-cación NMEA y sin-cronización
  tem-po-ral UTC| 
  []
 
 
-Overfull \hbox (12.48837pt too wide) in paragraph at lines 197--198
+Overfull \hbox (12.48837pt too wide) in paragraph at lines 257--258
 []\T1/lmss/bx/n/12 Fijación es-pa-cial y sel-l-ado en milise-gun-dos (\T1/lmtt/
 b/n/12 $GPGGA \T1/lmss/bx/n/12 / \T1/lmtt/b/n/12 $GNGGA\T1/lmss/bx/n/12 ): \T1/
 lmss/m/n/12 La fun-ción \T1/lmtt/m/n/12 parse_gga()
@@ -2501,79 +2516,79 @@ File: lstlang1.sty 2025/11/14 1.11b listings language file
 File: lstmisc.sty 2025/11/14 1.11b (Carsten Heinz)
 )
 Package hyperref Info: bookmark level for unknown lstlisting defaults to 0 on i
-nput line 200.
+nput line 260.
  [7]
 LaTeX Font Info:    Trying to load font information for TS1+lmtt on input line 
-203.
+263.
 
 (/usr/share/texlive/texmf-dist/tex/latex/lm/ts1lmtt.fd
 File: ts1lmtt.fd 2015/05/01 v1.6.1 Font defs for Latin Modern
 )
-Overfull \hbox (57.04604pt too wide) in paragraph at lines 217--218
+Overfull \hbox (57.04604pt too wide) in paragraph at lines 277--278
 \T1/lmss/m/n/12 hasta cinco pares SSID/contraseña con-fig-urables desde \T1/lmt
 t/m/n/12 Kconfig \T1/lmss/m/n/12 (con \T1/lmtt/m/n/12 CONFIG_GPS_WIFI_SSID="equ
 ipo12"
  []
 
 [8]
-Overfull \hbox (57.95172pt too wide) in paragraph at lines 253--254
+Overfull \hbox (57.95172pt too wide) in paragraph at lines 313--314
 []\T1/lmss/m/n/12 Sobre esta capa tác-til se con-struyó la apli-cación grá-fica
  lo-cal (\T1/lmtt/m/n/12 route_display.py \T1/lmss/m/n/12 y \T1/lmtt/m/n/12 rou
 te_statistics.py\T1/lmss/m/n/12 ),
  []
 
 [9{/usr/share/texlive/texmf-dist/fonts/enc/dvips/lm/lm-mathex.enc}]
-Overfull \hbox (73.45862pt too wide) in paragraph at lines 270--271
+Overfull \hbox (73.45862pt too wide) in paragraph at lines 330--331
 \T1/lmtt/m/n/12 request \T1/lmss/m/n/12 en-vía los datos me-di-ante \T1/lmtt/m/
 n/12 POST \T1/lmss/m/n/12 a \T1/lmtt/m/n/12 http://influxdb:8086/api/v2/write?p
 recision=ns\T1/lmss/m/n/12 ,
  []
 
 [10]
-Overfull \hbox (12.96721pt too wide) in paragraph at lines 271--272
+Overfull \hbox (12.96721pt too wide) in paragraph at lines 331--332
 \T1/lmtt/m/n/12 response\T1/lmss/m/n/12 , Node-RED ex-pone la in-ter-faz web \T
 1/lmtt/m/n/12 /routes \T1/lmss/m/n/12 y los ser-vi-cios \T1/lmtt/m/n/12 GET /ap
 i/routes\T1/lmss/m/n/12 ,
  []
 
 
-Overfull \hbox (2.85182pt too wide) in paragraph at lines 271--272
+Overfull \hbox (2.85182pt too wide) in paragraph at lines 331--332
 \T1/lmtt/m/n/12 GET /api/routes/:id\T1/lmss/m/n/12 , \T1/lmtt/m/n/12 PATCH /api
 /routes/:id/validity \T1/lmss/m/n/12 (in-val-i-dación o restau-
  []
 
 [11]
-Overfull \hbox (66.08388pt too wide) in paragraph at lines 293--294
+Overfull \hbox (66.08388pt too wide) in paragraph at lines 353--354
 []\T1/lmss/bx/n/12 Interoperabilidad me-di-ante ex-portación CSV y GPX: \T1/lms
 s/m/n/12 Los ser-vi-cios \T1/lmtt/m/n/12 /api/routes/:id/export.csv
  []
 
 
-Overfull \hbox (46.51422pt too wide) in paragraph at lines 310--311
+Overfull \hbox (46.51422pt too wide) in paragraph at lines 370--371
 \T1/lmss/m/n/12 prueba (\T1/lmtt/m/n/12 1_prueba_lcd.py\T1/lmss/m/n/12 , \T1/lm
 tt/m/n/12 2_puntos.py\T1/lmss/m/n/12 , \T1/lmtt/m/n/12 3_calibracion.py\T1/lmss
 /m/n/12 ) y la apli-cación \T1/lmtt/m/n/12 route_display.py
  []
 
 [12]
-Overfull \hbox (7.94792pt too wide) in paragraph at lines 349--350
+Overfull \hbox (7.94792pt too wide) in paragraph at lines 409--410
 []\T1/lmss/m/n/12 Para una batería LiPo de ca-paci-dad nom-i-nal $\OML/lmm/m/it
 /12 C[] \OT1/lmr/m/n/12 = []$ \T1/lmss/m/n/12 y fac-tor de aprovechamiento
  []
 
 
-Underfull \hbox (badness 4096) in paragraph at lines 373--373
+Underfull \hbox (badness 4096) in paragraph at lines 433--433
 []|[]\T1/lmss/m/n/10.95 Módulo re-cep-tor GNSS u-blox
  []
 
 
-Underfull \hbox (badness 2126) in paragraph at lines 382--382
+Underfull \hbox (badness 2126) in paragraph at lines 442--442
 []|[]\T1/lmss/m/n/10.95 Batería LiPo ($\OT1/lmr/m/n/10.95 3\OML/lmm/m/it/10.95 
 :\OT1/lmr/m/n/10.95 7[]$\T1/lmss/m/n/10.95 ), car-gador
  []
 
 
-Underfull \hbox (badness 1067) in paragraph at lines 382--382
+Underfull \hbox (badness 1067) in paragraph at lines 442--442
 \T1/lmss/m/n/10.95 TP4056, LEDs, pul-sador y ca-
  []
 
@@ -2589,11 +2604,11 @@ Package logreq Info: Writing requests to 'proyecto_final.run.xml'.
 
  ) 
 Here is how much of TeX's memory you used:
- 76656 strings out of 467363
- 1855994 string characters out of 5419000
- 3284142 words of memory out of 6000000
- 104613 multiletter control sequences out of 15000+600000
- 741435 words of font info for 133 fonts, out of 8000000 for 9000
+ 76983 strings out of 467363
+ 1863852 string characters out of 5419000
+ 3286496 words of memory out of 6000000
+ 104933 multiletter control sequences out of 15000+600000
+ 747007 words of font info for 135 fonts, out of 8000000 for 9000
  1141 hyphenation exceptions out of 8191
  88i,22n,120p,1207b,2303s stack positions out of 10000i,1000n,20000p,200000b,200000s
 </usr/share/texlive/texmf-dist/fonts/type1/public/lm/lmbx12.pfb></usr/share/t
@@ -2609,16 +2624,17 @@ e/texlive/texmf-dist/fonts/type1/public/lm/lmss8.pfb></usr/share/texlive/texmf-
 dist/fonts/type1/public/lm/lmssbo10.pfb></usr/share/texlive/texmf-dist/fonts/ty
 pe1/public/lm/lmssbx10.pfb></usr/share/texlive/texmf-dist/fonts/type1/public/lm
 /lmsso10.pfb></usr/share/texlive/texmf-dist/fonts/type1/public/lm/lmsso12.pfb><
-/usr/share/texlive/texmf-dist/fonts/type1/public/lm/lmsy10.pfb></usr/share/texl
-ive/texmf-dist/fonts/type1/public/lm/lmsy8.pfb></usr/share/texlive/texmf-dist/f
-onts/type1/public/lm/lmtk10.pfb></usr/share/texlive/texmf-dist/fonts/type1/publ
-ic/lm/lmtt10.pfb></usr/share/texlive/texmf-dist/fonts/type1/public/lm/lmtt12.pf
-b></usr/share/texlive/texmf-dist/fonts/type1/public/amsfonts/symbols/msbm10.pfb
->
-Output written on proyecto_final.pdf (16 pages, 513736 bytes).
+/usr/share/texlive/texmf-dist/fonts/type1/public/lm/lmsso8.pfb></usr/share/texl
+ive/texmf-dist/fonts/type1/public/lm/lmsy10.pfb></usr/share/texlive/texmf-dist/
+fonts/type1/public/lm/lmsy8.pfb></usr/share/texlive/texmf-dist/fonts/type1/publ
+ic/lm/lmtk10.pfb></usr/share/texlive/texmf-dist/fonts/type1/public/lm/lmtt10.pf
+b></usr/share/texlive/texmf-dist/fonts/type1/public/lm/lmtt12.pfb></usr/share/t
+exlive/texmf-dist/fonts/type1/public/lm/lmtt8.pfb></usr/share/texlive/texmf-dis
+t/fonts/type1/public/amsfonts/symbols/msbm10.pfb>
+Output written on proyecto_final.pdf (16 pages, 566158 bytes).
 PDF statistics:
- 256 PDF objects out of 1000 (max. 8388607)
- 188 compressed objects within 2 object streams
+ 266 PDF objects out of 1000 (max. 8388607)
+ 194 compressed objects within 2 object streams
  53 named destinations out of 1000 (max. 500000)
  18 words of extra memory for PDF output out of 10000 (max. 10000000)
 

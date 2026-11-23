@@ -79,12 +79,72 @@ En consecuencia, el diseño propuesto introduce tres modificaciones fundamentada
 
 El sistema integra dos dominios físicos acoplados mediante una red WLAN IEEE~802.11n. En el dominio móvil, el ESP32-S3 adquiere sentencias NMEA~0183 del módulo u-blox NEO-6M, filtra y almacena los registros geográficos en memoria NVS y gestiona la señalización local de estado y sincronización. En el dominio de borde, la Orange Pi Zero 2W recibe los mensajes MQTT publicados en los tópicos \texttt{proyecto/gps/telemetry} y \texttt{proyecto/gps/telemetry/status}, almacena las rutas en bases de datos relacionales y de series de tiempo, y despliega los recorridos y estadísticas tanto en su pantalla táctil SPI de $240 \times 320$ píxeles como en tableros web locales.
 
+% \begin{figure}[H]
+%     \centering
+%     \framebox{\parbox{0.85\textwidth}{\centering\vspace{1.4cm}
+%     \textbf{[FIGURA 1 PENDIENTE: Diagrama de bloques completo de la arquitectura hardware/software]}\\[0.2cm]
+%     \small Interconexión entre ESP32-S3, u-blox NEO-6M, interfaz local (pulsador e indicadores LED/OLED), enlace Wi-Fi/MQTT y nodo borde Orange Pi Zero 2W con pantalla táctil ILI9341/XPT2046.
+%     \vspace{1.4cm}}}
+%     \caption{Arquitectura general de hardware, comunicaciones y servicios del sistema propuesto.}
+%     \label{fig:arquitectura_general}
+% \end{figure}
+
 \begin{figure}[H]
     \centering
-    \framebox{\parbox{0.85\textwidth}{\centering\vspace{1.4cm}
-    \textbf{[FIGURA 1 PENDIENTE: Diagrama de bloques completo de la arquitectura hardware/software]}\\[0.2cm]
-    \small Interconexión entre ESP32-S3, u-blox NEO-6M, interfaz local (pulsador e indicadores LED/OLED), enlace Wi-Fi/MQTT y nodo borde Orange Pi Zero 2W con pantalla táctil ILI9341/XPT2046.
-    \vspace{1.4cm}}}
+    \resizebox{\textwidth}{!}{%
+    \begin{tikzpicture}[
+        font=\sffamily\small,
+        node distance=1.2cm,
+        hw/.style={rectangle, draw=MidnightBlue, fill=MidnightBlue!10, rounded corners=4pt, thick, align=center, minimum width=3.1cm, minimum height=1.1cm, inner sep=6pt},
+        mcu/.style={rectangle, draw=MidnightBlue, fill=MidnightBlue!85, text=white, rounded corners=4pt, thick, align=center, minimum width=3.4cm, minimum height=1.3cm, inner sep=6pt},
+        svc/.style={rectangle, draw=NavyBlue, fill=white, rounded corners=3pt, thick, align=center, minimum width=3.1cm, minimum height=1.0cm, inner sep=5pt},
+        db/.style={rectangle, draw=TealBlue!80!black, fill=TealBlue!10, rounded corners=3pt, thick, align=center, minimum width=2.9cm, minimum height=1.0cm, inner sep=5pt},
+        domainstyle/.style={rectangle, draw=gray!70, dashed, rounded corners=8pt, thick, inner sep=12pt},
+        link/.style={-{Stealth[length=2.5mm]}, thick, draw=MidnightBlue!90},
+        bilink/.style={{Stealth[length=2.3mm]}-{Stealth[length=2.3mm]}, thick, draw=MidnightBlue!90}
+    ]
+
+    % --- DOMINIO MÓVIL (NODO SENSOR) ---
+    \node[mcu] (esp32) at (2.2, 0) {\textbf{Seeed XIAO ESP32-S3}\\{\scriptsize Firmware C (ESP-IDF v6.1)}};
+    \node[hw] (gnss) at (2.2, 2.6) {\textbf{u-blox NEO-6M}\\{\scriptsize Receptor GNSS NMEA}};
+    \node[hw, minimum width=2.8cm] (nvs) at (0, -2.5) {\textbf{Memoria NVS}\\{\scriptsize Bloques m00--m31 (256 pts)}};
+    \node[hw, minimum width=2.8cm] (hmi_esp) at (4.5, -2.5) {\textbf{Interfaz Local}\\{\scriptsize Botón D0, LEDs / OLED}};
+
+    \draw[link] (gnss) -- node[right, align=left, font=\scriptsize] {UART1 (9600 bps)\\{\ttfamily \$GPRMC + \$GPGGA}} (esp32);
+    \draw[bilink] (esp32.south west) -- node[left, align=right, font=\scriptsize] {\textit{Store \&}\\\textit{Forward}} (nvs.north);
+    \draw[bilink] (esp32.south east) -- node[right, align=left, font=\scriptsize] {GPIO /\\I2C} (hmi_esp.north);
+
+    % --- DOMINIO DE BORDE (ORANGE PI ZERO 2W) ---
+    \node[mcu] (mosquitto) at (13.0, 0) {\textbf{Eclipse Mosquitto 2}\\{\scriptsize Broker MQTT (:1883)}};
+    \node[svc] (nodered) at (17.5, 1.9) {\textbf{Node-RED (:1880)}\\{\scriptsize Validación y API REST}};
+    \node[svc] (webapi) at (17.5, 3.8) {\textbf{Panel Web y Exportación}\\{\scriptsize {\ttfamily /routes}, CSV y GPX}};
+    \node[svc] (pyrx) at (17.5, -1.9) {\textbf{Receptor Python}\\{\scriptsize Servicio {\ttfamily systemd}}};
+    \node[db] (influx) at (22.9, 1.9) {\textbf{InfluxDB 2}\\{\scriptsize Series de tiempo (:8086)}};
+    \node[db] (mariadb) at (22.9, -1.9) {\textbf{MariaDB 11}\\{\scriptsize Rutas y puntos (:3306)}};
+    \node[svc, minimum width=2.7cm] (grafana) at (26.6, 0) {\textbf{Grafana (:3000)}\\{\scriptsize Analítica histórica}};
+    \node[hw, minimum width=3.5cm] (tft) at (17.5, -4.1) {\textbf{TFT ILI9341 + XPT2046}\\{\scriptsize Mapas OSM y Estadísticas}};
+
+    % --- ENLACE INALÁMBRICO CENTRAL ---
+    \draw[link, very thick] (esp32.east) -- node[above=2pt, align=center, font=\scriptsize] {\textbf{Wi-Fi 802.11n / MQTT QoS 1}\\{\ttfamily equipo12.local:1883}} node[below=2pt, align=center, font=\scriptsize] {{\ttfamily proyecto/gps/telemetry}\\{\ttfamily proyecto/gps/telemetry/status}} (mosquitto.west);
+
+    % --- CONEXIONES INTERNAS EDGE SERVER ---
+    \draw[link] (mosquitto.north east) -- (nodered.west);
+    \draw[link] (mosquitto.south east) -- (pyrx.west);
+    \draw[link] (nodered.north) -- (webapi.south);
+    \draw[link] (nodered.east) -- node[above, font=\scriptsize] {HTTP POST} (influx.west);
+    \draw[link] (pyrx.east) -- node[above, font=\scriptsize] {SQL} (mariadb.west);
+    \draw[bilink] (pyrx.south) -- node[right, align=left, font=\scriptsize] {Bus SPI1\\(40 MHz / 4 MHz)} (tft.north);
+    \draw[link] (influx.east) -- (grafana.north west);
+    \draw[link] (mariadb.east) -- (grafana.south west);
+
+    % --- RECUADROS DE DOMINIO ---
+    \begin{scope}[on background layer]
+        \node[domainstyle, fit=(gnss)(esp32)(nvs)(hmi_esp), label={[font=\sffamily\bfseries\color{MidnightBlue}]above:Dominio Móvil: Nodo Sensor Portátil}] (dom_movil) {};
+        \node[domainstyle, fit=(mosquitto)(nodered)(webapi)(pyrx)(influx)(mariadb)(grafana)(tft), label={[font=\sffamily\bfseries\color{MidnightBlue}]above:Dominio de Borde: Orange Pi Zero 2W (\texttt{equipo12.local})}] (dom_borde) {};
+    \end{scope}
+
+    \end{tikzpicture}%
+    }
     \caption{Arquitectura general de hardware, comunicaciones y servicios del sistema propuesto.}
     \label{fig:arquitectura_general}
 \end{figure}
@@ -427,7 +487,6 @@ Estos son los únicos puntos marcados como `[PENDIENTE]` que siguen abiertos en 
    * **Tensión ($V$) y corriente media ($I$ en mA)** medidas en los 4 modos: monitoreo GNSS sin Wi-Fi, escritura en NVS, carga por lotes MQTT y con el actuador encendido.
    * **Capacidad nominal de la batería LiPo ($C_{\text{bat}}$ en mAh)** para calcular el tiempo de autonomía $T_{\text{aut}}$.
 2. **Las 4 evidencias gráficas (Figuras 1 a 4):**
-   * **Figura 1:** Diagrama de bloques general de la arquitectura.
    * **Figura 2:** Fotografía del prototipo físico ensamblado.
    * **Figura 3:** Captura del flujo de Node-RED (`flows.json`) y del panel web `/routes` o tablero de Grafana.
    * **Figura 4:** Captura de los logs seriales de carga MQTT en el ESP32-S3 y de la pantalla ILI9341 mostrando el mapa o las estadísticas.
