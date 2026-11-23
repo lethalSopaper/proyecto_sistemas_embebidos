@@ -1,4 +1,4 @@
-This is pdfTeX, Version 3.141592653-2.6-1.40.29 (TeX Live 2026) (preloaded format=pdflatex 2026.11.13)  22 NOV 2026 18:04
+This is pdfTeX, Version 3.141592653-2.6-1.40.29 (TeX Live 2026) (preloaded format=pdflatex 2026.11.13)  22 NOV 2026 18:16
 entering extended mode
  restricted \write18 enabled.
  %&-line parsing enabled.
@@ -2387,225 +2387,194 @@ l.3 \newpage
 
 ])
 LaTeX Font Info:    Font shape `T1/lmss/b/n' in size <17.28> not available
-(Font)              Font shape `T1/lmss/bx/n' tried instead on input line 17.
+(Font)              Font shape `T1/lmss/bx/n' tried instead on input line 15.
 LaTeX Font Info:    Font shape `T1/lmss/b/n' in size <17> not available
-(Font)              Font shape `T1/lmss/bx/n' tried instead on input line 17.
+(Font)              Font shape `T1/lmss/bx/n' tried instead on input line 15.
 LaTeX Font Info:    Font shape `T1/lmss/b/n' in size <16> not available
-(Font)              Font shape `T1/lmss/bx/n' tried instead on input line 20.
+(Font)              Font shape `T1/lmss/bx/n' tried instead on input line 21.
 LaTeX Font Info:    Font shape `T1/lmss/b/n' in size <12> not available
-(Font)              Font shape `T1/lmss/bx/n' tried instead on input line 29.
+(Font)              Font shape `T1/lmss/bx/n' tried instead on input line 30.
 LaTeX Font Info:    Font shape `T1/lmss/b/it' in size <12> not available
-(Font)              Font shape `T1/lmss/bx/it' tried instead on input line 30.
+(Font)              Font shape `T1/lmss/bx/it' tried instead on input line 31.
 LaTeX Font Info:    Font shape `T1/lmss/bx/it' in size <12> not available
-(Font)              Font shape `T1/lmss/bx/sl' tried instead on input line 30.
+(Font)              Font shape `T1/lmss/bx/sl' tried instead on input line 31.
 LaTeX Font Info:    Trying to load font information for T1+lmtt on input line 3
-0.
+1.
  (/usr/share/texlive/texmf-dist/tex/latex/lm/t1lmtt.fd
 File: t1lmtt.fd 2015/05/01 v1.6.1 Font defs for Latin Modern
 )
 LaTeX Font Info:    Trying to load font information for TS1+lmss on input line 
-40.
+41.
 
 (/usr/share/texlive/texmf-dist/tex/latex/lm/ts1lmss.fd
 File: ts1lmss.fd 2015/05/01 v1.6.1 Font defs for Latin Modern
 ) [2{/usr/share/texlive/texmf-dist/fonts/enc/dvips/lm/lm-ts1.enc}]
 LaTeX Font Info:    External font `lmex10' loaded for size
-(Font)              <10.95> on input line 52.
+(Font)              <10.95> on input line 53.
 LaTeX Font Info:    Font shape `T1/lmss/b/n' in size <10.95> not available
-(Font)              Font shape `T1/lmss/bx/n' tried instead on input line 55.
+(Font)              Font shape `T1/lmss/bx/n' tried instead on input line 56.
 
-Underfull \hbox (badness 1521) in paragraph at lines 55--56
+Underfull \hbox (badness 1521) in paragraph at lines 56--57
 []|[]\T1/lmss/bx/n/10.95 Arquitectura Prop-uesta (Equipo
  []
 
 LaTeX Font Info:    Font shape `T1/lmss/m/it' in size <10.95> not available
-(Font)              Font shape `T1/lmss/m/sl' tried instead on input line 57.
+(Font)              Font shape `T1/lmss/m/sl' tried instead on input line 58.
 
-Underfull \hbox (badness 10000) in paragraph at lines 61--62
+Underfull \hbox (badness 10000) in paragraph at lines 62--63
 []|\T1/lmss/m/n/10.95 Servicios con-sol-i-da-dos en nodo
  []
 
 
-Underfull \hbox (badness 10000) in paragraph at lines 61--62
+Underfull \hbox (badness 10000) in paragraph at lines 62--63
 \T1/lmss/m/n/10.95 borde Or-ange Pi Zero 2W
  []
 
 
-Underfull \hbox (badness 2088) in paragraph at lines 65--65
+Underfull \hbox (badness 2088) in paragraph at lines 66--66
 []|\T1/lmss/m/n/10.95 Tolerancia a de-sconex-
  []
 
 
-Underfull \hbox (badness 2205) in paragraph at lines 65--66
+Underfull \hbox (badness 2205) in paragraph at lines 66--67
 []|\T1/lmss/m/n/10.95 Persistencia en blo-ques NVS con
  []
 
 [3]
-Underfull \hbox (badness 10000) in paragraph at lines 107--108
-[]|[]\T1/lmss/bx/n/10.95 Configuración Eléc-
- []
-
-
-Underfull \hbox (badness 10000) in paragraph at lines 109--110
+Underfull \hbox (badness 10000) in paragraph at lines 110--111
 []|\T1/lmss/m/n/10.95 Entrada UART1
  []
 
 
-Underfull \hbox (badness 10000) in paragraph at lines 109--110
-\T1/lmss/m/n/10.95 (\T1/lmtt/m/n/10.95 UART_NUM_1\T1/lmss/m/n/10.95 ),
+Underfull \hbox (badness 10000) in paragraph at lines 110--111
+\T1/lmss/m/n/10.95 (\T1/lmtt/m/n/10.95 UART_NUM_1\T1/lmss/m/n/10.95 ), $\OT1/lm
+r/m/n/10.95 9600[]$\T1/lmss/m/n/10.95 ,
  []
 
 
-Underfull \hbox (badness 1466) in paragraph at lines 109--110
-\OT1/lmr/m/n/10.95 9600[]$\T1/lmss/m/n/10.95 , 8N1 (conec-
- []
-
-
-Underfull \hbox (badness 10000) in paragraph at lines 111--112
+Underfull \hbox (badness 10000) in paragraph at lines 112--113
 []|\T1/lmss/m/n/10.95 Salida UART1
  []
 
 
-Underfull \hbox (badness 10000) in paragraph at lines 111--112
-\T1/lmss/m/n/10.95 (\T1/lmtt/m/n/10.95 UART_NUM_1\T1/lmss/m/n/10.95 ),
+Underfull \hbox (badness 10000) in paragraph at lines 112--113
+\T1/lmss/m/n/10.95 (\T1/lmtt/m/n/10.95 UART_NUM_1\T1/lmss/m/n/10.95 ), $\OT1/lm
+r/m/n/10.95 9600[]$\T1/lmss/m/n/10.95 ,
  []
 
 
-Underfull \hbox (badness 1466) in paragraph at lines 111--112
-\OT1/lmr/m/n/10.95 9600[]$\T1/lmss/m/n/10.95 , 8N1 (conec-
- []
-
-
-Underfull \hbox (badness 1048) in paragraph at lines 117--118
+Underfull \hbox (badness 10000) in paragraph at lines 116--117
 []|\T1/lmss/m/n/10.95 Salida \T1/lmss/m/sl/10.95 push-pull\T1/lmss/m/n/10.95 ; 
-pulso
+in-dica
  []
 
 
-Underfull \hbox (badness 3492) in paragraph at lines 119--120
+Underfull \hbox (badness 1824) in paragraph at lines 116--117
+\T1/lmss/m/n/10.95 mon-i-toreo ac-tivo o carga
+ []
+
+
+Underfull \hbox (badness 10000) in paragraph at lines 120--121
 []|\T1/lmss/m/n/10.95 Bus I2C por soft-ware
- []
-
-
-Underfull \hbox (badness 6825) in paragraph at lines 119--120
-\T1/lmss/m/n/10.95 (drenador abierto con
- []
-
-
-Underfull \hbox (badness 10000) in paragraph at lines 121--122
-[]|\T1/lmss/m/n/10.95 Reloj I2C por soft-
- []
-
-
-Underfull \hbox (badness 2368) in paragraph at lines 121--122
-\T1/lmss/m/n/10.95 ware ha-cia con-tro-lador
- []
-
-
-Underfull \hbox (badness 10000) in paragraph at lines 121--122
-\T1/lmss/m/n/10.95 SSD1306 ($\OT1/lmr/m/n/10.95 128 \OMS/lmsy/m/n/10.95 ^^B \OT
-1/lmr/m/n/10.95 64$
- []
-
-
-Underfull \hbox (badness 1320) in paragraph at lines 123--124
-\T1/lmss/m/n/10.95 etapa de po-ten-cia ais-
  []
 
 [4{/usr/share/texlive/texmf-dist/fonts/enc/dvips/lm/lm-rm.enc}]
 LaTeX Font Info:    Font shape `T1/lmss/m/it' in size <12> not available
-(Font)              Font shape `T1/lmss/m/sl' tried instead on input line 131.
+(Font)              Font shape `T1/lmss/m/sl' tried instead on input line 130.
  [5{/usr/share/texlive/texmf-dist/fonts/enc/dvips/lm/lm-mathit.enc}] [6]
-Overfull \hbox (1.90448pt too wide) in paragraph at lines 190--190
+Overfull \hbox (1.90448pt too wide) in paragraph at lines 189--189
 |\T1/lmss/bx/n/14.4 Adquisición UART, de-cod-i-fi-cación NMEA y sin-cronización
  tem-po-ral UTC| 
  []
 
 
-Overfull \hbox (12.48837pt too wide) in paragraph at lines 198--199
+Overfull \hbox (12.48837pt too wide) in paragraph at lines 197--198
 []\T1/lmss/bx/n/12 Fijación es-pa-cial y sel-l-ado en milise-gun-dos (\T1/lmtt/
 b/n/12 $GPGGA \T1/lmss/bx/n/12 / \T1/lmtt/b/n/12 $GNGGA\T1/lmss/bx/n/12 ): \T1/
 lmss/m/n/12 La fun-ción \T1/lmtt/m/n/12 parse_gga()
  []
 
-[7] (/usr/share/texlive/texmf-dist/tex/latex/listings/lstlang1.sty
+(/usr/share/texlive/texmf-dist/tex/latex/listings/lstlang1.sty
 File: lstlang1.sty 2025/11/14 1.11b listings language file
 )
 (/usr/share/texlive/texmf-dist/tex/latex/listings/lstmisc.sty
 File: lstmisc.sty 2025/11/14 1.11b (Carsten Heinz)
 )
 Package hyperref Info: bookmark level for unknown lstlisting defaults to 0 on i
-nput line 201.
+nput line 200.
+ [7]
 LaTeX Font Info:    Trying to load font information for TS1+lmtt on input line 
-204.
+203.
 
 (/usr/share/texlive/texmf-dist/tex/latex/lm/ts1lmtt.fd
 File: ts1lmtt.fd 2015/05/01 v1.6.1 Font defs for Latin Modern
 )
-Overfull \hbox (57.04604pt too wide) in paragraph at lines 218--219
+Overfull \hbox (57.04604pt too wide) in paragraph at lines 217--218
 \T1/lmss/m/n/12 hasta cinco pares SSID/contraseña con-fig-urables desde \T1/lmt
 t/m/n/12 Kconfig \T1/lmss/m/n/12 (con \T1/lmtt/m/n/12 CONFIG_GPS_WIFI_SSID="equ
 ipo12"
  []
 
-[8] [9]
-Overfull \hbox (57.95172pt too wide) in paragraph at lines 254--255
+[8]
+Overfull \hbox (57.95172pt too wide) in paragraph at lines 253--254
 []\T1/lmss/m/n/12 Sobre esta capa tác-til se con-struyó la apli-cación grá-fica
  lo-cal (\T1/lmtt/m/n/12 route_display.py \T1/lmss/m/n/12 y \T1/lmtt/m/n/12 rou
 te_statistics.py\T1/lmss/m/n/12 ),
  []
 
-[10{/usr/share/texlive/texmf-dist/fonts/enc/dvips/lm/lm-mathex.enc}]
-Overfull \hbox (73.45862pt too wide) in paragraph at lines 271--272
+[9{/usr/share/texlive/texmf-dist/fonts/enc/dvips/lm/lm-mathex.enc}]
+Overfull \hbox (73.45862pt too wide) in paragraph at lines 270--271
 \T1/lmtt/m/n/12 request \T1/lmss/m/n/12 en-vía los datos me-di-ante \T1/lmtt/m/
 n/12 POST \T1/lmss/m/n/12 a \T1/lmtt/m/n/12 http://influxdb:8086/api/v2/write?p
 recision=ns\T1/lmss/m/n/12 ,
  []
 
-
-Overfull \hbox (12.96721pt too wide) in paragraph at lines 272--273
+[10]
+Overfull \hbox (12.96721pt too wide) in paragraph at lines 271--272
 \T1/lmtt/m/n/12 response\T1/lmss/m/n/12 , Node-RED ex-pone la in-ter-faz web \T
 1/lmtt/m/n/12 /routes \T1/lmss/m/n/12 y los ser-vi-cios \T1/lmtt/m/n/12 GET /ap
 i/routes\T1/lmss/m/n/12 ,
  []
 
 
-Overfull \hbox (2.85182pt too wide) in paragraph at lines 272--273
+Overfull \hbox (2.85182pt too wide) in paragraph at lines 271--272
 \T1/lmtt/m/n/12 GET /api/routes/:id\T1/lmss/m/n/12 , \T1/lmtt/m/n/12 PATCH /api
 /routes/:id/validity \T1/lmss/m/n/12 (in-val-i-dación o restau-
  []
 
 [11]
-Overfull \hbox (46.51422pt too wide) in paragraph at lines 311--312
+Overfull \hbox (66.08388pt too wide) in paragraph at lines 293--294
+[]\T1/lmss/bx/n/12 Interoperabilidad me-di-ante ex-portación CSV y GPX: \T1/lms
+s/m/n/12 Los ser-vi-cios \T1/lmtt/m/n/12 /api/routes/:id/export.csv
+ []
+
+
+Overfull \hbox (46.51422pt too wide) in paragraph at lines 310--311
 \T1/lmss/m/n/12 prueba (\T1/lmtt/m/n/12 1_prueba_lcd.py\T1/lmss/m/n/12 , \T1/lm
 tt/m/n/12 2_puntos.py\T1/lmss/m/n/12 , \T1/lmtt/m/n/12 3_calibracion.py\T1/lmss
 /m/n/12 ) y la apli-cación \T1/lmtt/m/n/12 route_display.py
  []
 
 [12]
-Underfull \hbox (badness 4013) in paragraph at lines 342--342
-[]|\T1/lmss/m/n/10.95 Adquisición + es-crit-ura en NVS
- []
-
-
-Overfull \hbox (7.94792pt too wide) in paragraph at lines 352--353
+Overfull \hbox (7.94792pt too wide) in paragraph at lines 349--350
 []\T1/lmss/m/n/12 Para una batería LiPo de ca-paci-dad nom-i-nal $\OML/lmm/m/it
 /12 C[] \OT1/lmr/m/n/12 = []$ \T1/lmss/m/n/12 y fac-tor de aprovechamiento
  []
 
 
-Underfull \hbox (badness 10000) in paragraph at lines 385--385
-[]|[]\T1/lmss/m/n/10.95 Batería LiPo, reg-u-
+Underfull \hbox (badness 4096) in paragraph at lines 373--373
+[]|[]\T1/lmss/m/n/10.95 Módulo re-cep-tor GNSS u-blox
  []
 
 
-Underfull \hbox (badness 10000) in paragraph at lines 388--388
-[]|[]\T1/lmss/bx/n/10.95 Subtotal de Ma-te-ri-ales
+Underfull \hbox (badness 2126) in paragraph at lines 382--382
+[]|[]\T1/lmss/m/n/10.95 Batería LiPo ($\OT1/lmr/m/n/10.95 3\OML/lmm/m/it/10.95 
+:\OT1/lmr/m/n/10.95 7[]$\T1/lmss/m/n/10.95 ), car-gador
  []
 
 
-Underfull \hbox (badness 1424) in paragraph at lines 394--394
-[]|[]\T1/lmss/bx/n/10.95 Costo To-tal Es-ti-mado del
+Underfull \hbox (badness 1067) in paragraph at lines 382--382
+\T1/lmss/m/n/10.95 TP4056, LEDs, pul-sador y ca-
  []
 
 [13] [14] [15] (./proyecto_final.aux)
@@ -2622,11 +2591,11 @@ Package logreq Info: Writing requests to 'proyecto_final.run.xml'.
 Here is how much of TeX's memory you used:
  76656 strings out of 467363
  1855994 string characters out of 5419000
- 3284141 words of memory out of 6000000
+ 3284142 words of memory out of 6000000
  104613 multiletter control sequences out of 15000+600000
  741435 words of font info for 133 fonts, out of 8000000 for 9000
  1141 hyphenation exceptions out of 8191
- 88i,22n,120p,1207b,1816s stack positions out of 10000i,1000n,20000p,200000b,200000s
+ 88i,22n,120p,1207b,2303s stack positions out of 10000i,1000n,20000p,200000b,200000s
 </usr/share/texlive/texmf-dist/fonts/type1/public/lm/lmbx12.pfb></usr/share/t
 exlive/texmf-dist/fonts/type1/public/lm/lmex10.pfb></usr/share/texlive/texmf-di
 st/fonts/type1/public/lm/lmmi10.pfb></usr/share/texlive/texmf-dist/fonts/type1/
@@ -2646,7 +2615,7 @@ onts/type1/public/lm/lmtk10.pfb></usr/share/texlive/texmf-dist/fonts/type1/publ
 ic/lm/lmtt10.pfb></usr/share/texlive/texmf-dist/fonts/type1/public/lm/lmtt12.pf
 b></usr/share/texlive/texmf-dist/fonts/type1/public/amsfonts/symbols/msbm10.pfb
 >
-Output written on proyecto_final.pdf (16 pages, 513834 bytes).
+Output written on proyecto_final.pdf (16 pages, 513736 bytes).
 PDF statistics:
  256 PDF objects out of 1000 (max. 8388607)
  188 compressed objects within 2 object streams

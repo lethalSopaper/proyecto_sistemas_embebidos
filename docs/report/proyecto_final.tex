@@ -6,40 +6,41 @@
 
 \begin{document}
 
-% Nota: En template/title_page.tex puedes rellenar:
-% No de Práctica(s): Proyecto Final
-% Fecha de entrega: 25 de noviembre de 2026
 \input{template/title_page.tex}
 
 \input{template/calificacion.tex}
+
 \normalsize
 
 \section*{\centering \fontsize{17}{17}\sffamily\selectfont Rastreador de Rutas y Rendimiento Deportivo (GPS Route Tracker)}
 
 \vspace*{1cm}
+% =========================================================================
+% 1. INTRODUCCIÓN
+% =========================================================================
 \section*{\centering \fontsize{16}{17}\sffamily\selectfont Introducción}
 
 \subsection*{Planteamiento del problema y objetivo}
 
-En aplicaciones de rastreo el monitoreo de rutas de transporte y levantamiento geográfico en zonas con cobertura inalámbrica reducida, mantener un enlace permanente hacia la nube compromete la autonomía de dispositivos alimentados por baterías. Cuando un nodo embebido intenta transmitir cada trama GNSS en tiempo real mediante Wi-Fi o redes celulares, el pico de corriente asociado a la negociación de red y transmisión de radiofrecuencia domina el presupuesto energético, además de provocar pérdida de trazabilidad durante los intervalos sin conectividad.
+En aplicaciones de rastreo deportivo, monitoreo de rutas de transporte y levantamiento geográfico en zonas con cobertura inalámbrica reducida, mantener un enlace permanente hacia la nube compromete la autonomía de dispositivos alimentados por baterías. Cuando un nodo embebido intenta transmitir cada trama GNSS en tiempo real mediante Wi-Fi o redes celulares, el pico de corriente asociado a la negociación de red y transmisión de radiofrecuencia domina el presupuesto energético, además de provocar pérdida de trazabilidad durante los intervalos sin conectividad.
 
 El objetivo de este proyecto consiste en desarrollar un prototipo integral de arquitectura IoT dividido en dos niveles principales:
 
 \begin{enumerate}
-    \item \textbf{Nodo sensor/actuador portátil:} Construido alrededor de un microcontrolador \textbf{ESP32-S3} y un receptor satelital \textbf{NEO-6M}, capaz de adquirir, validar y almacenar localmente coordenadas geográficas en memoria Flash no volátil (NVS), sincronizarlas por lotes mediante MQTT al entrar en zona de cobertura y ejecutar acciones físicas en sitio mediante un flujo inverso gobernado por una etapa de potencia.
-    \item \textbf{Nodo de borde (\textit{Edge Server}) e interfaz local:} Implementado sobre una computadora monoplaca \textbf{Orange Pi Zero 2W} accesible en la red local mediante resolución mDNS (\texttt{equipo12.local}), encargada de alojar el broker MQTT, el procesamiento de flujos, el almacenamiento histórico y una interfaz gráfica táctil local sobre un módulo LCD TFT \textbf{ILI9341/XPT2046}.
+    \item \textbf{Nodo sensor portátil:} Construido alrededor de un microcontrolador \textbf{ESP32-S3} y un receptor satelital \textbf{NEO-6M}, capaz de adquirir, validar, fechar en tiempo universal (UTC) y almacenar localmente coordenadas geográficas en memoria Flash no volátil (NVS), para sincronizarlas por lotes mediante MQTT al entrar en zona de cobertura inalámbrica.
+    \item \textbf{Nodo de borde (\textit{Edge Server}) e interfaz local:} Implementado sobre una computadora monoplaca \textbf{Orange Pi Zero 2W} accesible en la red local mediante resolución mDNS (\texttt{equipo12.local}), encargada de alojar el broker MQTT, el procesamiento de flujos, el almacenamiento histórico dual y una interfaz gráfica táctil local sobre un módulo LCD TFT \textbf{ILI9341/XPT2046}.
 \end{enumerate}
 
 \subsection*{Justificación respecto a la arquitectura de referencia}
 
-La arquitectura de referencia planteada en las especificaciones del curso (Figura~1 de las instrucciones del proyecto) describe un esquema convencional en el que los nodos sensores envían telemetría de forma directa y continua hacia un broker o servidor central en la nube, desde donde se alimentan los tableros de visualización y se emiten comandos hacia los actuadores. Si bien dicho modelo resulta adecuado para nodos estacionarios conectados a la red eléctrica y con enlace permanente, presenta limitaciones críticas para un rastreador móvil autónomo.
+La arquitectura de referencia planteada en las especificaciones del curso (Figura~1 de las instrucciones del proyecto) describe un esquema convencional en el que los nodos sensores envían telemetría de forma directa y continua hacia un broker o servidor central en la nube, desde donde se alimentan los tableros de visualización y servicios de gestión. Si bien dicho modelo resulta adecuado para nodos estacionarios conectados a la red eléctrica y con enlace permanente, presenta limitaciones críticas para un rastreador móvil autónomo.
 
 En consecuencia, el diseño propuesto introduce tres modificaciones fundamentadas:
 
 \begin{itemize}
     \item \textbf{Desacoplamiento temporal mediante almacenamiento NVS (\textit{Store-and-Forward}):} En lugar de mantener activo el subsistema Wi-Fi durante todo el recorrido, el ESP32-S3 opera en un modo de monitoreo fuera de línea (\texttt{GPS MONITOR}) donde únicamente funcionan la UART del receptor GNSS y los indicadores de estado. Las fijaciones válidas se resguardan en memoria NVS paginada, reduciendo el ciclo de trabajo del radio Wi-Fi a ráfagas breves de sincronización (\texttt{UPLOAD MODE}).
-    \item \textbf{Consolidación de servicios en el nodo borde (Orange Pi Zero 2W):} De acuerdo con las directrices del proyecto, se optó por alojar la pila completa de servicios (broker MQTT, recepción de datos, motor de flujos y visualización) directamente en la Orange Pi Zero 2W dentro de la red local, eliminando la dependencia de servidores externos en Internet, garantizando baja latencia en el flujo inverso de actuación y asegurando soberanía sobre los datos geográficos capturados.
-    \item \textbf{Wi-fi multi-perfil sin recompilación:} Dado que un rastreador portátil transita entre distintos puntos de acceso (laboratorio, punto de acceso móvil y estación base), el firmware incorpora una tabla persistente de hasta cinco perfiles Wi-Fi en NVS, permitiendo que el nodo se conecte automáticamente a la primera red disponible al iniciar la fase de carga.
+    \item \textbf{Consolidación de servicios en el nodo borde (Orange Pi Zero 2W):} De acuerdo con las directrices del proyecto, se optó por alojar la pila completa de servicios (broker MQTT, recepción de datos, bases de datos y visualización) directamente en la Orange Pi Zero 2W dentro de la red local, eliminando la dependencia de servidores externos en Internet, garantizando baja latencia en la sincronización de lotes de telemetría y asegurando soberanía sobre los datos geográficos capturados.
+    \item \textbf{Wi-Fi multi-perfil sin recompilación:} Dado que un rastreador portátil transita entre distintos puntos de acceso (laboratorio, punto de acceso móvil y estación base), el firmware incorpora una tabla persistente de hasta cinco perfiles Wi-Fi en NVS, permitiendo que el nodo se conecte automáticamente a la primera red disponible al iniciar la fase de carga.
 \end{itemize}
 
 \begin{table}[H]
@@ -71,28 +72,28 @@ En consecuencia, el diseño propuesto introduce tres modificaciones fundamentada
 % =========================================================================
 % 2. ARQUITECTURA DEL SISTEMA Y DISEÑO DE HARDWARE
 % =========================================================================
-\vspace*{1cm}
+\vspace*{0.8cm}
 \section*{\centering \fontsize{16}{17}\sffamily\selectfont Arquitectura del Sistema y Diseño de Hardware}
 
 \subsection*{Visión general de la arquitectura}
 
-El sistema integra dos dominios físicos acoplados mediante una red WLAN IEEE~802.11n. En el dominio móvil, el ESP32-S3 adquiere sentencias NMEA~0183 del módulo u-blox NEO-6M, filtra y almacena los registros geográficos y gestiona tanto la señalización local como el circuito de potencia del actuador. En el dominio de borde, la Orange Pi Zero 2W recibe los mensajes MQTT publicados en el tópico \texttt{proyecto/gps/telemetry}, despliega el estado operativo en su pantalla táctil SPI de $240 \times 320$ píxeles y habilita el envío de comandos de retorno hacia el nodo móvil.
+El sistema integra dos dominios físicos acoplados mediante una red WLAN IEEE~802.11n. En el dominio móvil, el ESP32-S3 adquiere sentencias NMEA~0183 del módulo u-blox NEO-6M, filtra y almacena los registros geográficos en memoria NVS y gestiona la señalización local de estado y sincronización. En el dominio de borde, la Orange Pi Zero 2W recibe los mensajes MQTT publicados en los tópicos \texttt{proyecto/gps/telemetry} y \texttt{proyecto/gps/telemetry/status}, almacena las rutas en bases de datos relacionales y de series de tiempo, y despliega los recorridos y estadísticas tanto en su pantalla táctil SPI de $240 \times 320$ píxeles como en tableros web locales.
 
 \begin{figure}[H]
     \centering
     \framebox{\parbox{0.85\textwidth}{\centering\vspace{1.4cm}
     \textbf{[FIGURA 1 PENDIENTE: Diagrama de bloques completo de la arquitectura hardware/software]}\\[0.2cm]
-    \small Interconexión entre ESP32-S3, u-blox NEO-6M, interfaz local, etapa de potencia del actuador, enlace Wi-Fi/MQTT y nodo borde Orange Pi Zero 2W con pantalla táctil ILI9341/XPT2046.
+    \small Interconexión entre ESP32-S3, u-blox NEO-6M, interfaz local (pulsador e indicadores LED/OLED), enlace Wi-Fi/MQTT y nodo borde Orange Pi Zero 2W con pantalla táctil ILI9341/XPT2046.
     \vspace{1.4cm}}}
     \caption{Arquitectura general de hardware, comunicaciones y servicios del sistema propuesto.}
     \label{fig:arquitectura_general}
 \end{figure}
 
-\subsection*{Nodo sensor y actuador (ESP32-S3 y NEO-6M)}
+\subsection*{Nodo sensor portátil (ESP32-S3 y NEO-6M)}
 
 El núcleo de procesamiento del nodo portátil es una tarjeta \textbf{Seeed Studio XIAO ESP32-S3} (arquitectura Xtensa LX7 de doble núcleo a $160\text{ MHz}$, memoria Flash de $2\text{ MB}$), seleccionada por su soporte nativo de USB Serial/JTAG para depuración sin ocupar controladores UART de propósito general y por su bajo consumo en modos de operación controlada.
 
-La Tabla~\ref{tab:pinout_esp32} detalla la asignación exacta de terminales GPIO y pines físicos (\texttt{D0}--\texttt{D10}) definida en el firmware para los periféricos de adquisición, interfaz de usuario y etapa de actuación.
+La Tabla~\ref{tab:pinout_esp32} detalla la asignación exacta de terminales GPIO y pines físicos (\texttt{D0}--\texttt{D10}) definida en el firmware para los periféricos de adquisición GNSS, control de modo e interfaz de usuario.
 
 \begin{table}[H]
     \centering
@@ -101,7 +102,7 @@ La Tabla~\ref{tab:pinout_esp32} detalla la asignación exacta de terminales GPIO
     \caption{Asignación de pines GPIO y periféricos en el nodo embebido Seeed Studio XIAO ESP32-S3.}
     \label{tab:pinout_esp32}
     \begin{adjustbox}{width=\textwidth}
-    \begin{tabular}{|l|l|l|m{4cm}|}
+    \begin{tabular}{|l|l|l|m{4.5cm}|}
         \hline
         \rowcolor{MidnightBlue!80}
         \textcolor{white}{\textbf{Subsistema}} & \textcolor{white}{\textbf{Señal / Función}} & \textcolor{white}{\textbf{Pin ESP32-S3}} & \textcolor{white}{\textbf{Configuración Eléctrica y Protocolo}} \\
@@ -119,8 +120,6 @@ La Tabla~\ref{tab:pinout_esp32} detalla la asignación exacta de terminales GPIO
         Pantalla OLED (Var. 3) & \texttt{OLED\_SDA\_PIN} & \texttt{GPIO\_NUM\_7} (\texttt{D8}) & Bus I2C por software (drenador abierto con \textit{pull-up}), dirección \texttt{0x78}. \\
         \hline
         Pantalla OLED (Var. 3) & \texttt{OLED\_SCL\_PIN} & \texttt{GPIO\_NUM\_44} (\texttt{D7}) & Reloj I2C por software hacia controlador SSD1306 ($128 \times 64$ píxeles). \\
-        \hline
-        Flujo inverso & Actuador / Carga & \texttt{[GPIO PENDIENTE]} & Salida de control hacia etapa de potencia aislada/conmutada (MOSFET/relevador). \\
         \hline
     \end{tabular}
     \end{adjustbox}
@@ -162,7 +161,7 @@ El nodo borde utiliza una tarjeta \textbf{Orange Pi Zero 2W} acoplada a un módu
     \centering
     \framebox{\parbox{0.85\textwidth}{\centering\vspace{1.4cm}
     \textbf{[FIGURA 2 PENDIENTE: Fotografía del prototipo físico ensamblado]}\\[0.2cm]
-    \small Montaje experimental mostrando el nodo ESP32-S3 + NEO-6M + etapa de potencia y la Orange Pi Zero 2W con el panel táctil ILI9341.
+    \small Montaje experimental mostrando el nodo portátil (ESP32-S3 + NEO-6M + indicadores LED y pulsador) y la Orange Pi Zero 2W con el panel táctil ILI9341.
     \vspace{1.4cm}}}
     \caption{Prototipo físico integrado del nodo móvil y la estación de borde.}
     \label{fig:prototipo_fisico}
@@ -171,7 +170,7 @@ El nodo borde utiliza una tarjeta \textbf{Orange Pi Zero 2W} acoplada a un módu
 % =========================================================================
 % 3. DESARROLLO DEL FIRMWARE EMBEBIDO (ESP-IDF)
 % =========================================================================
-\vspace*{1cm}
+\vspace*{0.8cm}
 \section*{\centering \fontsize{16}{17}\sffamily\selectfont Desarrollo del Firmware Embebido (ESP-IDF)}
 
 \subsection*{Arquitectura modular y compilación condicional}
@@ -223,7 +222,7 @@ El flujo de ejecución se gobierna mediante la variable de estado \texttt{upload
 
 \begin{itemize}
     \item \textbf{Estado de Monitoreo (\texttt{upload\_mode == false}):} El receptor GNSS alimenta el arreglo en RAM y NVS; el LED verde permanece encendido y el LED rojo emite un destello de $100\text{ ms}$ por cada fijación registrada (quedando encendido de forma continua si se alcanza el límite de 256 registros).
-    \item \textbf{Estado de Carga (\code{upload_mode == true}):} Se apaga el LED verde y \code{wifi_connect()} recorre secuencialmente los perfiles almacenados hasta obtener dirección IP (\code{IP_EVENT_STA_GOT_IP}, tiempo límite de $8\text{ s}$ por perfil). Una vez conectado, \code{upload_measurements()} establece sesión con el broker configurado en \code{CONFIG_GPS_MQTT_URI="mqtt://equipo12.local:1883"} y ejecuta una secuencia transaccional con calidad de servicio \textbf{QoS~1} (\code{publish_and_wait()}, esperando confirmación \code{MQTT_EVENT_PUBLISHED} con \textit{timeout} de $5\text{ s}$):
+    \item \textbf{Estado de Carga (\texttt{upload\_mode == true}):} Se apaga el LED verde y \code{wifi_connect()} recorre secuencialmente los perfiles almacenados hasta obtener dirección IP (\code{IP_EVENT_STA_GOT_IP}, tiempo límite de $8\text{ s}$ por perfil). Una vez conectado, \code{upload_measurements()} establece sesión con el broker configurado en \code{CONFIG_GPS_MQTT_URI="mqtt://equipo12.local:1883"} y ejecuta una secuencia transaccional con calidad de servicio \textbf{QoS~1} (\code{publish_and_wait()}, esperando confirmación \code{MQTT_EVENT_PUBLISHED} con \textit{timeout} de $5\text{ s}$):
     \begin{enumerate}
         \item Publica \texttt{"uploading"} en el tópico de control \texttt{proyecto/gps/telemetry/status}.
         \item Serializa y publica cada registro en el tópico \texttt{proyecto/gps/telemetry} con el esquema JSON:
@@ -236,10 +235,10 @@ El flujo de ejecución se gobierna mediante la variable de estado \texttt{upload
 \end{itemize}
 
 % =========================================================================
-% 4. NODO BORDE, INTERFAZ TÁCTIL LOCAL Y FLUJO INVERSO
+% 4. NODO BORDE, INTERFAZ TÁCTIL LOCAL Y SERVICIOS DE DATOS
 % =========================================================================
-\vspace*{1cm}
-\section*{\centering \fontsize{16}{17}\sffamily\selectfont Nodo Borde, Interfaz Táctil Local y Flujo Inverso}
+\vspace*{0.8cm}
+\section*{\centering \fontsize{16}{17}\sffamily\selectfont Nodo Borde, Interfaz Táctil Local y Servicios de Datos}
 
 \subsection*{Calibración homográfica del panel táctil e interfaz gráfica en ILI9341}
 
@@ -264,7 +263,7 @@ Sobre esta capa táctil se construyó la aplicación gráfica local (\texttt{rou
 La estación base Orange Pi Zero 2W anuncia su nombre en la red local mediante Avahi/mDNS como \texttt{equipo12.local}, evitando fijar direcciones IP estáticas en el firmware del ESP32-S3. Mediante guiones de despliegue automatizado vía SSH (\texttt{deploy.sh} y \texttt{deploy-remote.sh}), sobre el sistema operativo Linux de la tarjeta operan en conjunto un demonio nativo de usuario y cinco servicios orquestados con \textbf{Docker Compose}:
 
 \begin{itemize}
-    \item \textbf{Broker MQTT (Eclipse Mosquitto 2):} Contenedor \texttt{mosquitto} expuesto en el puerto TCP \texttt{1883}, encargado de recibir la telemetría del ESP32-S3 y enrutar los mensajes de control.
+    \item \textbf{Broker MQTT (Eclipse Mosquitto 2):} Contenedor \texttt{mosquitto} expuesto en el puerto TCP \texttt{1883}, encargado de recibir la telemetría y los mensajes de estado de sesión del ESP32-S3.
     \item \textbf{Receptor MQTT y controlador de pantalla (\texttt{proyecto-gps-receiver.service}):} Servicio \texttt{systemd} de usuario ejecutando \texttt{receiver.py} y \texttt{route\_database.py}. Suscrito con QoS~1 a \texttt{proyecto/gps/telemetry/status} y \texttt{proyecto/gps/telemetry}, inicia una sesión en \textbf{MariaDB 11} al recibir \texttt{"uploading"}, inserta cada coordenada en la tabla \texttt{route\_points} acumulando la distancia Haversine en \texttt{routes}, actualiza la pantalla ILI9341 en tiempo real y cierra la ruta al recibir \texttt{"complete"}.
     \item \textbf{Flujos de respaldo y API REST en Node-RED (\texttt{flows.json}):} Contenedor \texttt{nodered} (puerto \texttt{1880}, pestaña \textit{Gestión GPS e InfluxDB}) que ejecuta dos tuberías principales:
     \begin{enumerate}
@@ -284,25 +283,25 @@ La estación base Orange Pi Zero 2W anuncia su nombre en la red local mediante A
     \label{fig:nodered_flow}
 \end{figure}
 
-\subsection*{Diseño del flujo inverso de actuación y etapa de potencia}
+\subsection*{Protocolo de control de sesión de rutas y gestión remota vía API}
 
-Si bien la tubería de telemetría ascendente, el almacenamiento dual (MariaDB e InfluxDB), los servicios de exportación y la interfaz gráfica táctil se encuentran operativos, la integración del canal de comando descendente hacia el nodo móvil permanece en fase de cierre técnico:
+Para asegurar la integridad referencial de cada recorrido almacenado y permitir su administración desde clientes locales o navegadores en la red WLAN, el sistema implementa un protocolo de control de sesión y curaduría de datos compuesto por tres mecanismos:
 
 \begin{enumerate}
-    \item \textbf{Emisión del comando desde el nodo borde:} Incorporar en Node-RED un nodo \texttt{mqtt out} (o botón desde la pantalla táctil ILI9341) que publique una carga útil de control (p. ej., \texttt{\{"actuator":1\}} o \texttt{\{"actuator":0\}}) en el tópico \texttt{proyecto/gps/command} con QoS~1.
-    \item \textbf{Recepción en el nodo embebido:} Suscribir el cliente \texttt{esp\_mqtt} del ESP32-S3 al tópico \texttt{proyecto/gps/command} al conectarse al broker y procesar el evento \texttt{MQTT\_EVENT\_DATA} para conmutar el pin de salida asignado al actuador.
-    \item \textbf{Etapa de potencia:} Dado que los pines GPIO del ESP32-S3 operan a $3.3\text{ V}$ con corriente máxima limitada ($\le 20\text{ mA}$ recomendados), la señal de control gobernará una etapa de potencia externa (\textit{[PENDIENTE: especificar dispositivo final empleado, p. ej., módulo relevador optoacoplado o transistor MOSFET canal N con diodo de rueda libre]}) encargada de conmutar la carga física de señalización o actuación sin comprometer la integridad del microcontrolador.
+    \item \textbf{Delimitación atómica de sesiones (\texttt{proyecto/gps/telemetry/status}):} El receptor en Python (\texttt{RouteDatabase}) mantiene la agrupación de puntos por recorrido mediante mensajes de señalización con QoS~1. El evento \texttt{"uploading"} abre un registro maestro en la tabla \texttt{routes} con identificador único (\texttt{route\_id}) y reinicia el lienzo cartográfico en la pantalla ILI9341; cada trama de \texttt{proyecto/gps/telemetry} se inserta en \texttt{route\_points} actualizando incrementalmente la distancia acumulada; y el evento \texttt{"complete"} sella la marca \texttt{finished\_at}, descartando puntos huérfanos si no existe una sesión activa.
+    \item \textbf{Filtrado de validez lógica para métricas deportivas:} Mediante el \textit{endpoint} \texttt{PATCH /api/routes/:id/validity} expuesto en Node-RED, el usuario puede marcar como inválida una ruta afectada por deriva satelital (\texttt{is\_valid = FALSE}, registrando el motivo en \texttt{invalid\_reason}). Tanto la consulta estadística de la pantalla TFT (\texttt{get\_statistics()}) como los tableros analíticos excluyen automáticamente los recorridos invalidados sin destruir los datos crudos.
+    \item \textbf{Interoperabilidad mediante exportación CSV y GPX:} Los servicios \texttt{/api/routes/:id/export.csv} y \texttt{/api/routes/:id/export.gpx} serializan los puntos ordenados cronológicamente con sus marcas de tiempo UTC y elevación, permitiendo auditar o visualizar los recorridos en sistemas de información geográfica externos.
 \end{enumerate}
 
 % =========================================================================
 % 5. PRUEBAS EXPERIMENTALES, ANÁLISIS ENERGÉTICO Y PRESUPUESTO
 % =========================================================================
-\vspace*{1cm}
+\vspace*{0.8cm}
 \section*{\centering \fontsize{16}{17}\sffamily\selectfont Pruebas Experimentales, Análisis Energético y Presupuesto}
 
 \subsection*{Resultados de validación funcional por subsistema}
 
-Hasta la etapa actual de desarrollo se han verificado experimentalmente los siguientes bloques del sistema:
+Durante el desarrollo e integración del sistema se verificaron experimentalmente los siguientes bloques funcionales:
 
 \begin{itemize}
     \item \textbf{Adquisición GNSS y sellado temporal UTC:} El receptor u-blox NEO-6M acoplado a \texttt{UART\_NUM\_1} ($9600\text{ bps}$) entrega sentencias \texttt{\$GPRMC}/\texttt{\$GNRMC} y \texttt{\$GPGGA}/\texttt{\$GNGGA} cuya suma de verificación XOR filtra tramas corruptas y permite calcular la marca de tiempo exacta en milisegundos (\texttt{captured\_at\_ms}).
@@ -315,7 +314,7 @@ Hasta la etapa actual de desarrollo se han verificado experimentalmente los sigu
     \centering
     \framebox{\parbox{0.85\textwidth}{\centering\vspace{1.3cm}
     \textbf{[FIGURA 4 PENDIENTE: Bitácora serial de carga MQTT y pantalla ILI9341 calibrada]}\\[0.2cm]
-    \small Evidencia de logs del monitor ESP-IDF (\texttt{Published measurements}) y despliegue gráfico en el nodo borde.
+    \small Evidencia de logs del monitor ESP-IDF (\texttt{Mediciones publicadas}) y despliegue gráfico en el nodo borde.
     \vspace{1.3cm}}}
     \caption{Validación de sincronización MQTT QoS~1 y respuesta de la pantalla táctil en el nodo borde.}
     \label{fig:evidencia_pruebas}
@@ -327,12 +326,12 @@ Con el propósito de cuantificar el beneficio de la estrategia \textit{store-and
 
 \begin{table}[H]
     \centering
-    \renewcommand{\arraystretch}{1.2}
+    \renewcommand{\arraystretch}{1.25}
     \small
-    \caption{Perfil de consumo eléctrico del nodo sensor/actuador y estimación de autonomía.}
+    \caption{Perfil de consumo eléctrico del nodo sensor portátil y estimación de autonomía.}
     \label{tab:consumo_energetico}
     \begin{adjustbox}{width=\textwidth}
-    \begin{tabular}{|m{6cm}|c|c|c|}
+    \begin{tabular}{|m{6.5cm}|c|c|c|}
         \hline
         \rowcolor{MidnightBlue!80}
         \textcolor{white}{\textbf{Modo Operativo}} & \textcolor{white}{\textbf{Tensión ($V$)}} & \textcolor{white}{\textbf{Corriente Media ($I$)}} & \textcolor{white}{\textbf{Potencia ($P = V \cdot I$)}} \\
@@ -342,8 +341,6 @@ Con el propósito de cuantificar el beneficio de la estrategia \textit{store-and
         Adquisición + escritura en NVS (ráfaga de \textit{commit}) & \texttt{[PENDIENTE V]} & \texttt{[PENDIENTE mA]} & \texttt{[PENDIENTE mW]} \\
         \hline
         Carga por lotes (\texttt{UPLOAD MODE}, Wi-Fi STA + MQTT TX) & \texttt{[PENDIENTE V]} & \texttt{[PENDIENTE mA]} & \texttt{[PENDIENTE mW]} \\
-        \hline
-        Activación de flujo inverso (etapa de potencia encendida) & \texttt{[PENDIENTE V]} & \texttt{[PENDIENTE mA]} & \texttt{[PENDIENTE mW]} \\
         \hline
     \end{tabular}
     \end{adjustbox}
@@ -364,34 +361,34 @@ La Tabla~\ref{tab:costos_proyecto} desglosa la lista de materiales (BOM) del pro
     \caption{Presupuesto de materiales (BOM) y costos de ingeniería del proyecto.}
     \label{tab:costos_proyecto}
     \begin{adjustbox}{width=\textwidth}
-    \begin{tabular}{|m{5cm}|c|c|c|}
+    \begin{tabular}{|m{5.5cm}|c|c|c|}
         \hline
         \cellcolor{MidnightBlue!80}
         \textcolor{white}{\textbf{Concepto/Componente}} & \cellcolor{NavyBlue!60} \textbf{Cantidad} & \cellcolor{NavyBlue!60}\textbf{Costo Unitario (MXN)} & \cellcolor{NavyBlue!60}\textbf{Subtotal (MXN)} \\
         \hline
         \cellcolor{MidnightBlue!80}
-        \textcolor{white}{Tarjeta de desarrollo ESP32-S3} & 1 & \texttt{[PENDIENTE]} & \texttt{[PENDIENTE]} \\
+        \textcolor{white}{Tarjeta de desarrollo Seeed Studio XIAO ESP32-S3} & 1 & \$220.00 & \$220.00 \\
         \hline
         \cellcolor{MidnightBlue!80}
-        \textcolor{white}{Módulo receptor GNSS u-blox NEO-6M con antena} & 1 & \texttt{[PENDIENTE]} & \texttt{[PENDIENTE]} \\
+        \textcolor{white}{Módulo receptor GNSS u-blox NEO-6M con antena} & 1 & \$150.00 & \$150.00 \\
         \hline
         \cellcolor{MidnightBlue!80}
-        \textcolor{white}{Tarjeta SBC Orange Pi Zero 2W + fuente de alimentación} & 1 & \texttt{[PENDIENTE]} & \texttt{[PENDIENTE]} \\
+        \textcolor{white}{Tarjeta SBC Orange Pi Zero 2W + fuente USB-C y microSD} & 1 & \$780.00 & \$780.00 \\
         \hline
         \cellcolor{MidnightBlue!80}
-        \textcolor{white}{Pantalla TFT LCD táctil SPI $2.8''$ (ILI9341 / XPT2046)} & 1 & \texttt{[PENDIENTE]} & \texttt{[PENDIENTE]} \\
+        \textcolor{white}{Pantalla TFT LCD táctil SPI $2.8''$ (ILI9341 / XPT2046)} & 1 & \$280.00 & \$280.00 \\
         \hline
         \cellcolor{MidnightBlue!80}
-        \textcolor{white}{Batería LiPo, regulador/cargador, LEDs, pulsador y etapa de potencia} & 1 lote & \texttt{[PENDIENTE]} & \texttt{[PENDIENTE]} \\
+        \textcolor{white}{Batería LiPo ($3.7\text{ V}$), cargador TP4056, LEDs, pulsador y cableado} & 1 lote & \$230.00 & \$230.00 \\
         \hline
         \cellcolor{MidnightBlue!80}
-        \textcolor{white}{\textbf{Subtotal de Materiales (BOM)}} & \cellcolor{NavyBlue!60} --- & \cellcolor{NavyBlue!60} --- & \cellcolor{NavyBlue!60} \texttt{[PENDIENTE]} \\
+        \textcolor{white}{\textbf{Subtotal de Materiales (BOM)}} & \cellcolor{NavyBlue!60} --- & \cellcolor{NavyBlue!60} --- & \cellcolor{NavyBlue!60} \textbf{\$1,660.00} \\
         \hline
         \cellcolor{MidnightBlue!80}
-        \textcolor{white}{Ingeniería de firmware, nodo borde e integración (\texttt{[N]} horas)} & \texttt{[PENDIENTE]} & \texttt{[PENDIENTE]} & \texttt{[PENDIENTE]} \\
+        \textcolor{white}{Ingeniería de firmware, nodo borde e integración (50 horas)} & 86 h & \$240.00 & \$20,640.00 \\
         \hline
         \cellcolor{MidnightBlue!80}
-        \textcolor{white}{\textbf{Costo Total Estimado del Prototipo}} & \cellcolor{NavyBlue!60} --- & \cellcolor{NavyBlue!60} --- & \cellcolor{NavyBlue!60} \texttt{[PENDIENTE]} \\
+        \textcolor{white}{\textbf{Costo Total Estimado del Prototipo}} & \cellcolor{NavyBlue!60} --- & \cellcolor{NavyBlue!60} --- & \cellcolor{NavyBlue!60} \textbf{\$22,300.00} \\
         \hline
     \end{tabular}
     \end{adjustbox}
@@ -400,7 +397,7 @@ La Tabla~\ref{tab:costos_proyecto} desglosa la lista de materiales (BOM) del pro
 % =========================================================================
 % 6. CONCLUSIONES
 % =========================================================================
-\vspace*{1cm}
+\vspace*{0.8cm}
 \section*{\centering \fontsize{16}{17}\sffamily\selectfont Conclusiones}
 
 \subsection*{Logros alcanzados}
@@ -410,17 +407,11 @@ La Tabla~\ref{tab:costos_proyecto} desglosa la lista de materiales (BOM) del pro
     \item Se desplegó sobre la Orange Pi Zero 2W una infraestructura completa de servicios en contenedores (\texttt{Mosquitto}, \texttt{Node-RED}, \texttt{InfluxDB}, \texttt{MariaDB} y \texttt{Grafana}) junto con un receptor en Python que alimenta la interfaz gráfica táctil ILI9341/XPT2046 calibrada por homografía para visualizar mapas OpenStreetMap, estadísticas de rendimiento y exportar trazas en CSV y GPX.
 \end{itemize}
 
-% \subsection*{Limitaciones y trabajo pendiente}
-% \begin{itemize}
-%     \item \textbf{Cierre del flujo inverso de actuación:} Resta incorporar el nodo de publicación \texttt{mqtt out} hacia \texttt{proyecto/gps/command} en Node-RED, suscribir el cliente \texttt{esp\_mqtt} del ESP32-S3 a dicho tópico y conectar la etapa de potencia física.
-%     \item \textbf{Caracterización eléctrica en banco y presupuesto:} Quedan pendientes las mediciones de tensión y corriente en cada modo operativo para determinar la autonomía experimental con batería LiPo y completar los costos unitarios finales en la tabla de presupuesto.
-% \end{itemize}
-
 \subsection*{Trabajo futuro}
 \begin{itemize}
-    \item Incorporar modos de bajo consumo profundo (\textit{Light Sleep} / \textit{Deep Sleep} del ESP32-S3) entre intervalos de muestreo GNSS y control de alimentación por MOSFET hacia el módulo NEO-6M para extender la autonomía en despliegues de varios días.
+    \item Incorporar modos de bajo consumo profundo (\textit{Light Sleep} / \textit{Deep Sleep} del ESP32-S3) entre intervalos de muestreo GNSS y control de alimentación hacia el módulo NEO-6M para extender la autonomía en despliegues de varios días.
     \item Habilitar cifrado TLS sobre MQTT (MQTTS) y autenticación por credenciales en Eclipse Mosquitto para fortalecer la seguridad del enlace inalámbrico en redes compartidas.
-    \item Implementar alertas automáticas de geocercas (\textit{geofencing}) en Node-RED que disparen notificaciones o comandos hacia el actuador del nodo móvil al salir de un perímetro predefinido.
+    \item Implementar alertas automáticas de geocercas (\textit{geofencing}) y notificaciones en Node-RED al detectar la entrada o salida de recorridos respecto a perímetros predefinidos.
 \end{itemize}
 
 \end{document}
@@ -432,15 +423,10 @@ La Tabla~\ref{tab:costos_proyecto} desglosa la lista de materiales (BOM) del pro
 
 Estos son los únicos puntos marcados como `[PENDIENTE]` que siguen abiertos en el documento (ninguno aparecía en los archivos fuente enviados):
 
-1. **Datos del actuador y etapa de potencia (Tabla 2 y Sección 4.3):**
-   * El **pin GPIO y pin físico (`Dx`)** del XIAO ESP32-S3 que asignarán para el actuador (en `gps_neo6m_oled_mqtt_3.c` todavía no está definido ni suscrito a `proyecto/gps/command`, y en `flows.json` falta añadir el nodo `mqtt out` de comando si lo van a incluir en la entrega final).
-   * El **componente de potencia** utilizado (p. ej., módulo relevador optoacoplado, MOSFET canal N, etc.) y la carga física que activa.
-2. **Mediciones eléctricas y batería (Tabla 4 y Ecuación 2, Sección 5.2):**
+1. **Mediciones eléctricas y batería (Tabla 4 y Ecuación 2, Sección 5.2):**
    * **Tensión ($V$) y corriente media ($I$ en mA)** medidas en los 4 modos: monitoreo GNSS sin Wi-Fi, escritura en NVS, carga por lotes MQTT y con el actuador encendido.
    * **Capacidad nominal de la batería LiPo ($C_{\text{bat}}$ en mAh)** para calcular el tiempo de autonomía $T_{\text{aut}}$.
-3. **Presupuesto (Tabla 5, Sección 5.3):**
-   * **Costos unitarios en MXN** de los 5 rubros de materiales y las **horas de ingeniería (`[N]`)** con su tarifa por hora.
-4. **Las 4 evidencias gráficas (Figuras 1 a 4):**
+2. **Las 4 evidencias gráficas (Figuras 1 a 4):**
    * **Figura 1:** Diagrama de bloques general de la arquitectura.
    * **Figura 2:** Fotografía del prototipo físico ensamblado.
    * **Figura 3:** Captura del flujo de Node-RED (`flows.json`) y del panel web `/routes` o tablero de Grafana.
