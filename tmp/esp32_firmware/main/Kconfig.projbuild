@@ -1,0 +1,51 @@
+menu "GPS telemetry"
+
+config GPS_WIFI_SSID
+    string "WiFi SSID"
+    default "equipo12"
+
+config GPS_WIFI_PASSWORD
+    string "WiFi password"
+    default ""
+
+config GPS_WIFI_SSID_2
+    string "Additional WiFi SSID 2"
+    default ""
+
+config GPS_WIFI_PASSWORD_2
+    string "Additional WiFi password 2"
+    default ""
+
+config GPS_WIFI_SSID_3
+    string "Additional WiFi SSID 3"
+    default ""
+
+config GPS_WIFI_PASSWORD_3
+    string "Additional WiFi password 3"
+    default ""
+
+config GPS_WIFI_SSID_4
+    string "Additional WiFi SSID 4"
+    default ""
+
+config GPS_WIFI_PASSWORD_4
+    string "Additional WiFi password 4"
+    default ""
+
+config GPS_WIFI_SSID_5
+    string "Additional WiFi SSID 5"
+    default ""
+
+config GPS_WIFI_PASSWORD_5
+    string "Additional WiFi password 5"
+    default ""
+
+config GPS_MQTT_URI
+    string "MQTT broker URI"
+    default "mqtt://equipo12.local:1883"
+
+config GPS_MQTT_TOPIC
+    string "MQTT telemetry topic"
+    default "proyecto/gps/telemetry"
+
+endmenu
