@@ -4,6 +4,8 @@ import threading
 import time
 from pathlib import Path
 from typing import Optional
+from urllib.error import URLError
+from urllib.request import Request, urlopen
 
 from mysql.connector import Error as MySQLError
 from PIL import Image, ImageDraw, ImageFont
