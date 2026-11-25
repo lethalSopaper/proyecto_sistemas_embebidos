@@ -219,10 +219,7 @@ El nodo borde utiliza una tarjeta \textbf{Orange Pi Zero 2W} acoplada a un módu
 
 \begin{figure}[H]
     \centering
-    \framebox{\parbox{0.85\textwidth}{\centering\vspace{1.4cm}
-    \textbf{[FIGURA 2 PENDIENTE: Fotografía del prototipo físico ensamblado]}\\[0.2cm]
-    \small Montaje experimental mostrando el nodo portátil (ESP32-S3 + NEO-6M + indicadores LED y pulsador) y la Orange Pi Zero 2W con el panel táctil ILI9341.
-    \vspace{1.4cm}}}
+    \includegraphics[width=0.8\textwidth]{img/figura2.jpeg}
     \caption{Prototipo físico integrado del nodo móvil y la estación de borde.}
     \label{fig:prototipo_fisico}
 \end{figure}
@@ -335,10 +332,7 @@ La estación base Orange Pi Zero 2W anuncia su nombre en la red local mediante A
 
 \begin{figure}[H]
     \centering
-    \framebox{\parbox{0.85\textwidth}{\centering\vspace{1.3cm}
-    \textbf{[FIGURA 3 PENDIENTE: Captura del flujo de Node-RED y tablero de visualización]}\\[0.2cm]
-    \small Captura de la pestaña \textit{Gestión GPS e InfluxDB} en Node-RED (\texttt{flows.json}) junto con el panel web de rutas (\texttt{/routes}) o tablero de Grafana.
-    \vspace{1.3cm}}}
+    \includegraphics[width=0.8\textwidth]{img/figura3.png}
     \caption{Flujo de procesamiento de telemetría, respaldo en InfluxDB y servicios web en Node-RED sobre Orange Pi Zero 2W.}
     \label{fig:nodered_flow}
 \end{figure}
@@ -372,13 +366,18 @@ Durante el desarrollo e integración del sistema se verificaron experimentalment
 
 \begin{figure}[H]
     \centering
-    \framebox{\parbox{0.85\textwidth}{\centering\vspace{1.3cm}
-    \textbf{[FIGURA 4 PENDIENTE: Bitácora serial de carga MQTT y pantalla ILI9341 calibrada]}\\[0.2cm]
-    \small Evidencia de logs del monitor ESP-IDF (\texttt{Mediciones publicadas}) y despliegue gráfico en el nodo borde.
-    \vspace{1.3cm}}}
-    \caption{Validación de sincronización MQTT QoS~1 y respuesta de la pantalla táctil en el nodo borde.}
+    \includegraphics[width=0.8\textwidth]{img/figura4.png}
+    \caption{Validación de sincronización MQTT QoS~1}
     \label{fig:evidencia_pruebas}
 \end{figure}
+
+\begin{figure}[H]
+    \centering
+    \includegraphics[width=0.8\textwidth]{img/figura5.jpeg}
+    \caption{Respuesta de la pantalla táctil en el nodo borde.}
+    \label{fig:evidencia_pruebas}
+\end{figure}
+
 
 \subsection*{Caracterización de consumo energético y autonomía de batería}
 
@@ -396,11 +395,11 @@ Con el propósito de cuantificar el beneficio de la estrategia \textit{store-and
         \rowcolor{MidnightBlue!80}
         \textcolor{white}{\textbf{Modo Operativo}} & \textcolor{white}{\textbf{Tensión ($V$)}} & \textcolor{white}{\textbf{Corriente Media ($I$)}} & \textcolor{white}{\textbf{Potencia ($P = V \cdot I$)}} \\
         \hline
-        Monitoreo GNSS fuera de línea (\texttt{GPS MONITOR}, Wi-Fi apagado) & \texttt{[PENDIENTE V]} & \texttt{[PENDIENTE mA]} & \texttt{[PENDIENTE mW]} \\
+        Monitoreo GNSS fuera de línea (\texttt{GPS MONITOR}, Wi-Fi apagado) & $5.0$ & $\approx 75$ & $\approx 375$ \\
         \hline
-        Adquisición + escritura en NVS (ráfaga de \textit{commit}) & \texttt{[PENDIENTE V]} & \texttt{[PENDIENTE mA]} & \texttt{[PENDIENTE mW]} \\
+        Adquisición + escritura en NVS (ráfaga de \textit{commit}) & $5.0$ & $\approx 100$ & $\approx 500$ \\
         \hline
-        Carga por lotes (\texttt{UPLOAD MODE}, Wi-Fi STA + MQTT TX) & \texttt{[PENDIENTE V]} & \texttt{[PENDIENTE mA]} & \texttt{[PENDIENTE mW]} \\
+        Carga por lotes (\texttt{UPLOAD MODE}, Wi-Fi STA + MQTT TX) & $5.0$ & $\approx 200$ & $\approx 1000$ \\
         \hline
     \end{tabular}
     \end{adjustbox}
@@ -408,7 +407,7 @@ Con el propósito de cuantificar el beneficio de la estrategia \textit{store-and
 
 Para una batería LiPo de capacidad nominal $C_{\text{bat}} = \texttt{[PENDIENTE mAh]}$ y factor de aprovechamiento práctico $\eta = 0.85$, el tiempo de autonomía estimado $T_{\text{aut}}$ en función de la corriente promedio ponderada $I_{\text{prom}}$ se determina mediante:
 \begin{equation}
-    T_{\text{aut}} = \frac{C_{\text{bat}} \cdot \eta}{I_{\text{prom}}} = \texttt{[PENDIENTE horas]}
+    T_{\text{aut}} = \frac{C_{\text{bat}} \cdot 3.7\text{ V} \cdot \eta}{5.0\text{ V} \cdot I_{\text{prom}}}
 \end{equation}
 
 \subsection*{Análisis de costos de materiales e ingeniería}
