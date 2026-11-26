@@ -1,0 +1,490 @@
+[
+  {
+    "id": "gps-nodered-tab",
+    "type": "tab",
+    "label": "Gestión GPS e InfluxDB",
+    "disabled": false,
+    "info": ""
+  },
+  {
+    "id": "gps-mqtt-broker",
+    "type": "mqtt-broker",
+    "name": "Mosquitto local",
+    "broker": "mosquitto",
+    "port": "1883",
+    "clientid": "gps-nodered-influx-backup",
+    "autoConnect": true,
+    "usetls": false,
+    "protocolVersion": "4",
+    "keepalive": "60",
+    "cleansession": false,
+    "autoUnsubscribe": true,
+    "birthTopic": "",
+    "birthQos": "0",
+    "birthPayload": "",
+    "closeTopic": "",
+    "closeQos": "0",
+    "closePayload": "",
+    "willTopic": "",
+    "willQos": "0",
+    "willPayload": "",
+    "userProps": "",
+    "sessionExpiry": ""
+  },
+  {
+    "id": "gps-mqtt-telemetry",
+    "type": "mqtt in",
+    "z": "gps-nodered-tab",
+    "name": "Telemetría GPS",
+    "topic": "proyecto/gps/telemetry",
+    "qos": "1",
+    "datatype": "auto-detect",
+    "broker": "gps-mqtt-broker",
+    "nl": false,
+    "rap": true,
+    "rh": 0,
+    "inputs": 0,
+    "x": 160,
+    "y": 80,
+    "wires": [
+      [
+        "gps-influx-line"
+      ]
+    ]
+  },
+  {
+    "id": "gps-influx-line",
+    "type": "function",
+    "z": "gps-nodered-tab",
+    "name": "Validar y preparar telemetría",
+    "func": "try {\n    const data = typeof msg.payload === \"string\" ? JSON.parse(msg.payload) : msg.payload;\n    if (!data || typeof data !== \"object\") throw new Error(\"El mensaje GPS no es un objeto JSON\");\n    const latitude = Number(data.latitude);\n    const longitude = Number(data.longitude);\n    if (!Number.isFinite(latitude) || latitude < -90 || latitude > 90) throw new Error(\"Latitud GPS inválida\");\n    if (!Number.isFinite(longitude) || longitude < -180 || longitude > 180) throw new Error(\"Longitud GPS inválida\");\n    const fields = [`latitude=${latitude}`, `longitude=${longitude}`];\n    for (const [key, fieldName] of [[\"altitude\", \"altitude_m\"], [\"satellites\", \"satellites\"], [\"hdop\", \"hdop\"]]) {\n        if (data[key] === null || data[key] === undefined || data[key] === \"\") continue;\n        const value = Number(data[key]);\n        if (!Number.isFinite(value)) throw new Error(`Campo ${key} inválido`);\n        fields.push(`${fieldName}=${value}${key === \"satellites\" ? \"i\" : \"\"}`);\n    }\n    const rawCapturedAtMs = data.captured_at_ms;\n    const capturedAtMs = rawCapturedAtMs === undefined || rawCapturedAtMs === null || rawCapturedAtMs === \"\" || Number(rawCapturedAtMs) === 0\n        ? Date.now()\n        : Number(rawCapturedAtMs);\n    if (!Number.isSafeInteger(capturedAtMs) || capturedAtMs <= 0) throw new Error(\"captured_at_ms inválido\");\n    const timestampNs = BigInt(capturedAtMs) * 1000000n;\n    msg.payload = `gps_telemetry,device=esp32-gps ${fields.join(\",\")} ${timestampNs}`;\n    const org = encodeURIComponent(env.get(\"INFLUXDB_ORG\") || \"proyecto\");\n    const bucket = encodeURIComponent(env.get(\"INFLUXDB_BUCKET\") || \"gps\");\n    const token = env.get(\"INFLUXDB_TOKEN\");\n    if (!token) throw new Error(\"Falta la configuración de INFLUXDB_TOKEN\");\n    msg.url = `http://influxdb:8086/api/v2/write?org=${org}&bucket=${bucket}&precision=ns`;\n    msg.method = \"POST\";\n    msg.headers = { Authorization: `Token ${token}`, \"Content-Type\": \"text/plain; charset=utf-8\" };\n    return msg;\n} catch (error) {\n    node.error(`No se pudo preparar telemetría GPS para InfluxDB: ${error.message}`, msg);\n    return null;\n}",
+    "outputs": 1,
+    "timeout": 0,
+    "noerr": 0,
+    "initialize": "",
+    "finalize": "",
+    "libs": [],
+    "x": 410,
+    "y": 80,
+    "wires": [
+      [
+        "gps-influx-write"
+      ]
+    ]
+  },
+  {
+    "id": "gps-influx-write",
+    "type": "http request",
+    "z": "gps-nodered-tab",
+    "name": "Guardar en InfluxDB",
+    "method": "use",
+    "ret": "txt",
+    "paytoqs": "ignore",
+    "url": "",
+    "tls": "",
+    "persist": false,
+    "proxy": "",
+    "insecureHTTPParser": false,
+    "authType": "",
+    "senderr": false,
+    "headers": [],
+    "x": 660,
+    "y": 80,
+    "wires": [
+      [
+        "gps-influx-check"
+      ]
+    ]
+  },
+  {
+    "id": "gps-influx-check",
+    "type": "function",
+    "z": "gps-nodered-tab",
+    "name": "Comprobar respuesta InfluxDB",
+    "func": "if (msg.statusCode !== 204) {\n    node.error(`InfluxDB rechazó la telemetría (HTTP ${msg.statusCode})`, msg);\n}\nreturn null;",
+    "outputs": 1,
+    "timeout": 0,
+    "noerr": 0,
+    "initialize": "",
+    "finalize": "",
+    "libs": [],
+    "x": 930,
+    "y": 80,
+    "wires": [
+      []
+    ]
+  },
+  {
+    "id": "gps-influx-catch",
+    "type": "catch",
+    "z": "gps-nodered-tab",
+    "name": "Registrar errores de telemetría",
+    "scope": [
+      "gps-influx-line",
+      "gps-influx-write",
+      "gps-influx-check"
+    ],
+    "uncaught": false,
+    "x": 190,
+    "y": 140,
+    "wires": [
+      [
+        "gps-influx-error"
+      ]
+    ]
+  },
+  {
+    "id": "gps-influx-error",
+    "type": "function",
+    "z": "gps-nodered-tab",
+    "name": "Log de error",
+    "func": "node.warn(`Error en el respaldo MQTT/InfluxDB: ${msg.error?.message || \"error de procesamiento\"}`);\nreturn null;",
+    "outputs": 1,
+    "timeout": 0,
+    "noerr": 0,
+    "initialize": "",
+    "finalize": "",
+    "libs": [],
+    "x": 430,
+    "y": 140,
+    "wires": [
+      []
+    ]
+  },
+  {
+    "id": "gps-ui-routes",
+    "type": "http in",
+    "z": "gps-nodered-tab",
+    "name": "Panel de rutas",
+    "url": "/routes",
+    "method": "get",
+    "upload": false,
+    "swaggerDoc": "",
+    "x": 140,
+    "y": 240,
+    "wires": [
+      [
+        "gps-ui-html"
+      ]
+    ]
+  },
+  {
+    "id": "gps-ui-html",
+    "type": "function",
+    "z": "gps-nodered-tab",
+    "name": "Servir panel",
+    "func": "msg.headers = { \"Content-Type\": \"text/html; charset=utf-8\", \"Cache-Control\": \"no-store\" };\nmsg.payload = global.get(\"gpsRoutesHtml\");\nreturn msg;",
+    "outputs": 1,
+    "timeout": 0,
+    "noerr": 0,
+    "initialize": "",
+    "finalize": "",
+    "libs": [],
+    "x": 360,
+    "y": 240,
+    "wires": [
+      [
+        "gps-ui-response"
+      ]
+    ]
+  },
+  {
+    "id": "gps-ui-response",
+    "type": "http response",
+    "z": "gps-nodered-tab",
+    "name": "",
+    "statusCode": "",
+    "headers": {},
+    "x": 580,
+    "y": 240,
+    "wires": []
+  },
+  {
+    "id": "gps-api-list",
+    "type": "http in",
+    "z": "gps-nodered-tab",
+    "name": "Listar y filtrar rutas",
+    "url": "/api/routes",
+    "method": "get",
+    "upload": false,
+    "swaggerDoc": "",
+    "x": 150,
+    "y": 300,
+    "wires": [
+      [
+        "gps-api-list-handler"
+      ]
+    ]
+  },
+  {
+    "id": "gps-api-list-handler",
+    "type": "function",
+    "z": "gps-nodered-tab",
+    "name": "Consultar rutas",
+    "func": "const repo = global.get(\"gpsRepository\");\nreturn repo.listRoutes(msg.req.query || {}).then((routes) => {\n    msg.headers = { \"Content-Type\": \"application/json; charset=utf-8\", \"Cache-Control\": \"no-store\" };\n    msg.payload = routes;\n    return msg;\n}).catch((error) => {\n    node.error(error, msg);\n    msg.statusCode = error.statusCode || 500;\n    msg.headers = { \"Content-Type\": \"application/json; charset=utf-8\" };\n    msg.payload = { error: error.statusCode ? error.message : \"No se pudieron consultar las rutas\" };\n    return msg;\n});",
+    "outputs": 1,
+    "timeout": 0,
+    "noerr": 0,
+    "initialize": "",
+    "finalize": "",
+    "libs": [],
+    "x": 390,
+    "y": 300,
+    "wires": [
+      [
+        "gps-api-list-response"
+      ]
+    ]
+  },
+  {
+    "id": "gps-api-list-response",
+    "type": "http response",
+    "z": "gps-nodered-tab",
+    "name": "",
+    "statusCode": "",
+    "headers": {},
+    "x": 650,
+    "y": 300,
+    "wires": []
+  },
+  {
+    "id": "gps-api-detail",
+    "type": "http in",
+    "z": "gps-nodered-tab",
+    "name": "Detalle de ruta",
+    "url": "/api/routes/:id",
+    "method": "get",
+    "upload": false,
+    "swaggerDoc": "",
+    "x": 150,
+    "y": 360,
+    "wires": [
+      [
+        "gps-api-detail-handler"
+      ]
+    ]
+  },
+  {
+    "id": "gps-api-detail-handler",
+    "type": "function",
+    "z": "gps-nodered-tab",
+    "name": "Consultar puntos",
+    "func": "const repo = global.get(\"gpsRepository\");\nreturn repo.getRoute(msg.req.params.id).then((data) => {\n    msg.headers = { \"Content-Type\": \"application/json; charset=utf-8\", \"Cache-Control\": \"no-store\" };\n    if (!data) {\n        msg.statusCode = 404;\n        msg.payload = { error: \"Ruta no encontrada\" };\n    } else {\n        msg.payload = data;\n    }\n    return msg;\n}).catch((error) => {\n    node.error(error, msg);\n    msg.statusCode = error.statusCode || 500;\n    msg.headers = { \"Content-Type\": \"application/json; charset=utf-8\" };\n    msg.payload = { error: error.statusCode ? error.message : \"No se pudo consultar la ruta\" };\n    return msg;\n});",
+    "outputs": 1,
+    "timeout": 0,
+    "noerr": 0,
+    "initialize": "",
+    "finalize": "",
+    "libs": [],
+    "x": 390,
+    "y": 360,
+    "wires": [
+      [
+        "gps-api-detail-response"
+      ]
+    ]
+  },
+  {
+    "id": "gps-api-detail-response",
+    "type": "http response",
+    "z": "gps-nodered-tab",
+    "name": "",
+    "statusCode": "",
+    "headers": {},
+    "x": 650,
+    "y": 360,
+    "wires": []
+  },
+  {
+    "id": "gps-api-validity",
+    "type": "http in",
+    "z": "gps-nodered-tab",
+    "name": "Invalidar o restaurar ruta",
+    "url": "/api/routes/:id/validity",
+    "method": "patch",
+    "upload": false,
+    "swaggerDoc": "",
+    "x": 170,
+    "y": 420,
+    "wires": [
+      [
+        "gps-api-validity-handler"
+      ]
+    ]
+  },
+  {
+    "id": "gps-api-validity-handler",
+    "type": "function",
+    "z": "gps-nodered-tab",
+    "name": "Actualizar estado",
+    "func": "const repo = global.get(\"gpsRepository\");\nconst body = msg.payload || {};\nreturn repo.setRouteValidity(msg.req.params.id, body.is_valid, body.reason).then((data) => {\n    msg.headers = { \"Content-Type\": \"application/json; charset=utf-8\", \"Cache-Control\": \"no-store\" };\n    msg.payload = { route: data.route };\n    return msg;\n}).catch((error) => {\n    node.error(error, msg);\n    msg.statusCode = error.statusCode || 500;\n    msg.headers = { \"Content-Type\": \"application/json; charset=utf-8\" };\n    msg.payload = { error: error.statusCode ? error.message : \"No se pudo actualizar la ruta\" };\n    return msg;\n});",
+    "outputs": 1,
+    "timeout": 0,
+    "noerr": 0,
+    "initialize": "",
+    "finalize": "",
+    "libs": [],
+    "x": 430,
+    "y": 420,
+    "wires": [
+      [
+        "gps-api-validity-response"
+      ]
+    ]
+  },
+  {
+    "id": "gps-api-validity-response",
+    "type": "http response",
+    "z": "gps-nodered-tab",
+    "name": "",
+    "statusCode": "",
+    "headers": {},
+    "x": 690,
+    "y": 420,
+    "wires": []
+  },
+  {
+    "id": "gps-api-delete",
+    "type": "http in",
+    "z": "gps-nodered-tab",
+    "name": "Eliminar ruta",
+    "url": "/api/routes/:id",
+    "method": "delete",
+    "upload": false,
+    "swaggerDoc": "",
+    "x": 150,
+    "y": 480,
+    "wires": [
+      [
+        "gps-api-delete-handler"
+      ]
+    ]
+  },
+  {
+    "id": "gps-api-delete-handler",
+    "type": "function",
+    "z": "gps-nodered-tab",
+    "name": "Eliminar ruta finalizada",
+    "func": "const repo = global.get(\"gpsRepository\");\nreturn repo.deleteRoute(msg.req.params.id).then(() => {\n    msg.headers = { \"Content-Type\": \"application/json; charset=utf-8\" };\n    msg.payload = { deleted: true };\n    return msg;\n}).catch((error) => {\n    node.error(error, msg);\n    msg.statusCode = error.statusCode || 500;\n    msg.headers = { \"Content-Type\": \"application/json; charset=utf-8\" };\n    msg.payload = { error: error.statusCode ? error.message : \"No se pudo eliminar la ruta\" };\n    return msg;\n});",
+    "outputs": 1,
+    "timeout": 0,
+    "noerr": 0,
+    "initialize": "",
+    "finalize": "",
+    "libs": [],
+    "x": 390,
+    "y": 480,
+    "wires": [
+      [
+        "gps-api-delete-response"
+      ]
+    ]
+  },
+  {
+    "id": "gps-api-delete-response",
+    "type": "http response",
+    "z": "gps-nodered-tab",
+    "name": "",
+    "statusCode": "",
+    "headers": {},
+    "x": 650,
+    "y": 480,
+    "wires": []
+  },
+  {
+    "id": "gps-api-csv",
+    "type": "http in",
+    "z": "gps-nodered-tab",
+    "name": "Exportar CSV",
+    "url": "/api/routes/:id/export.csv",
+    "method": "get",
+    "upload": false,
+    "swaggerDoc": "",
+    "x": 150,
+    "y": 540,
+    "wires": [
+      [
+        "gps-api-csv-handler"
+      ]
+    ]
+  },
+  {
+    "id": "gps-api-csv-handler",
+    "type": "function",
+    "z": "gps-nodered-tab",
+    "name": "Generar CSV",
+    "func": "const repo = global.get(\"gpsRepository\");\nreturn repo.exportCsv(msg.req.params.id).then((csv) => {\n    if (csv === null) {\n        msg.statusCode = 404;\n        msg.headers = { \"Content-Type\": \"application/json; charset=utf-8\" };\n        msg.payload = { error: \"Ruta no encontrada\" };\n    } else {\n        msg.headers = { \"Content-Type\": \"text/csv; charset=utf-8\", \"Content-Disposition\": `attachment; filename=\"ruta-${Number(msg.req.params.id)}.csv\"` };\n        msg.payload = `\\uFEFF${csv}`;\n    }\n    return msg;\n}).catch((error) => {\n    node.error(error, msg);\n    msg.statusCode = error.statusCode || 500;\n    msg.headers = { \"Content-Type\": \"application/json; charset=utf-8\" };\n    msg.payload = { error: error.statusCode ? error.message : \"No se pudo exportar la ruta\" };\n    return msg;\n});",
+    "outputs": 1,
+    "timeout": 0,
+    "noerr": 0,
+    "initialize": "",
+    "finalize": "",
+    "libs": [],
+    "x": 370,
+    "y": 540,
+    "wires": [
+      [
+        "gps-api-csv-response"
+      ]
+    ]
+  },
+  {
+    "id": "gps-api-csv-response",
+    "type": "http response",
+    "z": "gps-nodered-tab",
+    "name": "",
+    "statusCode": "",
+    "headers": {},
+    "x": 630,
+    "y": 540,
+    "wires": []
+  },
+  {
+    "id": "gps-api-gpx",
+    "type": "http in",
+    "z": "gps-nodered-tab",
+    "name": "Exportar GPX",
+    "url": "/api/routes/:id/export.gpx",
+    "method": "get",
+    "upload": false,
+    "swaggerDoc": "",
+    "x": 150,
+    "y": 600,
+    "wires": [
+      [
+        "gps-api-gpx-handler"
+      ]
+    ]
+  },
+  {
+    "id": "gps-api-gpx-handler",
+    "type": "function",
+    "z": "gps-nodered-tab",
+    "name": "Generar GPX",
+    "func": "const repo = global.get(\"gpsRepository\");\nreturn repo.exportGpx(msg.req.params.id).then((gpx) => {\n    if (gpx === null) {\n        msg.statusCode = 404;\n        msg.headers = { \"Content-Type\": \"application/json; charset=utf-8\" };\n        msg.payload = { error: \"Ruta no encontrada\" };\n    } else {\n        msg.headers = { \"Content-Type\": \"application/gpx+xml; charset=utf-8\", \"Content-Disposition\": `attachment; filename=\"ruta-${Number(msg.req.params.id)}.gpx\"` };\n        msg.payload = gpx;\n    }\n    return msg;\n}).catch((error) => {\n    node.error(error, msg);\n    msg.statusCode = error.statusCode || 500;\n    msg.headers = { \"Content-Type\": \"application/json; charset=utf-8\" };\n    msg.payload = { error: error.statusCode ? error.message : \"No se pudo exportar la ruta\" };\n    return msg;\n});",
+    "outputs": 1,
+    "timeout": 0,
+    "noerr": 0,
+    "initialize": "",
+    "finalize": "",
+    "libs": [],
+    "x": 370,
+    "y": 600,
+    "wires": [
+      [
+        "gps-api-gpx-response"
+      ]
+    ]
+  },
+  {
+    "id": "gps-api-gpx-response",
+    "type": "http response",
+    "z": "gps-nodered-tab",
+    "name": "",
+    "statusCode": "",
+    "headers": {},
+    "x": 630,
+    "y": 600,
+    "wires": []
+  }
+]

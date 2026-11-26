@@ -1,0 +1,5 @@
+.env
+__pycache__/
+osm_tiles/
+esp32_firmware/build/
+

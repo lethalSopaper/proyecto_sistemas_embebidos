@@ -1,4 +1,4 @@
-# Install script for directory: /home/lethalsopaper/.espressif/v6.0.2/esp-idf/components/mbedtls/mbedtls/include
+# Install script for directory: /home/hansmarcus/.espressif/v6.1/esp-idf/components/mbedtls/mbedtls/include
 
 # Set the install prefix
 if(NOT DEFINED CMAKE_INSTALL_PREFIX)
@@ -34,42 +34,42 @@ endif()
 
 # Set path to fallback-tool for dependency-resolution.
 if(NOT DEFINED CMAKE_OBJDUMP)
-  set(CMAKE_OBJDUMP "/home/lethalsopaper/.espressif/tools/xtensa-esp-elf/esp-15.2.0_20251204/xtensa-esp-elf/bin/xtensa-esp32s3-elf-objdump")
+  set(CMAKE_OBJDUMP "/home/hansmarcus/.espressif/tools/xtensa-esp-elf/esp-15.2.0_20251204/xtensa-esp-elf/bin/xtensa-esp32s3-elf-objdump")
 endif()
 
 if(CMAKE_INSTALL_COMPONENT STREQUAL "Unspecified" OR NOT CMAKE_INSTALL_COMPONENT)
   file(INSTALL DESTINATION "${CMAKE_INSTALL_PREFIX}/include/mbedtls" TYPE FILE PERMISSIONS OWNER_READ OWNER_WRITE GROUP_READ WORLD_READ FILES
-    "/home/lethalsopaper/.espressif/v6.0.2/esp-idf/components/mbedtls/mbedtls/include/mbedtls/build_info.h"
-    "/home/lethalsopaper/.espressif/v6.0.2/esp-idf/components/mbedtls/mbedtls/include/mbedtls/debug.h"
-    "/home/lethalsopaper/.espressif/v6.0.2/esp-idf/components/mbedtls/mbedtls/include/mbedtls/error.h"
-    "/home/lethalsopaper/.espressif/v6.0.2/esp-idf/components/mbedtls/mbedtls/include/mbedtls/mbedtls_config.h"
-    "/home/lethalsopaper/.espressif/v6.0.2/esp-idf/components/mbedtls/mbedtls/include/mbedtls/net_sockets.h"
-    "/home/lethalsopaper/.espressif/v6.0.2/esp-idf/components/mbedtls/mbedtls/include/mbedtls/oid.h"
-    "/home/lethalsopaper/.espressif/v6.0.2/esp-idf/components/mbedtls/mbedtls/include/mbedtls/pkcs7.h"
-    "/home/lethalsopaper/.espressif/v6.0.2/esp-idf/components/mbedtls/mbedtls/include/mbedtls/ssl.h"
-    "/home/lethalsopaper/.espressif/v6.0.2/esp-idf/components/mbedtls/mbedtls/include/mbedtls/ssl_cache.h"
-    "/home/lethalsopaper/.espressif/v6.0.2/esp-idf/components/mbedtls/mbedtls/include/mbedtls/ssl_ciphersuites.h"
-    "/home/lethalsopaper/.espressif/v6.0.2/esp-idf/components/mbedtls/mbedtls/include/mbedtls/ssl_cookie.h"
-    "/home/lethalsopaper/.espressif/v6.0.2/esp-idf/components/mbedtls/mbedtls/include/mbedtls/ssl_ticket.h"
-    "/home/lethalsopaper/.espressif/v6.0.2/esp-idf/components/mbedtls/mbedtls/include/mbedtls/timing.h"
-    "/home/lethalsopaper/.espressif/v6.0.2/esp-idf/components/mbedtls/mbedtls/include/mbedtls/version.h"
-    "/home/lethalsopaper/.espressif/v6.0.2/esp-idf/components/mbedtls/mbedtls/include/mbedtls/x509.h"
-    "/home/lethalsopaper/.espressif/v6.0.2/esp-idf/components/mbedtls/mbedtls/include/mbedtls/x509_crl.h"
-    "/home/lethalsopaper/.espressif/v6.0.2/esp-idf/components/mbedtls/mbedtls/include/mbedtls/x509_crt.h"
-    "/home/lethalsopaper/.espressif/v6.0.2/esp-idf/components/mbedtls/mbedtls/include/mbedtls/x509_csr.h"
+    "/home/hansmarcus/.espressif/v6.1/esp-idf/components/mbedtls/mbedtls/include/mbedtls/build_info.h"
+    "/home/hansmarcus/.espressif/v6.1/esp-idf/components/mbedtls/mbedtls/include/mbedtls/debug.h"
+    "/home/hansmarcus/.espressif/v6.1/esp-idf/components/mbedtls/mbedtls/include/mbedtls/error.h"
+    "/home/hansmarcus/.espressif/v6.1/esp-idf/components/mbedtls/mbedtls/include/mbedtls/mbedtls_config.h"
+    "/home/hansmarcus/.espressif/v6.1/esp-idf/components/mbedtls/mbedtls/include/mbedtls/net_sockets.h"
+    "/home/hansmarcus/.espressif/v6.1/esp-idf/components/mbedtls/mbedtls/include/mbedtls/oid.h"
+    "/home/hansmarcus/.espressif/v6.1/esp-idf/components/mbedtls/mbedtls/include/mbedtls/pkcs7.h"
+    "/home/hansmarcus/.espressif/v6.1/esp-idf/components/mbedtls/mbedtls/include/mbedtls/ssl.h"
+    "/home/hansmarcus/.espressif/v6.1/esp-idf/components/mbedtls/mbedtls/include/mbedtls/ssl_cache.h"
+    "/home/hansmarcus/.espressif/v6.1/esp-idf/components/mbedtls/mbedtls/include/mbedtls/ssl_ciphersuites.h"
+    "/home/hansmarcus/.espressif/v6.1/esp-idf/components/mbedtls/mbedtls/include/mbedtls/ssl_cookie.h"
+    "/home/hansmarcus/.espressif/v6.1/esp-idf/components/mbedtls/mbedtls/include/mbedtls/ssl_ticket.h"
+    "/home/hansmarcus/.espressif/v6.1/esp-idf/components/mbedtls/mbedtls/include/mbedtls/timing.h"
+    "/home/hansmarcus/.espressif/v6.1/esp-idf/components/mbedtls/mbedtls/include/mbedtls/version.h"
+    "/home/hansmarcus/.espressif/v6.1/esp-idf/components/mbedtls/mbedtls/include/mbedtls/x509.h"
+    "/home/hansmarcus/.espressif/v6.1/esp-idf/components/mbedtls/mbedtls/include/mbedtls/x509_crl.h"
+    "/home/hansmarcus/.espressif/v6.1/esp-idf/components/mbedtls/mbedtls/include/mbedtls/x509_crt.h"
+    "/home/hansmarcus/.espressif/v6.1/esp-idf/components/mbedtls/mbedtls/include/mbedtls/x509_csr.h"
     )
 endif()
 
 if(CMAKE_INSTALL_COMPONENT STREQUAL "Unspecified" OR NOT CMAKE_INSTALL_COMPONENT)
   file(INSTALL DESTINATION "${CMAKE_INSTALL_PREFIX}/include/mbedtls/private" TYPE FILE PERMISSIONS OWNER_READ OWNER_WRITE GROUP_READ WORLD_READ FILES
-    "/home/lethalsopaper/.espressif/v6.0.2/esp-idf/components/mbedtls/mbedtls/include/mbedtls/private/config_adjust_ssl.h"
-    "/home/lethalsopaper/.espressif/v6.0.2/esp-idf/components/mbedtls/mbedtls/include/mbedtls/private/config_adjust_x509.h"
+    "/home/hansmarcus/.espressif/v6.1/esp-idf/components/mbedtls/mbedtls/include/mbedtls/private/config_adjust_ssl.h"
+    "/home/hansmarcus/.espressif/v6.1/esp-idf/components/mbedtls/mbedtls/include/mbedtls/private/config_adjust_x509.h"
     )
 endif()
 
 string(REPLACE ";" "\n" CMAKE_INSTALL_MANIFEST_CONTENT
        "${CMAKE_INSTALL_MANIFEST_FILES}")
 if(CMAKE_INSTALL_LOCAL_ONLY)
-  file(WRITE "/home/lethalsopaper/Documents/9_UNAM_semestre_9/3_fundamentos_de_sistemas_embebidos/proyecto/esp32_firmware/build/esp-idf/mbedtls/mbedtls/include/install_local_manifest.txt"
+  file(WRITE "/home/hansmarcus/Desktop/clases/SistemasEmbebidos/proyecto_sistemas_embebidos/esp32_firmware/build/esp-idf/mbedtls/mbedtls/include/install_local_manifest.txt"
      "${CMAKE_INSTALL_MANIFEST_CONTENT}")
 endif()

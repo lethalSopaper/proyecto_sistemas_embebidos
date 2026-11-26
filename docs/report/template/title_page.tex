@@ -1,0 +1,53 @@
+\newgeometry{margin=1.5cm}
+\begin{titlepage}
+    \noindent
+    \renewcommand{\arraystretch}{1.5}
+    % Definimos la tabla principal con dos columnas exactamente iguales (50/50)
+    \begin{tabularx}{\textwidth}{|>{\centering\arraybackslash}X|>{\centering\arraybackslash}X|}
+        \hline
+        % Fila superior: Combinamos las dos columnas e insertamos una sub-tabla
+        \multicolumn{2}{|@{}c@{}|}{%
+            \begin{tabularx}{\dimexpr\textwidth-2\arrayrulewidth\relax}{m{3.5cm}|>{\centering\arraybackslash}X}
+                \centering \vspace{0.2cm} \includegraphics[width=2cm,height=2.5cm]{escudoFI_color.png} & \large \textbf{Fundamentos de Sistemas Embebidos}
+            \end{tabularx}%
+        } \\
+        \hline
+        % Fila inferior: Alineada a la mitad exacta
+        \large Facultad de Ingeniería & \large UNAM \\
+        \hline
+    \end{tabularx}
+
+    \vspace{0.5cm}
+
+    \begin{center}
+        {\fontsize{35}{48}\selectfont Laboratorio de Fundamentos de} \\
+        {\fontsize{35}{48}\selectfont Sistemas Embebidos\par}
+        % Línea divisoria azul (se puede ajustar el tono de azul)
+        \textcolor{MidnightBlue!70}{\rule{\textwidth}{1pt}}
+    \end{center}
+
+    \vspace{2cm}
+
+    \begin{center}
+        % Aumenta el espaciado entre filas para que coincida con el formato
+        % \renewcommand{\arraystretch}{1.8}
+        \fontsize{15}{21}\selectfont
+        % Columna 1: Alineada a la derecha, en cursiva (itshape) y de 4.5cm de ancho
+        % Columna 2: Alineada a la izquierda
+        \begin{tabular}{>{\raggedleft\arraybackslash\itshape}p{4.5cm} @{\hspace{0.5cm}} l}
+            Profesor(a): & \underline{\makebox[10cm][l]{ Eduardo Fragoso Navarro}} \\
+            Asignatura: & \underline{\makebox[10cm][l]{ Fundamentos de Sistemas Embebidos}} \\
+            Grupo: & \underline{\makebox[10cm][l]{3}} \\
+            No de Práctica(s): & \underline{\makebox[10cm][l]{}} \\
+            Integrante(s): & \underline{\makebox[10cm][l]{Tepal Briseño Hansel Yael - 320078282}} \\
+            & \underline{\makebox[10cm][l]{Ugartechea González Luis Antonio - 320223822}} \\
+            No. de brigada: & \underline{\makebox[10cm][l]{12}} \\
+            Semestre: & \underline{\makebox[10cm][l]{ 9\(^\circ\)}} \\
+            Fecha de entrega: & \underline{\makebox[10cm][l]{25 de noviembre de 2026}} \\
+            Observaciones: & \underline{\makebox[10cm][l]{}} \\
+            & \underline{\makebox[10cm][l]{}} \\
+        \end{tabular}
+    \end{center}
+
+\end{titlepage}
+\restoregeometry

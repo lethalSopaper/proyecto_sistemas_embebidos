@@ -1,0 +1,252 @@
+<!doctype html>
+<html lang="es">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Rutas GPS - Orange Pi</title>
+  <style>
+    :root { color-scheme: light; font-family: system-ui, sans-serif; color: #172033; background: #f3f6fa; }
+    body { margin: 0; }
+    main { max-width: 1200px; margin: auto; padding: 1.25rem; }
+    h1, h2 { margin-top: 0; }
+    .panel { background: white; border: 1px solid #dce3ec; border-radius: 10px; padding: 1rem; margin-bottom: 1rem; }
+    .filters { display: flex; flex-wrap: wrap; gap: .75rem; align-items: end; }
+    label { display: grid; gap: .3rem; font-size: .9rem; }
+    input, select, button { font: inherit; padding: .55rem .7rem; border: 1px solid #b8c5d5; border-radius: 6px; background: white; }
+    button { cursor: pointer; }
+    button:hover, a.button:hover { background: #eaf1f8; }
+    .table-wrap { overflow-x: auto; }
+    table { border-collapse: collapse; width: 100%; min-width: 760px; }
+    th, td { text-align: left; padding: .65rem; border-bottom: 1px solid #e6ebf1; vertical-align: middle; }
+    th { font-size: .85rem; color: #526174; }
+    .badge { display: inline-block; border-radius: 1rem; padding: .2rem .6rem; font-size: .82rem; }
+    .valid { color: #12643d; background: #e2f5eb; }
+    .invalid { color: #922b21; background: #fde9e7; }
+    .actions { display: flex; flex-wrap: wrap; gap: .35rem; }
+    .actions button, .actions a { font-size: .82rem; }
+    a.button { color: inherit; text-decoration: none; border: 1px solid #b8c5d5; border-radius: 6px; padding: .55rem .7rem; }
+    #message { min-height: 1.3rem; color: #9c2c22; }
+    #map { width: 100%; height: auto; min-height: 220px; background: #edf4f8; border: 1px solid #dce3ec; border-radius: 8px; }
+    .meta { display: flex; flex-wrap: wrap; gap: .6rem 1.5rem; }
+    .meta p { margin: .25rem 0; }
+    .stats-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(150px, 1fr)); gap: .6rem; margin-bottom: 1rem; }
+    .stat { border: 1px solid #dce3ec; border-radius: 8px; padding: .7rem; }
+    .stat strong { display: block; font-size: .85rem; color: #526174; }
+    .stat span { display: block; margin-top: .25rem; font-size: 1.15rem; }
+    .muted { color: #627186; }
+    @media (max-width: 600px) { main { padding: .65rem; } .panel { padding: .75rem; } }
+  </style>
+</head>
+<body>
+<main>
+  <h1>Administración de rutas GPS</h1>
+  <p class="muted">Busca y revisa recorridos, marca registros inválidos, restáuralos, elimínalos o expórtalos.</p>
+  <section class="panel">
+    <div class="filters">
+      <label>Buscar por nombre o ID
+        <input id="search" type="search" placeholder="Ej. Ruta 12">
+      </label>
+      <label>Estado
+        <select id="status">
+          <option value="all">Todas</option>
+          <option value="valid">Válidas</option>
+          <option value="invalid">Inválidas</option>
+        </select>
+      </label>
+      <label>Ordenar por
+        <select id="sort">
+          <option value="date">Más recientes</option>
+          <option value="name">Nombre</option>
+          <option value="distance">Distancia</option>
+        </select>
+      </label>
+      <button id="refresh" type="button">Actualizar</button>
+    </div>
+    <p id="message" role="status" aria-live="polite"></p>
+    <div class="table-wrap">
+      <table>
+        <thead><tr><th>Ruta</th><th>Inicio</th><th>Distancia</th><th>Puntos</th><th>Estado</th><th>Acciones</th></tr></thead>
+        <tbody id="routes"></tbody>
+      </table>
+    </div>
+  </section>
+  <section id="details" class="panel" hidden>
+    <h2 id="route-title">Detalle de ruta</h2>
+    <div id="route-meta" class="meta"></div>
+    <h3>Estadísticas de esta ruta</h3>
+    <div id="route-stats" class="stats-grid"></div>
+    <p id="invalid-reason" class="muted"></p>
+    <svg id="map" viewBox="0 0 640 300" role="img" aria-label="Mapa del recorrido">
+      <text x="320" y="150" text-anchor="middle" fill="#627186">Selecciona una ruta para ver su recorrido</text>
+    </svg>
+  </section>
+</main>
+<script>
+(() => {
+  const $ = (selector) => document.querySelector(selector);
+  const message = $("#message");
+  let selectedRouteId = null;
+  const escapeHtml = (value) => String(value ?? "").replace(/[&<>"']/g, (char) => ({
+    "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;", "'": "&#39;"
+  })[char]);
+  const dateText = (value) => value ? new Date(value).toLocaleString() : "En curso";
+  const distanceText = (meters) => meters == null ? "—" : `${(Number(meters) / 1000).toFixed(2)} km`;
+  const speedText = (value) => value == null
+    ? "No disponible"
+    : `${Number(value).toFixed(1)} km/h`;
+  const durationText = (seconds) => {
+    if (!Number.isFinite(Number(seconds)) || Number(seconds) <= 0) return "—";
+    const total = Math.round(Number(seconds));
+    const hours = Math.floor(total / 3600);
+    const minutes = Math.floor((total % 3600) / 60);
+    const remainingSeconds = total % 60;
+    return [hours, minutes, remainingSeconds]
+      .map((part) => String(part).padStart(2, "0"))
+      .join(":");
+  };
+
+  async function request(url, options = {}) {
+    const response = await fetch(url, {
+      ...options,
+      headers: { "Content-Type": "application/json", ...(options.headers || {}) }
+    });
+    const payload = await response.json().catch(() => null);
+    if (!response.ok) throw new Error(payload?.error || `Error HTTP ${response.status}`);
+    return payload;
+  }
+
+  function showError(error) {
+    message.textContent = error.message || String(error);
+  }
+
+  async function loadRoutes() {
+    message.textContent = "";
+    const query = new URLSearchParams({
+      q: $("#search").value,
+      status: $("#status").value,
+      sort: $("#sort").value
+    });
+    try {
+      const routes = await request(`/api/routes?${query}`);
+      $("#routes").innerHTML = routes.map((route) => {
+        const valid = Number(route.is_valid) === 1;
+        const finished = Boolean(route.finished_at);
+        const id = Number(route.id);
+        return `<tr>
+          <td><strong>${escapeHtml(route.name || `Ruta ${id}`)}</strong><br><span class="muted">ID ${id}</span></td>
+          <td>${escapeHtml(dateText(route.started_at))}</td>
+          <td>${escapeHtml(distanceText(route.distance_m))}</td>
+          <td>${Number(route.point_count) || 0}</td>
+          <td><span class="badge ${valid ? "valid" : "invalid"}">${valid ? "Válida" : "Inválida"}</span></td>
+          <td><div class="actions">
+            <button type="button" data-action="view" data-id="${id}">Ver</button>
+            ${finished ? (valid
+              ? `<button type="button" data-action="invalidate" data-id="${id}">Marcar inválida</button>`
+              : `<button type="button" data-action="restore" data-id="${id}">Restaurar</button>`) : ""}
+            ${finished ? `<button type="button" data-action="delete" data-id="${id}">Eliminar</button>` : ""}
+            <a class="button" href="/api/routes/${id}/export.csv">CSV</a>
+            <a class="button" href="/api/routes/${id}/export.gpx">GPX</a>
+          </div></td>
+        </tr>`;
+      }).join("") || '<tr><td colspan="6">No hay rutas que coincidan.</td></tr>';
+    } catch (error) {
+      showError(error);
+    }
+  }
+
+  function drawTrack(points) {
+    const svg = $("#map");
+    if (!points.length) {
+      svg.innerHTML = '<text x="320" y="150" text-anchor="middle" fill="#627186">La ruta no tiene puntos guardados</text>';
+      return;
+    }
+    const latitudes = points.map((point) => Number(point.latitude));
+    const longitudes = points.map((point) => Number(point.longitude));
+    let minLat = Math.min(...latitudes), maxLat = Math.max(...latitudes);
+    let minLon = Math.min(...longitudes), maxLon = Math.max(...longitudes);
+    if (minLat === maxLat) { minLat -= 0.0001; maxLat += 0.0001; }
+    if (minLon === maxLon) { minLon -= 0.0001; maxLon += 0.0001; }
+    const coordinates = points.map((point) => {
+      const x = 24 + ((Number(point.longitude) - minLon) / (maxLon - minLon)) * 592;
+      const y = 276 - ((Number(point.latitude) - minLat) / (maxLat - minLat)) * 252;
+      return `${x.toFixed(1)},${y.toFixed(1)}`;
+    }).join(" ");
+    const first = coordinates.split(" ")[0].split(",");
+    const last = coordinates.split(" ").at(-1).split(",");
+    svg.innerHTML = `<polyline points="${coordinates}" fill="none" stroke="#1769aa" stroke-width="4" stroke-linecap="round" stroke-linejoin="round"/>
+      <circle cx="${first[0]}" cy="${first[1]}" r="7" fill="#1b9b5a"/>
+      <circle cx="${last[0]}" cy="${last[1]}" r="7" fill="#d04a3a"/>`;
+  }
+
+  async function showRoute(id) {
+    const data = await request(`/api/routes/${id}`);
+    const route = data.route;
+    selectedRouteId = Number(route.id);
+    $("#details").hidden = false;
+    $("#route-title").textContent = route.name || `Ruta ${route.id}`;
+    $("#route-meta").innerHTML = `
+      <p><strong>Inicio:</strong> ${escapeHtml(dateText(route.started_at))}</p>
+      <p><strong>Fin:</strong> ${escapeHtml(dateText(route.finished_at))}</p>
+      <p><strong>Distancia:</strong> ${escapeHtml(distanceText(route.distance_m))}</p>
+      <p><strong>Puntos:</strong> ${Number(route.point_count) || 0}</p>`;
+    const stats = data.statistics;
+    $("#route-stats").innerHTML = [
+      ["Distancia", distanceText(route.distance_m)],
+      ["Velocidad promedio", speedText(stats.average_speed_kmh)],
+      ["Velocidad máxima", speedText(stats.maximum_speed_kmh)],
+      ["Duración GPS", durationText(stats.duration_seconds)]
+    ].map(([label, value]) => `<div class="stat"><strong>${label}</strong><span>${escapeHtml(value)}</span></div>`).join("");
+    $("#invalid-reason").textContent = Number(route.is_valid) === 1
+      ? "" : `Motivo: ${route.invalid_reason || "No indicado"}`;
+    drawTrack(data.points);
+  }
+
+  $("#routes").addEventListener("click", async (event) => {
+    const button = event.target.closest("[data-action]");
+    if (!button) return;
+    const id = Number(button.dataset.id);
+    try {
+      message.textContent = "";
+      if (button.dataset.action === "view") {
+        await showRoute(id);
+      } else if (button.dataset.action === "invalidate") {
+        const reason = prompt("¿Por qué debe marcarse inválida esta ruta?");
+        if (reason === null) return;
+        await request(`/api/routes/${id}/validity`, {
+          method: "PATCH", body: JSON.stringify({ is_valid: false, reason })
+        });
+        await loadRoutes();
+        if (selectedRouteId === id) await showRoute(id);
+      } else if (button.dataset.action === "restore") {
+        await request(`/api/routes/${id}/validity`, {
+          method: "PATCH", body: JSON.stringify({ is_valid: true })
+        });
+        await loadRoutes();
+        if (selectedRouteId === id) await showRoute(id);
+      } else if (button.dataset.action === "delete") {
+        if (!confirm(`¿Eliminar permanentemente la ruta ${id} y sus puntos? Esta acción no se puede deshacer.`)) return;
+        await request(`/api/routes/${id}`, { method: "DELETE" });
+        if (selectedRouteId === id) {
+          $("#details").hidden = true;
+          selectedRouteId = null;
+        }
+        await loadRoutes();
+      }
+    } catch (error) {
+      showError(error);
+    }
+  });
+
+  $("#refresh").addEventListener("click", loadRoutes);
+  $("#status").addEventListener("change", loadRoutes);
+  $("#sort").addEventListener("change", loadRoutes);
+  let searchTimer;
+  $("#search").addEventListener("input", () => {
+    clearTimeout(searchTimer);
+    searchTimer = setTimeout(loadRoutes, 250);
+  });
+  loadRoutes();
+})();
+</script>
+</body>
+</html>

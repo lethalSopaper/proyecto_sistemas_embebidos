@@ -3,7 +3,7 @@
 set -euo pipefail
 
 SCRIPT_DIR="$(cd -- "$(dirname -- "${BASH_SOURCE[0]}")" && pwd)"
-ESP_IDF_PATH="${ESP_IDF_PATH:-${IDF_PATH:-$HOME/.espressif/v6.0.2/esp-idf}}"
+ESP_IDF_PATH="${ESP_IDF_PATH:-${IDF_PATH:-$HOME/.espressif/v6.1/esp-idf}}"
 TARGET="esp32s3"
 ACTION="${1:-build}"
 PORT="${2:-${PORT:-/dev/ttyACM0}}"

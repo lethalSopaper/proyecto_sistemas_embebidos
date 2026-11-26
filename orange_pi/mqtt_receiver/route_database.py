@@ -1,4 +1,3 @@
-import math
 import os
 import threading
 import time
@@ -6,6 +5,11 @@ from datetime import datetime, timezone
 
 import mysql.connector
 from mysql.connector import Error
+from route_statistics import (
+    RouteStatistics,
+    calculate_route_statistics,
+    distance_between_points,
+)
 
 
 class RouteDatabase:
@@ -28,6 +32,30 @@ class RouteDatabase:
         except Error as error:
             if error.errno != 1060:
                 raise
+        cursor.execute(
+            """
+            ALTER TABLE route_points
+            ADD COLUMN IF NOT EXISTS captured_at DATETIME(6) NULL
+            AFTER recorded_at
+            """
+        )
+        self.connection.commit()
+        cursor.execute(
+            """
+            ALTER TABLE routes
+            ADD COLUMN IF NOT EXISTS is_valid BOOLEAN NOT NULL DEFAULT TRUE
+            AFTER distance_m
+            """
+        )
+        self.connection.commit()
+        cursor.execute(
+            """
+            ALTER TABLE routes
+            ADD COLUMN IF NOT EXISTS invalid_reason VARCHAR(255) NULL
+            AFTER is_valid
+            """
+        )
+        self.connection.commit()
         cursor.execute(
             """
             UPDATE routes
@@ -69,16 +97,7 @@ class RouteDatabase:
     def _distance_m(
         first: tuple[float, float], second: tuple[float, float]
     ) -> float:
-        radius_m = 6_371_000.0
-        lat1, lon1 = map(math.radians, first)
-        lat2, lon2 = map(math.radians, second)
-        dlat = lat2 - lat1
-        dlon = lon2 - lon1
-        value = (
-            math.sin(dlat / 2) ** 2
-            + math.cos(lat1) * math.cos(lat2) * math.sin(dlon / 2) ** 2
-        )
-        return 2 * radius_m * math.asin(math.sqrt(value))
+        return distance_between_points(first, second)
 
     def start_route(self) -> None:
         with self.lock:
@@ -112,6 +131,14 @@ class RouteDatabase:
                 return
             latitude = float(measurement["latitude"])
             longitude = float(measurement["longitude"])
+            captured_at_ms = int(measurement.get("captured_at_ms", 0) or 0)
+            captured_at = (
+                datetime.fromtimestamp(
+                    captured_at_ms / 1000, tz=timezone.utc
+                ).replace(tzinfo=None)
+                if captured_at_ms > 0
+                else None
+            )
             point = (latitude, longitude)
             if self.previous_point is not None:
                 self.distance_m += self._distance_m(self.previous_point, point)
@@ -119,13 +146,14 @@ class RouteDatabase:
             cursor.execute(
             """
             INSERT INTO route_points
-                (route_id, recorded_at, latitude, longitude, altitude_m,
-                 satellites, hdop)
-            VALUES (%s, %s, %s, %s, %s, %s, %s)
+                (route_id, recorded_at, captured_at, latitude, longitude,
+                 altitude_m, satellites, hdop)
+            VALUES (%s, %s, %s, %s, %s, %s, %s, %s)
             """,
                 (
                     self.route_id,
                     self._now(),
+                    captured_at,
                     latitude,
                     longitude,
                     measurement.get("altitude"),
@@ -175,7 +203,8 @@ class RouteDatabase:
             cursor = self.connection.cursor(dictionary=True)
             cursor.execute(
                 f"""
-                SELECT id, name, started_at, finished_at, point_count, distance_m
+                SELECT id, name, started_at, finished_at, point_count,
+                       distance_m, is_valid, invalid_reason
                 FROM routes
                 ORDER BY {order}
                 """
@@ -199,3 +228,34 @@ class RouteDatabase:
             points = [(float(latitude), float(longitude)) for latitude, longitude in cursor]
             cursor.close()
             return points
+
+    def get_statistics(self) -> RouteStatistics:
+        with self.lock:
+            cursor = self.connection.cursor()
+            try:
+                cursor.execute(
+                    """
+                    SELECT id, name, distance_m, started_at, finished_at
+                    FROM routes
+                    WHERE finished_at IS NOT NULL AND is_valid = 1
+                    ORDER BY finished_at, id
+                    """
+                )
+                routes = cursor.fetchall()
+            finally:
+                cursor.close()
+
+            cursor = self.connection.cursor()
+            try:
+                cursor.execute(
+                    """
+                    SELECT p.route_id, p.captured_at, p.latitude, p.longitude
+                    FROM route_points p
+                    JOIN routes r ON r.id = p.route_id
+                    WHERE r.finished_at IS NOT NULL AND r.is_valid = 1
+                    ORDER BY p.route_id, p.recorded_at, p.id
+                    """
+                )
+                return calculate_route_statistics(routes, cursor)
+            finally:
+                cursor.close()

@@ -1,9 +1,9 @@
-set(CMAKE_HOST_SYSTEM "Linux-7.2.15-200.fc44.x86_64")
+set(CMAKE_HOST_SYSTEM "Linux-7.2.11-100.fc43.x86_64")
 set(CMAKE_HOST_SYSTEM_NAME "Linux")
-set(CMAKE_HOST_SYSTEM_VERSION "7.2.15-200.fc44.x86_64")
+set(CMAKE_HOST_SYSTEM_VERSION "7.2.11-100.fc43.x86_64")
 set(CMAKE_HOST_SYSTEM_PROCESSOR "x86_64")
 
-include("/home/lethalsopaper/Documents/9_UNAM_semestre_9/3_fundamentos_de_sistemas_embebidos/proyecto/esp32_firmware/build/bootloader/toolchain/toolchain-esp32s3.cmake")
+include("/home/hansmarcus/Desktop/clases/SistemasEmbebidos/proyecto_sistemas_embebidos/esp32_firmware/build/bootloader/toolchain/toolchain-esp32s3.cmake")
 
 set(CMAKE_SYSTEM "Generic")
 set(CMAKE_SYSTEM_NAME "Generic")

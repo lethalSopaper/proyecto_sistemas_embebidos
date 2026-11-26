@@ -1,0 +1,89 @@
+version: "3.8"
+
+services:
+  mosquitto:
+    image: eclipse-mosquitto:2
+    restart: unless-stopped
+    ports:
+      - "1883:1883"
+    volumes:
+      - ./mosquitto/config:/mosquitto/config:ro
+      - ./mosquitto/data:/mosquitto/data
+      - ./mosquitto/log:/mosquitto/log
+
+  nodered:
+    build:
+      context: ./nodered-config
+    image: proyecto-gps-nodered:1
+    restart: unless-stopped
+    ports:
+      - "1880:1880"
+    environment:
+      MARIADB_HOST: mariadb
+      MARIADB_PORT: "3306"
+      MARIADB_DATABASE: ${MARIADB_DATABASE:-gps}
+      MARIADB_USER: ${MARIADB_USER:-gps_user}
+      MARIADB_PASSWORD: ${MARIADB_PASSWORD:?Define MARIADB_PASSWORD en .env}
+      INFLUXDB_ORG: ${INFLUXDB_ORG:-proyecto}
+      INFLUXDB_BUCKET: ${INFLUXDB_BUCKET:-gps}
+      INFLUXDB_TOKEN: ${INFLUXDB_TOKEN:?Define INFLUXDB_TOKEN en .env}
+      NODERED_ADMIN_USER: ${NODERED_ADMIN_USER:-admin}
+      NODERED_ADMIN_PASSWORD: ${NODERED_ADMIN_PASSWORD:?Define NODERED_ADMIN_PASSWORD en .env}
+      NODERED_HTTP_USER: ${NODERED_HTTP_USER:-admin}
+      NODERED_HTTP_PASSWORD: ${NODERED_HTTP_PASSWORD:?Define NODERED_HTTP_PASSWORD en .env}
+    volumes:
+      - ./nodered:/data
+    depends_on:
+      - mosquitto
+      - influxdb
+      - mariadb
+
+  influxdb:
+    image: influxdb:2
+    restart: unless-stopped
+    ports:
+      - "8086:8086"
+    environment:
+      DOCKER_INFLUXDB_INIT_MODE: setup
+      DOCKER_INFLUXDB_INIT_USERNAME: ${INFLUXDB_USERNAME:?Define INFLUXDB_USERNAME en .env}
+      DOCKER_INFLUXDB_INIT_PASSWORD: ${INFLUXDB_PASSWORD:?Define INFLUXDB_PASSWORD en .env}
+      DOCKER_INFLUXDB_INIT_ORG: ${INFLUXDB_ORG:-proyecto}
+      DOCKER_INFLUXDB_INIT_BUCKET: ${INFLUXDB_BUCKET:-gps}
+      DOCKER_INFLUXDB_INIT_ADMIN_TOKEN: ${INFLUXDB_TOKEN:?Define INFLUXDB_TOKEN en .env}
+    volumes:
+      - ./influxdb:/var/lib/influxdb2
+
+  mariadb:
+    image: mariadb:11
+    restart: unless-stopped
+    ports:
+      - "3306:3306"
+    environment:
+      MARIADB_ROOT_PASSWORD: ${MARIADB_ROOT_PASSWORD:?Define MARIADB_ROOT_PASSWORD en .env}
+      MARIADB_DATABASE: ${MARIADB_DATABASE:-gps}
+      MARIADB_USER: ${MARIADB_USER:-gps_user}
+      MARIADB_PASSWORD: ${MARIADB_PASSWORD:?Define MARIADB_PASSWORD en .env}
+    volumes:
+      - ./mariadb:/var/lib/mysql
+      - ./mariadb-init:/docker-entrypoint-initdb.d:ro
+
+  grafana:
+    image: grafana/grafana:latest
+    restart: unless-stopped
+    ports:
+      - "3000:3000"
+    environment:
+      GF_SECURITY_ADMIN_USER: ${GRAFANA_ADMIN_USER:-admin}
+      GF_SECURITY_ADMIN_PASSWORD: ${GRAFANA_ADMIN_PASSWORD:?Define GRAFANA_ADMIN_PASSWORD en .env}
+      MARIADB_DATABASE: ${MARIADB_DATABASE:-gps}
+      MARIADB_USER: ${MARIADB_USER:-gps_user}
+      MARIADB_PASSWORD: ${MARIADB_PASSWORD:?Define MARIADB_PASSWORD en .env}
+      INFLUXDB_ORG: ${INFLUXDB_ORG:-proyecto}
+      INFLUXDB_BUCKET: ${INFLUXDB_BUCKET:-gps}
+      INFLUXDB_TOKEN: ${INFLUXDB_TOKEN:?Define INFLUXDB_TOKEN en .env}
+    volumes:
+      - ./grafana:/var/lib/grafana
+      - ./grafana/provisioning:/etc/grafana/provisioning:ro
+    depends_on:
+      - influxdb
+      - mariadb

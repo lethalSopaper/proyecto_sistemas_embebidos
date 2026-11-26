@@ -6,6 +6,8 @@ CREATE TABLE IF NOT EXISTS routes (
     finished_at DATETIME(6) NULL,
     point_count INT UNSIGNED NOT NULL DEFAULT 0,
     distance_m DOUBLE NULL,
+    is_valid BOOLEAN NOT NULL DEFAULT TRUE,
+    invalid_reason VARCHAR(255) NULL,
     PRIMARY KEY (id),
     INDEX idx_routes_device_started (device_id, started_at)
 );
@@ -14,6 +16,7 @@ CREATE TABLE IF NOT EXISTS route_points (
     id BIGINT UNSIGNED NOT NULL AUTO_INCREMENT,
     route_id BIGINT UNSIGNED NOT NULL,
     recorded_at DATETIME(6) NOT NULL,
+    captured_at DATETIME(6) NULL,
     latitude DOUBLE NOT NULL,
     longitude DOUBLE NOT NULL,
     altitude_m DOUBLE NULL,

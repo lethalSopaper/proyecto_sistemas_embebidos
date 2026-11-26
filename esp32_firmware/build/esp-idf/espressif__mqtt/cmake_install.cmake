@@ -1,4 +1,4 @@
-# Install script for directory: /home/lethalsopaper/Documents/9_UNAM_semestre_9/3_fundamentos_de_sistemas_embebidos/proyecto/esp32_firmware/managed_components/espressif__mqtt
+# Install script for directory: /home/hansmarcus/Desktop/clases/SistemasEmbebidos/proyecto_sistemas_embebidos/esp32_firmware/managed_components/espressif__mqtt
 
 # Set the install prefix
 if(NOT DEFINED CMAKE_INSTALL_PREFIX)
@@ -34,22 +34,22 @@ endif()
 
 # Set path to fallback-tool for dependency-resolution.
 if(NOT DEFINED CMAKE_OBJDUMP)
-  set(CMAKE_OBJDUMP "/home/lethalsopaper/.espressif/tools/xtensa-esp-elf/esp-15.2.0_20251204/xtensa-esp-elf/bin/xtensa-esp32s3-elf-objdump")
+  set(CMAKE_OBJDUMP "/home/hansmarcus/.espressif/tools/xtensa-esp-elf/esp-15.2.0_20251204/xtensa-esp-elf/bin/xtensa-esp32s3-elf-objdump")
 endif()
 
 if(NOT CMAKE_INSTALL_LOCAL_ONLY)
   # Include the install script for the subdirectory.
-  include("/home/lethalsopaper/Documents/9_UNAM_semestre_9/3_fundamentos_de_sistemas_embebidos/proyecto/esp32_firmware/build/esp-idf/espressif__mqtt/lib/mqtt_utils/cmake_install.cmake")
+  include("/home/hansmarcus/Desktop/clases/SistemasEmbebidos/proyecto_sistemas_embebidos/esp32_firmware/build/esp-idf/espressif__mqtt/lib/mqtt_utils/cmake_install.cmake")
 endif()
 
 if(NOT CMAKE_INSTALL_LOCAL_ONLY)
   # Include the install script for the subdirectory.
-  include("/home/lethalsopaper/Documents/9_UNAM_semestre_9/3_fundamentos_de_sistemas_embebidos/proyecto/esp32_firmware/build/esp-idf/espressif__mqtt/lib/mqtt_outbox/cmake_install.cmake")
+  include("/home/hansmarcus/Desktop/clases/SistemasEmbebidos/proyecto_sistemas_embebidos/esp32_firmware/build/esp-idf/espressif__mqtt/lib/mqtt_outbox/cmake_install.cmake")
 endif()
 
 string(REPLACE ";" "\n" CMAKE_INSTALL_MANIFEST_CONTENT
        "${CMAKE_INSTALL_MANIFEST_FILES}")
 if(CMAKE_INSTALL_LOCAL_ONLY)
-  file(WRITE "/home/lethalsopaper/Documents/9_UNAM_semestre_9/3_fundamentos_de_sistemas_embebidos/proyecto/esp32_firmware/build/esp-idf/espressif__mqtt/install_local_manifest.txt"
+  file(WRITE "/home/hansmarcus/Desktop/clases/SistemasEmbebidos/proyecto_sistemas_embebidos/esp32_firmware/build/esp-idf/espressif__mqtt/install_local_manifest.txt"
      "${CMAKE_INSTALL_MANIFEST_CONTENT}")
 endif()

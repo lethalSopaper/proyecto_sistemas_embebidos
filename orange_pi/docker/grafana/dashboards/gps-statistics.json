@@ -1,0 +1,436 @@
+{
+  "annotations": {
+    "list": []
+  },
+  "editable": false,
+  "fiscalYearStartMonth": 0,
+  "graphTooltip": 0,
+  "id": null,
+  "links": [],
+  "panels": [
+    {
+      "datasource": {
+        "type": "mysql",
+        "uid": "mariadb-gps"
+      },
+      "fieldConfig": {
+        "defaults": {
+          "color": {
+            "mode": "thresholds"
+          },
+          "mappings": [],
+          "thresholds": {
+            "mode": "absolute",
+            "steps": [
+              {
+                "color": "green",
+                "value": null
+              },
+              {
+                "color": "red",
+                "value": 100
+              }
+            ]
+          },
+          "unit": "velocitykmh"
+        },
+        "overrides": []
+      },
+      "gridPos": {
+        "h": 5,
+        "w": 12,
+        "x": 0,
+        "y": 0
+      },
+      "id": 1,
+      "options": {
+        "colorMode": "value",
+        "graphMode": "area",
+        "justifyMode": "auto",
+        "orientation": "auto",
+        "reduceOptions": {
+          "calcs": [
+            "lastNotNull"
+          ],
+          "fields": "",
+          "values": false
+        },
+        "textMode": "auto"
+      },
+      "targets": [
+        {
+          "datasource": {
+            "type": "mysql",
+            "uid": "mariadb-gps"
+          },
+          "format": "table",
+          "rawSql": "WITH ordered_points AS (\n  SELECT p.route_id, p.id, p.captured_at, p.latitude, p.longitude,\n    LAG(p.captured_at) OVER (PARTITION BY p.route_id ORDER BY p.recorded_at, p.id) AS previous_captured_at,\n    LAG(p.latitude) OVER (PARTITION BY p.route_id ORDER BY p.recorded_at, p.id) AS previous_latitude,\n    LAG(p.longitude) OVER (PARTITION BY p.route_id ORDER BY p.recorded_at, p.id) AS previous_longitude\n  FROM route_points p\n  JOIN routes r ON r.id = p.route_id\n  WHERE r.finished_at IS NOT NULL AND r.is_valid = 1\n), segments AS (\n  SELECT\n    2 * 6371000 * ASIN(SQRT(LEAST(1.0,\n      POWER(SIN(RADIANS(latitude - previous_latitude) / 2), 2) +\n      COS(RADIANS(previous_latitude)) * COS(RADIANS(latitude)) *\n      POWER(SIN(RADIANS(longitude - previous_longitude) / 2), 2)\n    ))) AS distance_m,\n    TIMESTAMPDIFF(MICROSECOND, previous_captured_at, captured_at) / 1000000.0 AS elapsed_seconds\n  FROM ordered_points\n  WHERE previous_captured_at IS NOT NULL AND captured_at IS NOT NULL\n)\nSELECT COALESCE(MAX(distance_m / elapsed_seconds * 3.6), 0) AS value\nFROM segments\nWHERE elapsed_seconds > 0;",
+          "refId": "A"
+        }
+      ],
+      "title": "Velocidad máxima registrada",
+      "type": "stat"
+    },
+    {
+      "datasource": {
+        "type": "mysql",
+        "uid": "mariadb-gps"
+      },
+      "fieldConfig": {
+        "defaults": {
+          "color": {
+            "mode": "palette-classic"
+          },
+          "mappings": [],
+          "thresholds": {
+            "mode": "absolute",
+            "steps": [
+              {
+                "color": "green",
+                "value": null
+              }
+            ]
+          },
+          "unit": "velocitykmh"
+        },
+        "overrides": []
+      },
+      "gridPos": {
+        "h": 5,
+        "w": 12,
+        "x": 12,
+        "y": 0
+      },
+      "id": 2,
+      "options": {
+        "colorMode": "value",
+        "graphMode": "area",
+        "justifyMode": "auto",
+        "orientation": "auto",
+        "reduceOptions": {
+          "calcs": [
+            "lastNotNull"
+          ],
+          "fields": "",
+          "values": false
+        },
+        "textMode": "auto"
+      },
+      "targets": [
+        {
+          "datasource": {
+            "type": "mysql",
+            "uid": "mariadb-gps"
+          },
+          "format": "table",
+          "rawSql": "WITH route_times AS (\n  SELECT p.route_id, MIN(p.captured_at) AS first_captured_at,\n    MAX(p.captured_at) AS last_captured_at,\n    COUNT(*) AS point_count, COUNT(p.captured_at) AS timed_point_count\n  FROM route_points p\n  JOIN routes r ON r.id = p.route_id\n  WHERE r.finished_at IS NOT NULL AND r.is_valid = 1\n  GROUP BY p.route_id\n)\nSELECT COALESCE(\n  SUM(r.distance_m) * 3.6 /\n    NULLIF(SUM(TIMESTAMPDIFF(MICROSECOND, rt.first_captured_at, rt.last_captured_at) / 1000000.0), 0),\n  0\n) AS value\nFROM routes r\nJOIN route_times rt ON rt.route_id = r.id\nWHERE r.finished_at IS NOT NULL AND r.is_valid = 1\n  AND rt.point_count = rt.timed_point_count\n  AND rt.last_captured_at > rt.first_captured_at\n  AND r.distance_m IS NOT NULL;",
+          "refId": "A"
+        }
+      ],
+      "title": "Velocidad promedio del trayecto",
+      "type": "stat"
+    },
+    {
+      "datasource": {
+        "type": "mysql",
+        "uid": "mariadb-gps"
+      },
+      "fieldConfig": {
+        "defaults": {
+          "color": {
+            "mode": "palette-classic"
+          },
+          "mappings": [],
+          "thresholds": {
+            "mode": "absolute",
+            "steps": [
+              {
+                "color": "green",
+                "value": null
+              }
+            ]
+          },
+          "unit": "lengthkm"
+        },
+        "overrides": []
+      },
+      "gridPos": {
+        "h": 5,
+        "w": 12,
+        "x": 0,
+        "y": 5
+      },
+      "id": 3,
+      "options": {
+        "colorMode": "value",
+        "graphMode": "area",
+        "justifyMode": "auto",
+        "orientation": "auto",
+        "reduceOptions": {
+          "calcs": [
+            "lastNotNull"
+          ],
+          "fields": "",
+          "values": false
+        },
+        "textMode": "auto"
+      },
+      "targets": [
+        {
+          "datasource": {
+            "type": "mysql",
+            "uid": "mariadb-gps"
+          },
+          "format": "table",
+          "rawSql": "SELECT COALESCE(SUM(distance_m) / 1000.0, 0) AS value\nFROM routes\nWHERE finished_at IS NOT NULL AND is_valid = 1;",
+          "refId": "A"
+        }
+      ],
+      "title": "Distancia total",
+      "type": "stat"
+    },
+    {
+      "datasource": {
+        "type": "mysql",
+        "uid": "mariadb-gps"
+      },
+      "fieldConfig": {
+        "defaults": {
+          "color": {
+            "mode": "palette-classic"
+          },
+          "mappings": [],
+          "thresholds": {
+            "mode": "absolute",
+            "steps": [
+              {
+                "color": "green",
+                "value": null
+              }
+            ]
+          },
+          "unit": "lengthkm"
+        },
+        "overrides": []
+      },
+      "gridPos": {
+        "h": 5,
+        "w": 12,
+        "x": 12,
+        "y": 5
+      },
+      "id": 4,
+      "options": {
+        "colorMode": "value",
+        "graphMode": "area",
+        "justifyMode": "auto",
+        "orientation": "auto",
+        "reduceOptions": {
+          "calcs": [
+            "lastNotNull"
+          ],
+          "fields": "",
+          "values": false
+        },
+        "textMode": "auto"
+      },
+      "targets": [
+        {
+          "datasource": {
+            "type": "mysql",
+            "uid": "mariadb-gps"
+          },
+          "format": "table",
+          "rawSql": "SELECT COALESCE(MAX(distance_m) / 1000.0, 0) AS value\nFROM routes\nWHERE finished_at IS NOT NULL AND is_valid = 1;",
+          "refId": "A"
+        }
+      ],
+      "title": "Ruta más larga",
+      "type": "stat"
+    },
+    {
+      "datasource": {
+        "type": "mysql",
+        "uid": "mariadb-gps"
+      },
+      "fieldConfig": {
+        "defaults": {
+          "color": {
+            "mode": "palette-classic"
+          },
+          "custom": {
+            "drawStyle": "line",
+            "lineWidth": 2,
+            "showPoints": "auto"
+          },
+          "mappings": [],
+          "thresholds": {
+            "mode": "absolute",
+            "steps": [
+              {
+                "color": "green",
+                "value": null
+              }
+            ]
+          },
+          "unit": "velocitykmh"
+        },
+        "overrides": []
+      },
+      "gridPos": {
+        "h": 8,
+        "w": 24,
+        "x": 0,
+        "y": 10
+      },
+      "id": 5,
+      "options": {
+        "legend": {
+          "displayMode": "list",
+          "placement": "bottom",
+          "showLegend": true
+        },
+        "tooltip": {
+          "mode": "single",
+          "sort": "none"
+        }
+      },
+      "targets": [
+        {
+          "datasource": {
+            "type": "mysql",
+            "uid": "mariadb-gps"
+          },
+          "format": "time_series",
+          "rawSql": "WITH ordered_points AS (\n  SELECT p.route_id, p.id, p.captured_at, p.latitude, p.longitude,\n    LAG(p.captured_at) OVER (PARTITION BY p.route_id ORDER BY p.recorded_at, p.id) AS previous_captured_at,\n    LAG(p.latitude) OVER (PARTITION BY p.route_id ORDER BY p.recorded_at, p.id) AS previous_latitude,\n    LAG(p.longitude) OVER (PARTITION BY p.route_id ORDER BY p.recorded_at, p.id) AS previous_longitude\n  FROM route_points p\n  JOIN routes r ON r.id = p.route_id\n  WHERE r.finished_at IS NOT NULL AND r.is_valid = 1 AND $__timeFilter(r.finished_at)\n), segments AS (\n  SELECT route_id,\n    2 * 6371000 * ASIN(SQRT(LEAST(1.0,\n      POWER(SIN(RADIANS(latitude - previous_latitude) / 2), 2) +\n      COS(RADIANS(previous_latitude)) * COS(RADIANS(latitude)) *\n      POWER(SIN(RADIANS(longitude - previous_longitude) / 2), 2)\n    ))) /\n    NULLIF(TIMESTAMPDIFF(MICROSECOND, previous_captured_at, captured_at) / 1000000.0, 0) * 3.6 AS speed_kmh\n  FROM ordered_points\n  WHERE previous_captured_at IS NOT NULL AND captured_at IS NOT NULL\n), route_speeds AS (\n  SELECT route_id, MAX(speed_kmh) AS speed_kmh\n  FROM segments\n  GROUP BY route_id\n)\nSELECT r.finished_at AS time,\n  COALESCE(rs.speed_kmh, 0) AS value,\n  COALESCE(r.name, CONCAT('Ruta ', r.id)) AS metric\nFROM routes r\nLEFT JOIN route_speeds rs ON rs.route_id = r.id\nWHERE r.finished_at IS NOT NULL AND r.is_valid = 1 AND $__timeFilter(r.finished_at)\nORDER BY r.finished_at;",
+          "refId": "A"
+        }
+      ],
+      "title": "Velocidad máxima por ruta",
+      "type": "timeseries"
+    },
+    {
+      "datasource": {
+        "type": "mysql",
+        "uid": "mariadb-gps"
+      },
+      "fieldConfig": {
+        "defaults": {
+          "color": {
+            "mode": "palette-classic"
+          },
+          "custom": {
+            "drawStyle": "line",
+            "lineWidth": 2,
+            "showPoints": "auto"
+          },
+          "mappings": [],
+          "thresholds": {
+            "mode": "absolute",
+            "steps": [
+              {
+                "color": "green",
+                "value": null
+              }
+            ]
+          },
+          "unit": "velocitykmh"
+        },
+        "overrides": []
+      },
+      "gridPos": {
+        "h": 8,
+        "w": 24,
+        "x": 0,
+        "y": 18
+      },
+      "id": 6,
+      "options": {
+        "legend": {
+          "displayMode": "list",
+          "placement": "bottom",
+          "showLegend": true
+        },
+        "tooltip": {
+          "mode": "single",
+          "sort": "none"
+        }
+      },
+      "targets": [
+        {
+          "datasource": {
+            "type": "mysql",
+            "uid": "mariadb-gps"
+          },
+          "format": "time_series",
+          "rawSql": "WITH route_times AS (\n  SELECT p.route_id, MIN(p.captured_at) AS first_captured_at,\n    MAX(p.captured_at) AS last_captured_at,\n    COUNT(*) AS point_count, COUNT(p.captured_at) AS timed_point_count\n  FROM route_points p\n  JOIN routes r ON r.id = p.route_id\n  WHERE r.is_valid = 1\n  GROUP BY p.route_id\n)\nSELECT r.finished_at AS time,\n  r.distance_m * 3.6 /\n    NULLIF(TIMESTAMPDIFF(MICROSECOND, rt.first_captured_at, rt.last_captured_at) / 1000000.0, 0) AS value,\n  COALESCE(r.name, CONCAT('Ruta ', r.id)) AS metric\nFROM routes r\nJOIN route_times rt ON rt.route_id = r.id\nWHERE r.finished_at IS NOT NULL AND r.is_valid = 1\n  AND $__timeFilter(r.finished_at)\n  AND rt.point_count = rt.timed_point_count\n  AND rt.last_captured_at > rt.first_captured_at\n  AND r.distance_m IS NOT NULL\nORDER BY r.finished_at;",
+          "refId": "A"
+        }
+      ],
+      "title": "Velocidad promedio por ruta",
+      "type": "timeseries"
+    },
+    {
+      "datasource": {
+        "type": "mysql",
+        "uid": "mariadb-gps"
+      },
+      "fieldConfig": {
+        "defaults": {
+          "mappings": [],
+          "custom": {
+            "align": "auto",
+            "cellOptions": {
+              "type": "auto"
+            },
+            "inspect": false
+          }
+        },
+        "overrides": []
+      },
+      "gridPos": {
+        "h": 8,
+        "w": 24,
+        "x": 0,
+        "y": 26
+      },
+      "id": 7,
+      "options": {
+        "cellHeight": "sm",
+        "showHeader": true
+      },
+      "targets": [
+        {
+          "datasource": {
+            "type": "mysql",
+            "uid": "mariadb-gps"
+          },
+          "format": "table",
+          "rawSql": "SELECT started_at AS time,\n  COALESCE(name, CONCAT('Ruta ', id)) AS ruta,\n  distance_m / 1000.0 AS distancia_km\nFROM routes\nWHERE finished_at IS NOT NULL AND is_valid = 1\n  AND $__timeFilter(started_at)\nORDER BY started_at DESC\nLIMIT 50;",
+          "refId": "A"
+        }
+      ],
+      "title": "Distancia por ruta",
+      "type": "table"
+    }
+  ],
+  "refresh": "1m",
+  "description": "Resumen y tendencias históricas de recorridos GPS finalizados.",
+  "schemaVersion": 39,
+  "tags": [
+    "gps",
+    "mariadb"
+  ],
+  "templating": {
+    "list": []
+  },
+  "time": {
+    "from": "now-30d",
+    "to": "now"
+  },
+  "timepicker": {},
+  "timezone": "browser",
+  "title": "Estadísticas GPS",
+  "uid": "gps-stats",
+  "version": 1
+}

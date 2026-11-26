@@ -1,0 +1,22 @@
+XIAO ESP32-S3 PINOUT CONNECTIONS
+
+1. POWER (Shared)
+- 3.3V Pin ---> OLED VCC  +  GPS VCC
+- GND Pin  ---> OLED GND  +  GPS GND
+
+2. OLED DISPLAY
+- Pin D8   ---> OLED SDA
+- Pin D7   ---> OLED SCL
+
+3. NEO-6M GPS
+- Pin D1   ---> GPS TX
+- Pin D2   ---> GPS RX
+
+4. MODE BUTTON
+- Pin D0   ---> Push button ---> GND
+- Internal pull-up enabled in firmware
+- Button press toggles between GPS monitoring and WiFi/MQTT upload mode
+
+5. OTHER (Do not use)
+- Pin D4   ---> Occupied by green wire
+- Pin D5   ---> Occupied by green wire

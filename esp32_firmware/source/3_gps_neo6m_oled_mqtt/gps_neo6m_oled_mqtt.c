@@ -56,6 +56,10 @@ static bool wifi_started;
 static nvs_handle_t storage;
 static char active_wifi_ssid[WIFI_SSID_LENGTH];
 static size_t last_uploaded_count;
+static bool gps_date_available;
+static bool gps_time_warning_logged;
+static int64_t gps_date_days;
+static int32_t gps_rmc_time_ms;
 
 typedef struct {
     bool valid;
@@ -64,17 +68,26 @@ typedef struct {
     double altitude_m;
     double hdop;
     int satellites;
+    uint64_t captured_at_ms;
 } gps_measurement_t;
+
+typedef struct {
+    bool valid;
+    double latitude;
+    double longitude;
+    double altitude_m;
+    double hdop;
+    int satellites;
+} gps_legacy_measurement_t;
 
 static gps_measurement_t measurements[MAX_MEASUREMENTS];
 static size_t measurement_count;
 
 typedef struct {
     uint32_t count;
-    gps_measurement_t data[MAX_MEASUREMENTS];
-} measurement_store_t;
-
-static measurement_store_t measurement_store;
+    gps_legacy_measurement_t data[MAX_MEASUREMENTS];
+} legacy_measurement_store_t;
+static legacy_measurement_store_t legacy_measurement_store;
 static char measurement_key[16];
 static char mqtt_status_topic[128];
 static char mqtt_payload[192];
@@ -120,12 +133,40 @@ static void load_measurements(void)
         for (size_t chunk = 0; measurement_count < stored_count; chunk++) {
             size_t items = stored_count - measurement_count;
             if (items > MEASUREMENT_CHUNK_SIZE) items = MEASUREMENT_CHUNK_SIZE;
-            size_t size = items * sizeof(measurements[0]);
             snprintf(measurement_key, sizeof(measurement_key), "m%02u",
                      (unsigned)chunk);
-            error = nvs_get_blob(storage, measurement_key,
-                                 &measurements[measurement_count], &size);
-            if (error != ESP_OK || size != items * sizeof(measurements[0])) {
+            size_t size = 0;
+            error = nvs_get_blob(storage, measurement_key, NULL, &size);
+            if (error == ESP_OK &&
+                size == items * sizeof(measurements[0])) {
+                error = nvs_get_blob(
+                    storage, measurement_key,
+                    &measurements[measurement_count], &size
+                );
+            } else if (error == ESP_OK &&
+                       size == items * sizeof(gps_legacy_measurement_t)) {
+                gps_legacy_measurement_t legacy[MEASUREMENT_CHUNK_SIZE];
+                error = nvs_get_blob(
+                    storage, measurement_key, legacy, &size
+                );
+                if (error == ESP_OK) {
+                    for (size_t i = 0; i < items; i++) {
+                        measurements[measurement_count + i] =
+                            (gps_measurement_t){
+                                .valid = legacy[i].valid,
+                                .latitude = legacy[i].latitude,
+                                .longitude = legacy[i].longitude,
+                                .altitude_m = legacy[i].altitude_m,
+                                .hdop = legacy[i].hdop,
+                                .satellites = legacy[i].satellites,
+                                .captured_at_ms = 0,
+                            };
+                    }
+                }
+            } else if (error == ESP_OK) {
+                error = ESP_ERR_NVS_INVALID_LENGTH;
+            }
+            if (error != ESP_OK) {
                 measurement_count = 0;
                 ESP_LOGW(TAG, "No se pudo cargar el bloque %u de mediciones: %s",
                          (unsigned)chunk, esp_err_to_name(error));
@@ -137,16 +178,30 @@ static void load_measurements(void)
     }
 
     /* Compatibility with the single-blob format used by older firmware. */
-    size_t size = sizeof(measurement_store);
-    error = nvs_get_blob(storage, "measurements", &measurement_store, &size);
-    size_t data_offset = offsetof(measurement_store_t, data);
+    memset(&legacy_measurement_store, 0, sizeof(legacy_measurement_store));
+    size_t size = sizeof(legacy_measurement_store);
+    error = nvs_get_blob(
+        storage, "measurements", &legacy_measurement_store, &size
+    );
+    size_t data_offset = offsetof(legacy_measurement_store_t, data);
     size_t expected_size = data_offset +
-                           measurement_store.count * sizeof(measurements[0]);
-    if (error == ESP_OK && measurement_store.count <= MAX_MEASUREMENTS &&
+                           legacy_measurement_store.count *
+                               sizeof(gps_legacy_measurement_t);
+    if (error == ESP_OK &&
+        legacy_measurement_store.count <= MAX_MEASUREMENTS &&
         size >= expected_size) {
-        measurement_count = measurement_store.count;
-        memcpy(measurements, measurement_store.data,
-               measurement_count * sizeof(measurements[0]));
+        measurement_count = legacy_measurement_store.count;
+        for (size_t i = 0; i < measurement_count; i++) {
+            measurements[i] = (gps_measurement_t){
+                .valid = legacy_measurement_store.data[i].valid,
+                .latitude = legacy_measurement_store.data[i].latitude,
+                .longitude = legacy_measurement_store.data[i].longitude,
+                .altitude_m = legacy_measurement_store.data[i].altitude_m,
+                .hdop = legacy_measurement_store.data[i].hdop,
+                .satellites = legacy_measurement_store.data[i].satellites,
+                .captured_at_ms = 0,
+            };
+        }
     } else if (error != ESP_ERR_NVS_NOT_FOUND) {
         ESP_LOGW(TAG, "No se pudieron cargar las mediciones de NVS: %s",
                  esp_err_to_name(error));
@@ -439,8 +494,9 @@ static bool upload_measurements(void)
         gps_measurement_t *m = &measurements[i];
         snprintf(
             mqtt_payload, sizeof(mqtt_payload),
-            "{\"latitude\":%.6f,\"longitude\":%.6f,\"altitude\":%.2f,\"satellites\":%d,\"hdop\":%.2f}",
-            m->latitude, m->longitude, m->altitude_m, m->satellites, m->hdop
+            "{\"latitude\":%.6f,\"longitude\":%.6f,\"altitude\":%.2f,\"satellites\":%d,\"hdop\":%.2f,\"captured_at_ms\":%llu}",
+            m->latitude, m->longitude, m->altitude_m, m->satellites, m->hdop,
+            (unsigned long long)m->captured_at_ms
         );
         if (!publish_and_wait(CONFIG_GPS_MQTT_TOPIC, mqtt_payload)) {
             goto upload_failed;
@@ -538,6 +594,89 @@ static bool nmea_coordinate_to_decimal(
     return true;
 }
 
+static int64_t days_from_civil(int year, int month, int day)
+{
+    year -= month <= 2;
+    int era = year / 400;
+    unsigned year_of_era = (unsigned)(year - era * 400);
+    unsigned adjusted_month = (unsigned)(month + (month > 2 ? -3 : 9));
+    unsigned day_of_year = (153 * adjusted_month + 2) / 5 + (unsigned)day - 1;
+    unsigned day_of_era =
+        year_of_era * 365 + year_of_era / 4 - year_of_era / 100 + day_of_year;
+    return (int64_t)era * 146097 + (int64_t)day_of_era - 719468;
+}
+
+static bool parse_time_of_day_ms(const char *value, int32_t *time_ms)
+{
+    int hour = 0;
+    int minute = 0;
+    double second = 0.0;
+    if (value == NULL || sscanf(value, "%2d%2d%lf", &hour, &minute, &second) != 3 ||
+        hour < 0 || hour > 23 || minute < 0 || minute > 59 ||
+        second < 0.0 || second >= 60.0) {
+        return false;
+    }
+    int whole_seconds = (int)second;
+    int milliseconds = (int)((second - whole_seconds) * 1000.0 + 0.5);
+    int64_t result =
+        ((int64_t)hour * 3600 + minute * 60 + whole_seconds) * 1000
+        + milliseconds;
+    if (result >= 86400000) return false;
+    *time_ms = (int32_t)result;
+    return true;
+}
+
+static bool parse_rmc(char *sentence)
+{
+    if (strncmp(sentence, "$GPRMC,", 7) != 0 &&
+        strncmp(sentence, "$GNRMC,", 7) != 0) {
+        return false;
+    }
+    char *fields[15] = {0};
+    size_t count = 0;
+    char *field = strtok(sentence, ",");
+    while (field != NULL && count < 15) {
+        fields[count++] = field;
+        field = strtok(NULL, ",*");
+    }
+    if (count < 10 || strlen(fields[9]) != 6) return true;
+
+    int day = 0;
+    int month = 0;
+    int year_suffix = 0;
+    int32_t rmc_time_ms = 0;
+    if (sscanf(fields[9], "%2d%2d%2d", &day, &month, &year_suffix) != 3 ||
+        !parse_time_of_day_ms(fields[1], &rmc_time_ms)) {
+        return true;
+    }
+    int year = year_suffix >= 80 ? 1900 + year_suffix : 2000 + year_suffix;
+    if (month < 1 || month > 12 || day < 1 || day > 31) return true;
+
+    gps_date_days = days_from_civil(year, month, day);
+    gps_rmc_time_ms = rmc_time_ms;
+    gps_date_available = true;
+    gps_time_warning_logged = false;
+    return true;
+}
+
+static uint64_t captured_at_from_gga(const char *time_of_day)
+{
+    int32_t gga_time_ms = 0;
+    if (!gps_date_available ||
+        !parse_time_of_day_ms(time_of_day, &gga_time_ms)) {
+        return 0;
+    }
+
+    int64_t date_days = gps_date_days;
+    int32_t difference_ms = gga_time_ms - gps_rmc_time_ms;
+    if (difference_ms > 43200000) {
+        date_days--;
+    } else if (difference_ms < -43200000) {
+        date_days++;
+    }
+    return (uint64_t)(date_days * 86400000 + gga_time_ms);
+}
+
 static bool parse_gga(char *sentence, gps_measurement_t *m)
 {
     char *fields[15] = {0};
@@ -565,6 +704,7 @@ static bool parse_gga(char *sentence, gps_measurement_t *m)
     m->satellites = atoi(fields[7]);
     m->hdop = atof(fields[8]);
     m->altitude_m = atof(fields[9]);
+    m->captured_at_ms = captured_at_from_gga(fields[1]);
     return true;
 }
 
@@ -576,8 +716,16 @@ static void process_sentence(char *sentence)
     for (const char *p = sentence + 1; p < checksum; p++) calculated ^= (unsigned char)*p;
     unsigned int expected = 0;
     if (sscanf(checksum + 1, "%2x", &expected) != 1 || calculated != expected) return;
+    if (parse_rmc(sentence)) return;
     gps_measurement_t m = {0};
     if (!parse_gga(sentence, &m) || !m.valid) return;
+    if (m.captured_at_ms == 0) {
+        if (!gps_time_warning_logged) {
+            ESP_LOGW(TAG, "Esperando fecha RMC valida para fechar muestras GPS");
+            gps_time_warning_logged = true;
+        }
+        return;
+    }
     if (upload_mode) return;
     if (measurement_count < MAX_MEASUREMENTS) {
         measurements[measurement_count++] = m;
